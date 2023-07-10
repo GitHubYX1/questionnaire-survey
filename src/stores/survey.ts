@@ -1,0 +1,49 @@
+import { ref } from "vue";
+import { defineStore } from "pinia";
+import type { surveyType } from "@/types/index";
+import storage from "@/utils/storage";
+
+export const editStore = defineStore("edit", () => {
+  const editId = ref(-1);
+  function editCount(id: number) {
+    editId.value = id;
+  }
+  function resetting() {
+    editId.value = -1;
+  }
+  return { editId, editCount, resetting };
+});
+
+export const surveyStore = defineStore("storeData", () => {
+  const surveyData = ref<surveyType[]>(storage.getSession("SURVEYDATA") || []);
+  /**获取调查*/
+  function surveySelected(id: string):surveyType {
+    return surveyData.value.filter((item) => item.id === id)[0];
+  }
+  /**新增调查*/
+  function surveyAdd(survey: surveyType) {
+    surveyData.value.unshift(survey);
+    storage.setSession("SURVEYDATA", surveyData.value);
+  }
+  /**调查修改*/
+  function surveyModify(survey: surveyType) {
+    let index = surveyData.value.findIndex((item) => {
+      return item.id === survey.id;
+    });
+    surveyData.value[index] = survey;
+    storage.setSession("SURVEYDATA", surveyData.value);
+  }
+  /**状态修改*/
+  function stateModify(id:string,state:boolean) {
+    surveyData.value.forEach(item=> {
+      if(item.id==id)item.state = state
+    })
+    storage.setSession("SURVEYDATA", surveyData.value);
+  }
+  /**调查删除*/
+  function surveyErasure(id: string) {
+    surveyData.value = surveyData.value.filter((item) => item.id !== id);
+    storage.setSession("SURVEYDATA", surveyData.value);
+  }
+  return { surveyData, surveySelected, surveyAdd, surveyModify, stateModify, surveyErasure };
+});
