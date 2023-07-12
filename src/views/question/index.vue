@@ -148,7 +148,10 @@ const submitTo = () => {
   background: #fff;
   border-radius: 5px;
   margin-bottom: 10px;
-
+  font-size: 16px;
+  :deep(.ant-form-item-required) {
+    font-size: 16px !important;
+  }
   .ant-form-item {
     margin-bottom: 0;
   }
@@ -161,6 +164,11 @@ const submitTo = () => {
   .item-option {
     width: 100%;
     margin-left: 0;
+    line-height: 40px;
+    font-size: 16px;
+    &:hover{
+      background: #f9f9f9;
+    }
   }
 }
 </style>
