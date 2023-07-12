@@ -75,6 +75,10 @@
   flex-wrap: wrap;
 }
 
+.grid{
+  display: grid;
+}
+
 
 @media (hover: hover) {
   a:hover {

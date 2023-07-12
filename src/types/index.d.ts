@@ -30,6 +30,7 @@ export declare type optionType = {
  * @param type 类型
  * @param option 选项
  * @param must 是否必选
+ * @param column 选项列数
  */
 export declare type questionType = {
   id: number;
@@ -37,6 +38,7 @@ export declare type questionType = {
   type: typeType;
   option: optionType[];
   must: 0 | 1;
+  column: number
 };
 
 declare type Nullable<T> = T | null;

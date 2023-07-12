@@ -1,16 +1,16 @@
 <template>
   <div class="survey-item">
-    <div :class="['survey-title', props.question.must ? 'required' : '']" v-if="props.question.type !== '段落说明'">{{ props.serialNum }}.{{ props.question.title }}
-    </div>
+    <div :class="['survey-title', props.question.must ? 'required' : '']" v-if="props.question.type !== '段落说明'">{{
+      props.serialNum }}.{{ props.question.title }}</div>
     <div v-else v-html="props.question.title"></div>
     <div class="survey-option">
-      <a-radio-group v-if="props.question.type === '单选'">
-        <div v-for="item in props.question.option" :key="item.id"><a-radio :value="item.id">{{ item.content }}</a-radio>
-        </div>
+      <a-radio-group v-if="props.question.type === '单选'" class="grid" :style="generateColumn(props.question.column)" v-model:value="radioData">
+        <a-radio class="flex item-option" v-for="subItem in  props.question.option" :key="subItem.id" :value="subItem.id"
+          :name="subItem.content">{{ subItem.content }}</a-radio>
       </a-radio-group>
-      <a-checkbox-group v-if="props.question.type === '多选'">
-        <div v-for="item in props.question.option" :key="item.id"><a-checkbox :value="item.id">{{
-          item.content }}</a-checkbox></div>
+      <a-checkbox-group v-if="props.question.type === '多选'" class="grid" :style="generateColumn(props.question.column)">
+        <a-checkbox class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id"
+          :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
       </a-checkbox-group>
       <a-input v-if="props.question.type === '填空'" />
       <div class="survey-menu" v-if="edit.editId != props.question.id">
@@ -32,13 +32,19 @@
           <div class="editor-title">
             <p class="title">题目标题：</p><a-input v-model:value="props.question.title" />
           </div>
-          <div class="editor-type">
+          <div class="editor-type flex align-items">
             <a-radio-group v-model:value="typeRadio" :name="'radio' + props.question.id" @change="typeChange">
-              <a-radio value="单选">单选</a-radio>
-              <a-radio value="多选">多选</a-radio>
-              <a-radio value="填空">填空</a-radio>
+              <a-radio class="editor-option" value="单选">单选</a-radio>
+              <a-radio class="editor-option" value="多选">多选</a-radio>
+              <a-radio class="editor-option" value="填空">填空</a-radio>
             </a-radio-group>
-            <a-checkbox v-model:checked="mustBoolean" @change="checkboxChange">必答</a-checkbox>
+            <a-checkbox class="editor-option" v-model:checked="mustBoolean" @change="checkboxChange">必答</a-checkbox>
+            <a-select v-model:value="props.question.column" style="width: 100px;"
+              v-if="props.question.type === '单选' || props.question.type === '多选'">
+              <a-select-option :value="1">一列</a-select-option>
+              <a-select-option :value="2">两列</a-select-option>
+              <a-select-option :value="3">三列</a-select-option>
+            </a-select>
           </div>
         </template>
 
@@ -90,7 +96,7 @@ const props = defineProps({
     type: Number,
     default: 0
   },
-  serialNum:{
+  serialNum: {
     type: Number,
     default: 0
   },
@@ -100,9 +106,13 @@ const props = defineProps({
   },
 })
 
-
+let radioData = ref('')
 const mustBoolean = ref<boolean>(props.question.must == 1 ? true : false);
 const typeRadio = ref<typeType>(props.question.type);
+
+function generateColumn(column: number) {
+  return { 'grid-template-columns': `repeat(${column}, minmax(0, 1fr))` };
+}
 
 //插入数据
 const insertClick = () => {
@@ -214,6 +224,22 @@ const optionMoveClick = (optionIndex: number, action: string) => {
   text-decoration: underline;
 }
 
+.grid .ant-checkbox-group,
+.grid .ant-radio-group {
+  width: 100%;
+}
+
+.item-option {
+  width: 100%;
+  margin: 0;
+  line-height: 40px;
+  font-size: 16px;
+  padding: 0 10px;
+  &:hover {
+    background: #f9f9f9;
+  }
+}
+
 .item-editor {
   padding: 15px;
   border: 1px solid #efefef;
@@ -226,13 +252,21 @@ const optionMoveClick = (optionIndex: number, action: string) => {
     }
   }
 
+  :deep(.ant-table-cell) {
+    padding: 10px;
+  }
+
   .option-icon {
     padding: 0 10px;
     cursor: pointer;
   }
 
   .editor-type {
-    padding: 5px;
+    padding: 10px;
+
+    .editor-option {
+      font-size: 16px;
+    }
   }
 
   .option-tbody-top {
