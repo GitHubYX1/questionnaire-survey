@@ -126,7 +126,15 @@ const copyClick = () => {
 }
 //删除
 const erasureClick = () => {
-  emit('erasure', props.index);
+  Modal.confirm({
+    title: '提示',
+    content: `确认删除？`,
+    okText: '确认',
+    cancelText: '取消',
+    onOk() {
+      emit('erasure', props.index);
+    },
+  });
 }
 //移动
 const moveClick = (action: string) => {
