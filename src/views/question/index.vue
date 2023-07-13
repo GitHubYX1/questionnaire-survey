@@ -29,7 +29,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang='ts' setup>
 import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
@@ -120,7 +120,7 @@ const submitTo = () => {
   });
 };
 </script>
-<style lang="scss" scoped>
+<style lang='scss' scoped>
 .question {
   max-width: 1200px;
   margin: 0 auto;
@@ -176,4 +176,5 @@ const submitTo = () => {
       background: #f9f9f9;
     }
   }
-}</style>
+}
+</style>

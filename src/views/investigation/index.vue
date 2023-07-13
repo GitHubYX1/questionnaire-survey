@@ -5,7 +5,6 @@
         <a-tooltip placement="bottom" title="返回我的项目">
           <home-filled @click="goBack" />
         </a-tooltip>
-
         <span style="margin-left: 20px">{{ surveyInfo.id ? "编辑" : "创建" }}问卷</span>
       </div>
       <div class="header-button flex-between align-items">
@@ -40,6 +39,7 @@
             @optionAdd="optionAdd"
             @optionRemove="optionRemove"
             @optionMove="optionMove"
+            @concern="concern"
           ></survey-item>
           <div class="editor-empty" v-if="surveyInfo.question.length == 0">
             <a-empty description="暂无题目" />
@@ -48,6 +48,7 @@
       </div>
       <editor-title ref="dataTitle" @titleModify="titleModify"></editor-title>
       <batch-add ref="batchModal" @optionBatchAdd="optionBatchAdd"></batch-add>
+      <concern-front ref="concernFrontRef"></concern-front>
     </div>
   </div>
 </template>
@@ -60,6 +61,7 @@ import SurveyControl from "./components/survey-control.vue";
 import SurveyItem from "./components/survey-item.vue";
 import EditorTitle from "./components/editor-title.vue";
 import BatchAdd from "./components/batch-add.vue";
+import ConcernFront from "./components/concern-front.vue"; //题目向前关联
 import { message, Modal } from "ant-design-vue";
 import shortId from "shortid";
 import { mostValue, getTime } from "@/utils/index";
@@ -82,6 +84,7 @@ let surveyInfo = reactive<surveyType>({
 const questionMaxId = ref(1000);
 const dataTitle = ref<any>(null);
 const batchModal = ref<any>(null);
+const concernFrontRef = ref<any>(null);
 const insertNum = ref(-1);
 let optionInit: optionType[] = [
   { id: 1, content: "选项1" },
@@ -284,6 +287,21 @@ const previewClick = () => {
     });
   }
 };
+//题目关联
+const concern = (e: { index: number; id: number; title: string; state: number }) => {
+  let { index, id, title, state } = e;
+  let question:questionType[] = JSON.parse(JSON.stringify(surveyInfo.question))
+  switch (state) {
+    case 1:
+      let data = question.slice(0, index)
+        .map((item, index) => { item.title = (index + 1) + '.' + item.title; return item })
+        .filter(item => item.type !== '段落说明' && item.type !== '填空');
+      concernFrontRef.value.frontOpen(data, title, id);
+      return;
+    default:
+      return;
+  }
+}
 </script>
 
 <style lang="scss" scoped>

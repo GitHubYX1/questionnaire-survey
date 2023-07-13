@@ -3,10 +3,10 @@
       <div class="batch-box">
         <a-textarea v-model:value="optionText"  allow-clear />
       </div>
-    </a-modal>
+  </a-modal>
 </template>
 
-<script lang='ts' setup>
+<script lang="ts" setup>
 import {ref} from 'vue';
 import { Modal } from 'ant-design-vue';
 
@@ -37,7 +37,7 @@ const batchOk = ()=>{
 
 defineExpose({ batchOpen })
 </script> 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .batch-box{
     .ant-input-affix-wrapper{
         height: 200px;

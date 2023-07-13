@@ -70,7 +70,11 @@
             <a-button type="link" size="large" @click="optionAddClick(-2)"> 批量添加</a-button>
           </div>
         </template>
-
+        <div class="logic-set flex align-items">
+          <span>逻辑设置：</span>
+          <a @click="concernClick(1)">题目向前关联</a>
+          <a>复制向前关联</a>
+        </div>
         <a-button type="primary" block size="large" @click="edit.resetting()">完成编辑</a-button>
       </div>
     </div>
@@ -78,14 +82,14 @@
 </template>
 
 <script lang='ts' setup>
-import { ref, type PropType } from 'vue'
-import type { typeType, questionType } from '@/types/index';
-import { Modal } from 'ant-design-vue';
-import { editStore } from '@/stores/survey';
+import { ref, type PropType } from "vue"
+import type { typeType, questionType } from "@/types/index";
+import { Modal } from "ant-design-vue";
+import { editStore } from "@/stores/survey";
 import RichEditor from "./rich-editor.vue";
 
 const edit = editStore();
-const emit = defineEmits(['insert', 'copy', 'erasure', 'move', 'mustSelect', 'typeModify', 'optionAdd', 'optionRemove', 'optionMove'])
+const emit = defineEmits(['insert', 'copy', 'erasure', 'move', 'mustSelect', 'typeModify', 'optionAdd', 'optionRemove', 'optionMove', 'concern']);
 
 const props = defineProps({
   question: {
@@ -182,6 +186,10 @@ const optionRemoveClick = (optionIndex: number) => {
 const optionMoveClick = (optionIndex: number, action: string) => {
   if (optionIndex == 0 && action == '上') return
   emit('optionMove', { index: props.index, optionIndex, action });
+}
+//题目关联
+const concernClick = (state:number)=>{
+  emit('concern',{ index: props.index, id:props.question.id, title:props.question.type, state })
 }
 </script>
 <style lang='scss' scoped>
@@ -283,6 +291,19 @@ const optionMoveClick = (optionIndex: number, action: string) => {
 
   .option-add {
     padding: 5px 0;
+  }
+}
+
+
+.logic-set{
+  background: #e8e8e8;
+  padding: 10px;
+  margin-bottom: 15px;
+  a{
+    margin: 0 15px;
+    &:hover{
+      background: transparent;
+    }
   }
 }
 </style>
