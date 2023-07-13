@@ -1,8 +1,8 @@
 <template>
-  <div :style="'border: 1px solid #ccc;margin-bottom:'+props.marginBottom+'px'">
+  <div :style="'border: 1px solid #ccc;margin-bottom:' + props.marginBottom + 'px'">
     <Toolbar style="border-bottom: 1px solid #ccc" :editor="editorRef" :defaultConfig="toolbarConfig" :mode="mode" />
-    <Editor :style="'height: '+props.height+'px; overflow-y: hidden;'" v-model="valueHtml" :defaultConfig="editorConfig" :mode="mode"
-      @onCreated="handleCreated" @onChange="onChange" />
+    <Editor :style="'height: ' + props.height + 'px; overflow-y: hidden;'" v-model="valueHtml" :defaultConfig="editorConfig"
+      :mode="mode" @onCreated="handleCreated" @onChange="onChange" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -18,13 +18,13 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  height:{
-    type:Number,
-    default:440
+  height: {
+    type: Number,
+    default: 440
   },
-  marginBottom:{
-    type:Number,
-    default:0
+  marginBottom: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -34,10 +34,10 @@ const emit = defineEmits(["update:modelValue"]);
 
 const toolbarConfig = {
   excludeKeys: [
-  'group-video',//不显示插入视频
+    'group-video',//不显示插入视频
     'insertTable',//不显示表格
     'fullScreen',//不显示全屏
-    
+
   ]
 };
 const editorConfig = {
@@ -50,7 +50,7 @@ const editorConfig = {
         reader.readAsDataURL(file) // 读出 base64
         reader.onload = () => {
           const _base64 = reader.result
-          insertFn(_base64,name)
+          insertFn(_base64, name)
         }
       },
       base64LimitSize: 5 * 1024

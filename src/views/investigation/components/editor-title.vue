@@ -7,7 +7,7 @@
       </div>
       <div class="editor-title flex">
         <div class="title">说明</div>
-        <div class="title-rich"><rich-editor v-model="contentValue" ></rich-editor></div>
+        <div class="title-rich"><rich-editor v-model="contentValue"></rich-editor></div>
       </div>
     </div>
   </a-modal>
@@ -22,7 +22,7 @@ const titleValue = ref("");
 const contentValue = ref("");
 const emit = defineEmits(["titleModify"]);
 // 打开
-const open = (title: string,content:string) => {
+const open = (title: string, content: string) => {
   visible.value = true;
   titleValue.value = title;
   contentValue.value = content
@@ -34,11 +34,11 @@ const onCancel = (e: any) => {
 
 const handleOk = () => {
   visible.value = false;
-  if(contentValue.value.replace(/<[^>]+>/g, "")==''){
+  if (contentValue.value.replace(/<[^>]+>/g, "") == '') {
     contentValue.value = ''
   }
-  console.log('打印文本',contentValue.value)
-  emit("titleModify", { title: titleValue.value,content:contentValue.value });
+  console.log('打印文本', contentValue.value)
+  emit("titleModify", { title: titleValue.value, content: contentValue.value });
 };
 
 defineExpose({ open });
@@ -47,6 +47,7 @@ defineExpose({ open });
 .modal-box {
   padding-top: 30px;
 }
+
 .editor-title {
   .title {
     width: 50px;
@@ -54,7 +55,7 @@ defineExpose({ open });
   }
 }
 
-.title-rich{
-    width: 100%;
+.title-rich {
+  width: 100%;
 }
 </style>
