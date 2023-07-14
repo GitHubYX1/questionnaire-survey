@@ -50,6 +50,7 @@
       <editor-title ref="dataTitle" @titleModify="titleModify"></editor-title>
       <batch-add ref="batchModal" @optionBatchAdd="optionBatchAdd"></batch-add>
       <concern-front ref="concernFrontRef" @getFront="getFront"></concern-front>
+      <concern-copy ref="concernCopyRef" @getCopy="getCopy"></concern-copy>
     </div>
   </div>
 </template>
@@ -63,6 +64,7 @@ import SurveyItem from "./components/survey-item.vue";
 import EditorTitle from "./components/editor-title.vue";
 import BatchAdd from "./components/batch-add.vue";
 import ConcernFront from "./components/concern-front.vue"; //题目向前关联
+import ConcernCopy from "./components/concern-copy.vue"; //复制向前关联
 import { message, Modal } from "ant-design-vue";
 import shortId from "shortid";
 import { mostValue, getTime } from "@/utils/index";
@@ -87,6 +89,7 @@ const questionMaxId = ref(1000);
 const dataTitle = ref<any>(null);
 const batchModal = ref<any>(null);
 const concernFrontRef = ref<any>(null);
+const concernCopyRef = ref<any>(null);
 const insertNum = ref(-1);
 let optionInit=():optionType[] => {
   return [
@@ -295,14 +298,17 @@ const previewClick = () => {
 //题目关联
 const concern = (e: { index: number; id: number; title: string; state: number }) => {
   let { index, id, title, state } = e;
-  let question:questionType[] = JSON.parse(JSON.stringify(surveyInfo.question))
-  let controlLogic = surveyInfo.controlLogic.find(item=> item.childId === id);
+  let question: questionType[] = JSON.parse(JSON.stringify(surveyInfo.question))
+  let controlLogic = surveyInfo.controlLogic.find(item => item.childId === id);
   switch (state) {
     case 1:
       let data = question.slice(0, index).filter(item => item.type !== '段落说明');
       concernFrontRef.value.frontOpen(data, title, id, controlLogic);
       return;
     case 2:
+    if (!controlLogic) return message.info("此题没有关联逻辑，无法复制！");
+      let data2 = question.slice(index + 1);
+      concernCopyRef.value.copyOpen(data2,title,id,controlLogic)
       return
     default:
       return;
@@ -335,6 +341,20 @@ const getFront = (front:controlLogicType) =>{
     surveyInfo.controlLogic.push(front)
   }else{
     surveyInfo.controlLogic[index] = front
+  }
+}
+//复制关联
+const getCopy = (e:{id:number,childId:number[]})=>{
+  let childId = e.childId
+  let controlLogic = surveyInfo.controlLogic.find(item=> item.childId === e.id);
+  if(e.childId.length != 0 && controlLogic){
+    surveyInfo.controlLogic = surveyInfo.controlLogic.filter(item=>e.childId.indexOf(item.childId)===-1);
+   let data:controlLogicType[] = []
+   for(let i in childId){
+    data.push({...controlLogic,childId:childId[i]})
+   }
+   surveyInfo.controlLogic = surveyInfo.controlLogic.concat(data)
+    console.log('surveyInfo.controlLogic',surveyInfo.controlLogic)
   }
 }
 </script>

@@ -216,7 +216,7 @@ const concernClick = (state: number) => {
   emit("concern", {
     index: props.index,
     id: props.question.id,
-    title: props.question.type,
+    title: props.question.title,
     state,
   });
 };
