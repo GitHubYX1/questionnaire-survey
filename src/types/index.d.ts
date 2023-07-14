@@ -41,6 +41,20 @@ export declare type questionType = {
   column: number
 };
 
+/**
+ * 控制逻辑
+ * @param questionIds 题目id
+ * @param childId 子id (子id代表当前控制题目)
+ * @param parentAnswer 题目答案
+ * @param condition 且 | 或
+ */
+export declare type controlLogicType = {
+  questionIds:string,
+  childId:number,
+  parentAnswer:string,
+  condition:'and' | 'or',
+}
+
 declare type Nullable<T> = T | null;
 /**
  * 问卷调查
@@ -51,6 +65,7 @@ declare type Nullable<T> = T | null;
  * @param modifyTime 修改时间
  * @param state 问卷状态
  * @param question 问卷题目
+ * @param controlLogic 控制逻辑
  */
 export declare type surveyType = {
   id: string;
@@ -60,6 +75,7 @@ export declare type surveyType = {
   modifyTime: string;
   state: boolean;
   question: questionType[];
+  controlLogic:controlLogicType[]
 };
 
 /**

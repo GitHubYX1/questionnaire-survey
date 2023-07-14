@@ -29,6 +29,17 @@
           </div>
         </div>
       </a-form>
+      <div class="front-radio" v-if="concernData.length > 1">
+        <div class="front-title flex">
+          <div class="front-text">关联多题时：</div> <span>多题（每个矩阵行标题视为一题）间</span>
+        </div>
+        <div class="front-option">
+          <a-radio-group v-model:value="conditionValue" name="radioGroup">
+            <a-radio value="and"> 为“且”的关系</a-radio>
+            <a-radio value="or"> 为“或”的关系</a-radio>
+          </a-radio-group>
+        </div>
+      </div>
     </div>
   </a-modal>
 </template>
@@ -36,7 +47,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { message } from "ant-design-vue";
-import type { optionType, questionType } from "@/types/index";
+import type { optionType, questionType, controlLogicType } from "@/types/index";
 
 interface selectType {
   value: number;
@@ -53,28 +64,46 @@ const frontVisible = ref(false);
 const questions = ref<questionType[]>([]);
 const titleText = ref('')
 const options = ref<selectType[]>([])
-const formFront = ref<Record<string, any>>({});
-
+const formFront = ref<Record<number, number[]>>({});
+const childId = ref<number>(0)
 const concernData = ref<concernType[]>([])
+const conditionValue = ref<'and' | 'or'>('and')
+
+const emit = defineEmits(['getFront'])
 
 const filterOption = (input: string, option: selectType) => {
   return option.label.toUpperCase().indexOf(input.toUpperCase()) >= 0;
 };
 
 // 打开
-const frontOpen = (data: questionType[], title: string, id: number) => {
-  if(data.length === 0) return message.info("此题前面没有选项题，无法设置关联逻辑！"); 
-  frontVisible.value = true
+const frontOpen = (data: questionType[], title: string, id: number, controlLogic: controlLogicType | undefined) => {
+  if (data.length === 0) return message.info("此题前面没有选项题，无法设置关联逻辑！");
+  frontVisible.value = true;
   concernData.value = [{
     value: '',
     id: 0,
     option: []
-  }]
-  formFront.value = {}
-  questions.value = data
-  titleText.value = title
-  options.value = data.map((item, index) => { return { value: item.id, label: item.title } })
-  console.log('options', options.value)
+  }];
+  formFront.value = {};
+  questions.value = data;
+  titleText.value = title;
+  childId.value = id;
+  conditionValue.value = 'and';
+  options.value = data.map(item => { return { value: item.id, label: item.title } });
+  if (controlLogic) {
+    conditionValue.value = controlLogic.condition;
+    let questionIds = controlLogic.questionIds.split(',').map(item => Number(item))
+    let parentAnswer =controlLogic.parentAnswer.split('|').map((item: string) =>
+        item.split('、').map((id) => Number(id)),
+      );
+    let option:Record<string, number[]> ={}
+    let concernList: concernType[] = data.flatMap(item => questionIds.indexOf(1001) !== -1 ? { value: item.title, id: item.id, option: item.option } : []);
+    for(let i in questionIds){
+      option[questionIds[i]] = parentAnswer[i]
+    }
+    concernData.value = concernList
+    formFront.value = option
+  }
 }
 //取消
 const onCancel = (e: any) => {
@@ -106,10 +135,10 @@ const frontCancel = (index: number) => {
 
 //选择数据
 const select = (index: number, value: number) => {
-  if(concernData.value[index].id === value) return
-  let ids = concernData.value.map(item=>item.id).indexOf(value)
-  if(ids !== -1){
-    concernData.value[index].value = questions.value.find(item=>item.id==concernData.value[index].id)?.title || '';
+  if (concernData.value[index].id === value) return
+  let ids = concernData.value.map(item => item.id).indexOf(value)
+  if (ids !== -1) {
+    concernData.value[index].value = questions.value.find(item => item.id == concernData.value[index].id)?.title || '';
     return message.info("关联题目不能重复");
   }
   let data = questions.value.find(item => item.id == value)
@@ -120,8 +149,20 @@ const select = (index: number, value: number) => {
 
 //确定
 const handleOk = () => {
+  let ids: string[] = [];
+  let parentAnswer = [];
+  for (let i in formFront.value) {
+    ids.push(i)
+    parentAnswer.push(formFront.value[i].join('、'))
+  }
+  let control: controlLogicType = {
+    questionIds: ids.join(),
+    childId: childId.value,
+    parentAnswer: parentAnswer.join('|'),
+    condition: conditionValue.value,
+  }
+  emit("getFront", control)
   frontVisible.value = false
-  console.log('打印formFront', formFront.value)
 }
 
 defineExpose({ frontOpen })

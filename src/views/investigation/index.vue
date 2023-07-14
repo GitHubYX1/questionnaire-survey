@@ -30,6 +30,7 @@
             :question="item"
             :insertNum="insertNum"
             :serialNum="serialNum(item.id)"
+            :showConcern="showConcern(item.id)"
             @insert="insert"
             @copy="copy"
             @erasure="erasure"
@@ -48,7 +49,7 @@
       </div>
       <editor-title ref="dataTitle" @titleModify="titleModify"></editor-title>
       <batch-add ref="batchModal" @optionBatchAdd="optionBatchAdd"></batch-add>
-      <concern-front ref="concernFrontRef"></concern-front>
+      <concern-front ref="concernFrontRef" @getFront="getFront"></concern-front>
     </div>
   </div>
 </template>
@@ -56,7 +57,7 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import type { typeType, optionType, questionType, surveyType } from "@/types/index";
+import type { typeType, optionType, questionType, surveyType, controlLogicType } from "@/types/index";
 import SurveyControl from "./components/survey-control.vue";
 import SurveyItem from "./components/survey-item.vue";
 import EditorTitle from "./components/editor-title.vue";
@@ -79,6 +80,7 @@ let surveyInfo = reactive<surveyType>({
   modifyTime: "",
   state: false,
   question: [],
+  controlLogic:[]
 });
 
 const questionMaxId = ref(1000);
@@ -86,10 +88,12 @@ const dataTitle = ref<any>(null);
 const batchModal = ref<any>(null);
 const concernFrontRef = ref<any>(null);
 const insertNum = ref(-1);
-let optionInit: optionType[] = [
+let optionInit=():optionType[] => {
+  return [
   { id: 1, content: "选项1" },
   { id: 2, content: "选项2" },
 ];
+}
 //获取序号
 const serialNum = (id: number) => {
   let num = 0;
@@ -114,6 +118,7 @@ onMounted(() => {
       surveyInfo.modifyTime = survey.modifyTime;
       surveyInfo.state = survey.state;
       surveyInfo.question = survey.question;
+      surveyInfo.controlLogic = survey.controlLogic;
       questionMaxId.value = maxId
         ? Number(maxId)
         : mostValue(surveyInfo.question, "id");
@@ -143,7 +148,7 @@ const deriveContrl = (contrl: { title: string; type: typeType }) => {
     column: 1
   };
   if (contrl.type === "单选" || contrl.type == "多选") {
-    questionAdd.option = optionInit;
+    questionAdd.option = optionInit();
   }
   if (insertNum.value == -1) {
     surveyInfo.question.push(questionAdd);
@@ -196,7 +201,7 @@ const mustSelect = (e: { index: number; must: boolean }) => {
 //类型修改
 const typeModify = (e: { index: number; type: typeType }) => {
   if (surveyInfo.question[e.index].type == "填空" && e.type !== "填空") {
-    surveyInfo.question[e.index].option = optionInit;
+    surveyInfo.question[e.index].option = optionInit();
   } else if (e.type === "填空") {
     surveyInfo.question[e.index].option = [];
     surveyInfo.question[e.index].column = 1;
@@ -291,15 +296,45 @@ const previewClick = () => {
 const concern = (e: { index: number; id: number; title: string; state: number }) => {
   let { index, id, title, state } = e;
   let question:questionType[] = JSON.parse(JSON.stringify(surveyInfo.question))
+  let controlLogic = surveyInfo.controlLogic.find(item=> item.childId === id);
   switch (state) {
     case 1:
       let data = question.slice(0, index)
         .map((item, index) => { item.title = (index + 1) + '.' + item.title; return item })
         .filter(item => item.type !== '段落说明' && item.type !== '填空');
-      concernFrontRef.value.frontOpen(data, title, id);
+      concernFrontRef.value.frontOpen(data, title, id, controlLogic);
       return;
     default:
       return;
+  }
+}
+//显示关联
+const showConcern = (id:number)=>{
+  let controlLogic = surveyInfo.controlLogic.find(item=> item.childId === id);
+  if(!controlLogic) return ''
+  let questionIds = controlLogic.questionIds.split(',').map(item => Number(item))
+  let parentAnswer =controlLogic.parentAnswer.split('|')
+  let str = '依赖于'
+  for(let i in questionIds){
+    str += `第${serialNum(questionIds[i])}题第${parentAnswer[i]}选项，`
+  }
+  if(questionIds.length>1){
+    str +=`为“${controlLogic.condition === 'or' ? '且' : '或'}”的关系`
+  }else{
+    str = str.substring(0, str.length - 1);
+  }
+  return str
+}
+//获取向前关联
+const getFront = (front:controlLogicType) =>{
+  if(!front.parentAnswer){
+    return surveyInfo.controlLogic = surveyInfo.controlLogic.filter(item=> item.childId !== front.childId);
+  }
+  let index = surveyInfo.controlLogic.map(item=> item.childId).indexOf(front.childId);
+  if(index === -1){
+    surveyInfo.controlLogic.push(front)
+  }else{
+    surveyInfo.controlLogic[index] = front
   }
 }
 </script>

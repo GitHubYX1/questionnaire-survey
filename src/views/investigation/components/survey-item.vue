@@ -15,6 +15,7 @@
           :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
       </a-checkbox-group>
       <a-input v-if="props.question.type === '填空'" />
+      <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="edit.editId != props.question.id">
         <div class="survey-menu-box">
           <span class="survey-insert" @click="insertClick">{{
@@ -127,6 +128,10 @@ const props = defineProps({
     type: Number,
     default: -1,
   },
+  showConcern:{
+    type:String,
+    default: "",
+  }
 });
 
 let radioData = ref("");
@@ -221,6 +226,12 @@ const concernClick = (state: number) => {
   font-size: 16px;
   padding: 10px;
   border-bottom: 1px solid #efefef;
+
+  .show-concern{
+    color: #808084;
+    font-size: 14px;
+    margin-top: 5px;
+  }
 
   .survey-menu {
     height: 35px;
