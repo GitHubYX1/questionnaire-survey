@@ -82,7 +82,7 @@
         <div class="logic-set flex align-items">
           <span>逻辑设置：</span>
           <a @click="concernClick(1)">题目向前关联</a>
-          <a>复制向前关联</a>
+          <a @click="concernClick(2)">复制向前关联</a>
         </div>
         <a-button type="primary" block size="large" @click="edit.resetting()">完成编辑</a-button>
       </div>

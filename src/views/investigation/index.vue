@@ -299,11 +299,11 @@ const concern = (e: { index: number; id: number; title: string; state: number })
   let controlLogic = surveyInfo.controlLogic.find(item=> item.childId === id);
   switch (state) {
     case 1:
-      let data = question.slice(0, index)
-        .map((item, index) => { item.title = (index + 1) + '.' + item.title; return item })
-        .filter(item => item.type !== '段落说明' && item.type !== '填空');
+      let data = question.slice(0, index).filter(item => item.type !== '段落说明');
       concernFrontRef.value.frontOpen(data, title, id, controlLogic);
       return;
+    case 2:
+      return
     default:
       return;
   }

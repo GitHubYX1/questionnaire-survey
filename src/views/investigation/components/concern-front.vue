@@ -1,5 +1,5 @@
 <template>
-  <a-modal :visible="frontVisible" title="题目向前关联" width="800px" @cancel="onCancel" @ok="handleOk">
+  <a-modal :visible="frontVisible" title="题目向前关联" width="800px" :mask="false" @cancel="onCancel" @ok="handleOk">
     <div class="front-box">
       <div class="front-title flex">
         <div class="front-text">当前题目：</div> {{ titleText }}
@@ -77,6 +77,7 @@ const filterOption = (input: string, option: selectType) => {
 
 // 打开
 const frontOpen = (data: questionType[], title: string, id: number, controlLogic: controlLogicType | undefined) => {
+  data=data.map((item, index) => { item.title = (index + 1) + '.' + item.title; return item }).filter(item => item.type !== '填空');
   if (data.length === 0) return message.info("此题前面没有选项题，无法设置关联逻辑！");
   frontVisible.value = true;
   concernData.value = [{
@@ -170,7 +171,8 @@ defineExpose({ frontOpen })
 <style lang="scss" scoped>
 .front-box {
   font-size: 16px;
-
+  max-height: 400px;
+  overflow-y: auto;
   .front-text {
     width: 100px;
     font-size: 16px;
