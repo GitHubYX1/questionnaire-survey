@@ -1,7 +1,7 @@
 <template>
     <a-modal :visible="copyVisible" title="复制向前关联" width="800px" :mask="false" @cancel="onCancel" @ok="handleOk">
         <div class="copy-box">
-            <a-table :row-selection="rowSelection" :dataSource="tableData" :pagination="false" bordered rowKey="id">
+            <a-table :rowSelection="{ selectedRowKeys: childIds, onChange: onSelectChange }" :dataSource="tableData" :pagination="false" bordered rowKey="id">
                 <a-table-column key="id" title="题目标题" align="center">
                     <template #default="{ record, index }">
                         <div v-html="record.title"></div>
@@ -15,7 +15,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { message } from "ant-design-vue";
-import type { optionType, questionType, controlLogicType } from "@/types/index";
+import type { questionType, controlLogicType } from "@/types/index";
 
 const copyVisible = ref(false);
 const tableData = ref<questionType[]>([]);
@@ -23,22 +23,20 @@ const childIds = ref<number[]>([]);
 const ids = ref<number>(0);
 const titleText = ref('');
 const emit = defineEmits(['getCopy']);
+const controlLogicData = ref<controlLogicType | null>(null);
 
-const copyOpen = (data: questionType[], title: string, id:number) => {
+const copyOpen = (data: questionType[], title: string, id:number, controlLogic:controlLogicType) => {
     if (data.length === 0) return message.info("此题后面没有选项，无法复制！");
     copyVisible.value = true;
     tableData.value = data;
     childIds.value = [];
     titleText.value = title;
     ids.value = id;
+    controlLogicData.value = controlLogic;
 }
 
-const rowSelection ={
-    onChange: (selectedRowKeys: number[],selectedRows:questionType[]) => {
-        console.log('打印selectedRows',selectedRows);
-        childIds.value = selectedRowKeys;
-    },
-    selectedRowKeys:childIds.value
+const onSelectChange = (sel:number[]) =>{
+    childIds.value = sel;
 }
 
 //取消
@@ -48,10 +46,16 @@ const onCancel = (e: any) => {
 
 const handleOk = () => {
     copyVisible.value = false;
-    if(childIds.value.length )emit("getCopy", {id:ids.value,childId:childIds.value});
+    if(childIds.value.length && controlLogicData.value){
+        let data:controlLogicType[] = [];
+        for(let i in childIds.value){
+            data.push({...controlLogicData.value,childId:childIds.value[i]});
+        }
+        emit("getCopy", {id:ids.value,childId:childIds.value,data});
+    }
     
 }
 
-defineExpose({ copyOpen })
+defineExpose({ copyOpen });
 </script>
 <style lang="scss" scoped></style>

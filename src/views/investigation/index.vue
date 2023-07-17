@@ -327,7 +327,7 @@ const showConcern = (id:number)=>{
   if(questionIds.length>1){
     str +=`为“${controlLogic.condition === 'or' ? '且' : '或'}”的关系`
   }else{
-    str = str.substring(0, str.length - 1);
+    str = str.slice(0, -1);
   }
   return str
 }
@@ -338,23 +338,17 @@ const getFront = (front:controlLogicType) =>{
   }
   let index = surveyInfo.controlLogic.map(item=> item.childId).indexOf(front.childId);
   if(index === -1){
-    surveyInfo.controlLogic.push(front)
+    surveyInfo.controlLogic.push(front);
   }else{
-    surveyInfo.controlLogic[index] = front
+    surveyInfo.controlLogic[index] = front;
   }
 }
 //复制关联
-const getCopy = (e:{id:number,childId:number[]})=>{
-  let childId = e.childId
-  let controlLogic = surveyInfo.controlLogic.find(item=> item.childId === e.id);
-  if(e.childId.length != 0 && controlLogic){
-    surveyInfo.controlLogic = surveyInfo.controlLogic.filter(item=>e.childId.indexOf(item.childId)===-1);
-   let data:controlLogicType[] = []
-   for(let i in childId){
-    data.push({...controlLogic,childId:childId[i]})
-   }
-   surveyInfo.controlLogic = surveyInfo.controlLogic.concat(data)
-    console.log('surveyInfo.controlLogic',surveyInfo.controlLogic)
+const getCopy = (e: { id: number, childId: number[], data: controlLogicType[] }) => {
+  if (e.childId.length != 0) {
+    surveyInfo.controlLogic = surveyInfo.controlLogic.filter(item => e.childId.indexOf(item.childId) === -1);
+    surveyInfo.controlLogic = surveyInfo.controlLogic.concat(e.data);
+    console.log('打印所有关联题surveyInfo.controlLogic', surveyInfo.controlLogic);
   }
 }
 </script>
