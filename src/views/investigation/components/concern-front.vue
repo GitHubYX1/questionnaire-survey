@@ -12,7 +12,7 @@
               <a-select v-model:value="item.value" show-search :options="options" @select="select(index, $event)"
                 style="width: 90%" :filter-option="filterOption" />
               <span v-if="index == 0" @click="frontAdd">+更多</span>
-              <span v-else @click="frontCancel(index)">-取消</span>
+              <span v-else @click="frontCancel(index, item.id)">-取消</span>
             </div>
           </div>
           <div class="front-option" v-if="item.option.length">
@@ -77,7 +77,7 @@ const filterOption = (input: string, option: selectType) => {
 
 // 打开
 const frontOpen = (data: questionType[], title: string, id: number, controlLogic: controlLogicType | undefined) => {
-  data=data.map((item, index) => { item.title = (index + 1) + '.' + item.title; return item }).filter(item => item.type !== '填空');
+  data = data.map((item, index) => { item.title = (index + 1) + '.' + item.title; return item }).filter(item => item.type !== '填空');
   if (data.length === 0) return message.info("此题前面没有选项题，无法设置关联逻辑！");
   frontVisible.value = true;
   concernData.value = [{
@@ -92,14 +92,15 @@ const frontOpen = (data: questionType[], title: string, id: number, controlLogic
   conditionValue.value = 'and';
   options.value = data.map(item => { return { value: item.id, label: item.title } });
   if (controlLogic) {
+    console.log('打印当前逻辑', controlLogic)
     conditionValue.value = controlLogic.condition;
     let questionIds = controlLogic.questionIds.split(',').map(item => Number(item))
-    let parentAnswer =controlLogic.parentAnswer.split('|').map((item: string) =>
-        item.split('、').map((id) => Number(id)),
-      );
-    let option:Record<string, number[]> ={}
-    let concernList: concernType[] = data.flatMap(item => questionIds.indexOf(1001) !== -1 ? { value: item.title, id: item.id, option: item.option } : []);
-    for(let i in questionIds){
+    let parentAnswer = controlLogic.parentAnswer.split('|').map((item: string) =>
+      item.split('、').map((id) => Number(id)),
+    );
+    let option: Record<string, number[]> = {}
+    let concernList: concernType[] = data.flatMap(item => questionIds.indexOf(item.id) !== -1 ? { value: item.title, id: item.id, option: item.option } : []);
+    for (let i in questionIds) {
       option[questionIds[i]] = parentAnswer[i]
     }
     concernData.value = concernList
@@ -130,8 +131,9 @@ const frontAdd = () => {
   })
 }
 //取消
-const frontCancel = (index: number) => {
+const frontCancel = (index: number, id: number) => {
   concernData.value.splice(index, 1);
+  delete formFront.value[id]
 }
 
 //选择数据
@@ -152,9 +154,12 @@ const select = (index: number, value: number) => {
 const handleOk = () => {
   let ids: string[] = [];
   let parentAnswer = [];
-  for (let i in formFront.value) {
-    ids.push(i)
-    parentAnswer.push(formFront.value[i].join('、'))
+  let from = formFront.value
+  for (let i in from) {
+    if (from[i].length) {
+      ids.push(i)
+      parentAnswer.push(from[i].join('、'))
+    }
   }
   let control: controlLogicType = {
     questionIds: ids.join(),
@@ -173,6 +178,7 @@ defineExpose({ frontOpen })
   font-size: 16px;
   max-height: 400px;
   overflow-y: auto;
+
   .front-text {
     width: 100px;
     font-size: 16px;
