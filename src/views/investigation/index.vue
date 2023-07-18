@@ -15,7 +15,7 @@
     </div>
     <div class="investigation-content">
       <div class="investigation-panel">
-        <survey-control @deriveContrl="deriveContrl"></survey-control>
+        <survey-control :questionMaxId="questionMaxId" @deriveContrl="deriveContrl" @uploadData="uploadData"></survey-control>
       </div>
       <div class="investigation-editor">
         <div class="editor-top" @click="dataTitle.open(surveyInfo.title, surveyInfo.content)">
@@ -163,6 +163,16 @@ const deriveContrl = (contrl: { title: string; type: typeType }) => {
   console.log("打印数据", surveyInfo.question);
   edit.resetting(); //关闭编辑
 };
+//获取导入数据
+const uploadData = (e:{ question: questionType[], radio: string })=>{
+  let {question,radio} = e;
+  if(radio == "add"){
+    surveyInfo.question = surveyInfo.question.concat(question)
+  }else{
+    surveyInfo.question =question
+  }
+  questionMaxId.value = mostValue(surveyInfo.question, "id");
+}
 //插入数据
 const insert = (index: number) => {
   insertNum.value = index;
