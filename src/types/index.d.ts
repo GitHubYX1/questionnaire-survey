@@ -79,6 +79,18 @@ export declare type surveyType = {
 };
 
 /**
+ * 问题控制
+ * @param questionId 题目id
+ * @param content 答案
+ */
+export declare type QuestionControlType = {
+  id:number;
+  parentIds:number[],
+  condition:'and' | 'or',
+  parentAnswer:Array<number[]>
+}
+
+/**
  * 答案
  * @param questionId 题目id
  * @param content 答案

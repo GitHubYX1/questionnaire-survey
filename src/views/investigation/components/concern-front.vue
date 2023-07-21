@@ -23,7 +23,7 @@
             <a-form-item>
               <a-checkbox-group v-model:value="formFront[item.id]">
                 <a-checkbox class="flex front-checkbox" v-for="subItem in item.option" :key="subItem.id"
-                  :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
+                  :value="Number(subItem.id)" :name="subItem.content">{{ subItem.content }}</a-checkbox>
               </a-checkbox-group>
             </a-form-item>
           </div>

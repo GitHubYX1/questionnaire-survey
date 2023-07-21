@@ -97,7 +97,7 @@ const importFile = async (event: any) => {
         let option = jsonData[i]["选项"] ? jsonData[i]["选项"].split("|").map((item: string) => {
             let data = item.split("~");
             return {
-              id: data[0],
+              id: Number(data[0]),
               content: data[1],
             };
           }) : [];

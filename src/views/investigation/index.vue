@@ -335,7 +335,7 @@ const showConcern = (id:number)=>{
     str += `第${serialNum(questionIds[i])}题第${parentAnswer[i]}选项，`
   }
   if(questionIds.length>1){
-    str +=`为“${controlLogic.condition === 'or' ? '且' : '或'}”的关系`
+    str +=`为“${controlLogic.condition === 'and' ? '且' : '或'}”的关系`
   }else{
     str = str.slice(0, -1);
   }

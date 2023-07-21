@@ -9,18 +9,20 @@
       <a-skeleton active :paragraph="{ rows: 16 }" :loading="questionData.length === 0">
         <a-form layout="vertical" class="question-list" :model="formState" ref="formRef">
           <template v-for="item in questionData" :key="item.id">
-            <div class="question-item">
-              <div v-if="item.type === '段落说明'" v-html="item.title"></div>
-              <a-form-item v-else :label="item.title" :name="item.id" :required="item.must" :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
-                <a-radio-group v-if="item.type === '单选'" class="grid" :style="generateColumn(item.column)" v-model:value="formState[item.id]">
-                  <a-radio class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-radio>
-                </a-radio-group>
-                <a-checkbox-group v-else-if="item.type === '多选'" class="grid" :style="generateColumn(item.column)" v-model:value="formState[item.id]">
-                  <a-checkbox class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
-                </a-checkbox-group>
-                <a-input v-else-if="item.type === '填空'" v-model:value="formState[item.id]"></a-input>
-              </a-form-item>
-            </div>
+            <transition name="slide-x" mode="out-in">
+              <div class="question-item" v-if="isShow(item.id)">
+                <div v-if="item.type === '段落说明'" v-html="item.title"></div>
+                <a-form-item v-else :label="item.title" :name="item.id" :required="item.must" :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
+                  <a-radio-group v-if="item.type === '单选'" class="grid" :style="generateColumn(item.column)" v-model:value="formState[item.id]">
+                    <a-radio class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-radio>
+                  </a-radio-group>
+                  <a-checkbox-group v-else-if="item.type === '多选'" class="grid" :style="generateColumn(item.column)" v-model:value="formState[item.id]">
+                    <a-checkbox class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
+                  </a-checkbox-group>
+                  <a-input v-else-if="item.type === '填空'" v-model:value="formState[item.id]"></a-input>
+                </a-form-item>
+              </div>
+            </transition>
           </template>
         </a-form>
         <a-button type="primary" block size="large" @click="submitTo">提交</a-button>
@@ -30,12 +32,12 @@
 </template>
 
 <script lang='ts' setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, unref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import shortId from "shortid";
 import type { FormInstance } from "ant-design-vue/es/form";
-import type { questionType, answerType, surveyAnswerType } from "@/types/index";
+import type { questionType, answerType, surveyAnswerType, QuestionControlType } from "@/types/index";
 import { surveyStore } from "@/stores/survey";
 import { getTime, timeDiff } from "@/utils/index";
 import { answerSave, answerSelected } from "@/computed/answer";
@@ -58,7 +60,9 @@ const questionData = ref<questionType[]>([]);
 const formState = ref<Record<string, any>>({});
 const formRef = ref<FormInstance | null>(null);
 const startTime = ref<string>("");
+const controlData = ref<QuestionControlType[]>([]);
 
+//获取题目
 onMounted(() => {
   let surveyId: any = router.currentRoute.value.query?.id;
   let answerId: any = router.currentRoute.value.query?.answerId;
@@ -73,7 +77,17 @@ onMounted(() => {
     infoHeader.content = survey.content;
     infoHeader.id = survey.id;
     questionData.value = survey.question;
+    //获取逻辑
+    controlData.value = survey.controlLogic.map(item=>({
+      id:item.childId,
+      parentIds: item.questionIds.split(',').map((item: string) => Number(item)),
+      condition:item.condition,
+      parentAnswer: item.parentAnswer.split('|').map((item: string) =>
+        item.split('、').map((id) => Number(id)),
+      ),
+    }))
     startTime.value = getTime();
+    //判断是否有有答案
     if (answerId) {
       let answer = answerSelected(surveyId, answerId);
       if (!answer) return message.error("未找到相关答案");
@@ -88,9 +102,29 @@ onMounted(() => {
     message.error("没有获取到调查");
   }
 });
-
+//获取列数
 function generateColumn(column: number) {
   return { 'grid-template-columns': `repeat(${column}, minmax(0, 1fr))` };
+}
+//是否显示题目
+const isShow = (id: number) => {
+  const findControl = unref(controlData).find((item) => item.id === id);
+  if (findControl) {
+    const form = unref(formState);
+    let logicList: boolean[] = [];
+    findControl.parentIds.forEach((parentId, index) => {
+      const answer = findControl.parentAnswer[index];
+      logicList.push(
+        answer.some(item => {
+          return Array.isArray(form[parentId]) ? form[parentId].includes(item) : form[parentId] == item
+        })
+      )
+    })
+    let bool = findControl.condition === 'or' ? logicList.some((item) => item) : logicList.every((item) => item);
+    if(!bool) delete formState.value[id];
+    return bool
+  }
+  return true
 }
 
 //提交数据
@@ -113,7 +147,6 @@ const submitTo = () => {
       consumTime: timeDiff(startTime.value, endTime),
       answer: answerData,
     };
-
     answerSave(surveyAnswerData)
     console.log("打印surveyAnswerData", surveyAnswerData);
     router.replace("/question/success");
@@ -123,6 +156,7 @@ const submitTo = () => {
 <style lang='scss' scoped>
 .question {
   max-width: 1200px;
+  max-height: 100%;
   margin: 0 auto;
 }
 
@@ -152,10 +186,6 @@ const submitTo = () => {
   margin-bottom: 10px;
   font-size: 16px;
 
-  :deep(.ant-form-item-required) {
-    font-size: 16px !important;
-  }
-
   .ant-form-item {
     margin-bottom: 0;
   }
@@ -177,4 +207,30 @@ const submitTo = () => {
     }
   }
 }
+
+@mixin transition-default() {
+  &-enter-active,
+  &-leave-active {
+    transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
+  }
+}
+
+.slide-x {
+  @include transition-default();
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+}
+
+.slide-x-reverse {
+  @include transition-default();
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+    transform: translateX(15px);
+  }
+}
+
 </style>
