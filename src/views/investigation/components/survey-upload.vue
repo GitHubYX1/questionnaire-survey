@@ -32,7 +32,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["upload"]);
-const fileInput = ref<any>({value:""})
+const fileInput = ref<any>({ value: "" })
 
 const fileVisible = ref(false);
 const loading = ref(false);
@@ -60,7 +60,7 @@ const importFile = async (event: any) => {
   loading.value = true;
   let id = Number(props.questionMaxId);
   const file = event.target.files[0];
-  console.log('打印file',event);
+  console.log('打印file', event);
   //创建workbook
   const workbook = new Excel.Workbook();
   //异步读取存储在用户计算机上的文件（或原始数据缓冲区）的内容
@@ -94,13 +94,21 @@ const importFile = async (event: any) => {
           loading.value = false;
           return (errorText.value = "第" + index + "题目类型未填写！");
         }
+        let idList: number[] = [];
         let option = jsonData[i]["选项"] ? jsonData[i]["选项"].split("|").map((item: string) => {
-            let data = item.split("~");
-            return {
-              id: Number(data[0]),
-              content: data[1],
-            };
-          }) : [];
+          let data = item.split("~");
+          idList.push(Number(data[0]))
+          return {
+            id: Number(data[0]),
+            content: data[1],
+          };
+        }) : [];
+        //选项序号重复判断
+        const idSet = new Set(idList);
+        if (option.length && option.length !== idSet.size) {
+          loading.value = false;
+          return (errorText.value = "第" + index + "题目选项序号有重复！");
+        }
         questionList.push({
           id: id,
           title: jsonData[i]["标题"],
