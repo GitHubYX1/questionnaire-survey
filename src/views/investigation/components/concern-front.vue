@@ -96,7 +96,7 @@ const frontOpen = (data: questionType[], title: string, id: number, controlLogic
     conditionValue.value = controlLogic.condition;
     let questionIds = controlLogic.questionIds.split(',').map(item => Number(item))
     let parentAnswer = controlLogic.parentAnswer.split('|').map((item: string) =>
-      item.split('、').map((id) => Number(id)),
+      item.split(',').map((id) => Number(id)),
     );
     let option: Record<string, number[]> = {}
     let concernList: concernType[] = data.flatMap(item => questionIds.indexOf(item.id) !== -1 ? { value: item.title, id: item.id, option: item.option } : []);
@@ -162,7 +162,7 @@ const handleOk = () => {
   for (let i in from) {
     if (from[i].length) {
       ids.push(i)
-      parentAnswer.push(from[i].join('、'))
+      parentAnswer.push(from[i].join(','))
     }
   }
   let control: controlLogicType = {

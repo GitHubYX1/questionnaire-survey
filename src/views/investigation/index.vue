@@ -341,7 +341,7 @@ const showConcern = (id: number) => {
   console.log('打印questionIds', parentAnswer)
   let str = '依赖于'
   for (let i in questionIds) {
-    let serial = serialNum(questionIds[i], parentAnswer[i].split('、'));
+    let serial = serialNum(questionIds[i], parentAnswer[i].split(','));
     str += `第${serial.num}题第${serial.answer.sort().join('、')}选项，`;
   }
   if (questionIds.length > 1) {

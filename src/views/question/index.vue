@@ -83,7 +83,7 @@ onMounted(() => {
       parentIds: item.questionIds.split(',').map((item: string) => Number(item)),
       condition:item.condition,
       parentAnswer: item.parentAnswer.split('|').map((item: string) =>
-        item.split('、').map((id) => Number(id)),
+        item.split(',').map((id) => Number(id)),
       ),
     }))
     startTime.value = getTime();
