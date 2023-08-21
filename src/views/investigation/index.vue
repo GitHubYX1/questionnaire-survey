@@ -100,7 +100,7 @@ let optionInit=():optionType[] => {
 //获取序号
 const serialNum = (id: number, parent:string[]=[]) => {
   let num = 0;
-  let answer:number[] | undefined =[];
+  let answer:number[] =[];
   for (let i = 0; i < surveyInfo.question.length; i++) {
     let data = surveyInfo.question[i];
     if (data.type !== "段落说明") num++;
@@ -335,11 +335,10 @@ const concern = (e: { index: number; id: number; title: string; state: number })
 //显示关联
 const showConcern = (id: number) => {
   let controlLogic = surveyInfo.controlLogic.find(item => item.childId === id);
-  if (!controlLogic) return ''
-  let questionIds = controlLogic.questionIds.split(',').map(item => Number(item))
-  let parentAnswer = controlLogic.parentAnswer.split('|')
-  console.log('打印questionIds', parentAnswer)
-  let str = '依赖于'
+  if (!controlLogic) return '';
+  let questionIds = controlLogic.questionIds.split(',').map(item => Number(item));
+  let parentAnswer = controlLogic.parentAnswer.split('|');
+  let str = '依赖于';
   for (let i in questionIds) {
     let serial = serialNum(questionIds[i], parentAnswer[i].split(','));
     str += `第${serial.num}题第${serial.answer.sort().join('、')}选项，`;
@@ -349,7 +348,7 @@ const showConcern = (id: number) => {
   } else {
     str = str.slice(0, -1);
   }
-  return str
+  return str;
 }
 //获取向前关联
 const getFront = (front:controlLogicType) =>{
