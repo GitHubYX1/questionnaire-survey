@@ -147,7 +147,11 @@ const select = (index: number, value: number) => {
   let data = questions.value.find(item => item.id == value)
   concernData.value[index].id = value
   concernData.value[index].option = data?.option || []
-  delete formFront.value[value]
+  if(concernData.value.length == 1){
+    formFront.value = {}
+  }else{
+    delete formFront.value[value]
+  }
 }
 
 //确定
