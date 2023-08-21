@@ -29,7 +29,7 @@
             :index="index"
             :question="item"
             :insertNum="insertNum"
-            :serialNum="serialNum(item.id)"
+            :serialNum="serialNum(item.id).num"
             :showConcern="showConcern(item.id)"
             @insert="insert"
             @copy="copy"
@@ -98,14 +98,22 @@ let optionInit=():optionType[] => {
 ];
 }
 //获取序号
-const serialNum = (id: number) => {
+const serialNum = (id: number, parent:string[]=[]) => {
   let num = 0;
+  let answer:number[] | undefined =[];
   for (let i = 0; i < surveyInfo.question.length; i++) {
     let data = surveyInfo.question[i];
     if (data.type !== "段落说明") num++;
-    if (data.id == id) return num;
+    if (data.id == id){
+      if(parent.length !== 0){
+        for(let j = 0;j<parent.length;j++){
+          answer.push(data.option.indexOf(data.option.filter(item => String(item.id) == parent[j])[0]) + 1);
+        }
+      }
+      return { num, answer };
+    }
   }
-  return num;
+  return { num, answer };
 };
 
 onMounted(() => {
@@ -325,18 +333,20 @@ const concern = (e: { index: number; id: number; title: string; state: number })
   }
 }
 //显示关联
-const showConcern = (id:number)=>{
-  let controlLogic = surveyInfo.controlLogic.find(item=> item.childId === id);
-  if(!controlLogic) return ''
+const showConcern = (id: number) => {
+  let controlLogic = surveyInfo.controlLogic.find(item => item.childId === id);
+  if (!controlLogic) return ''
   let questionIds = controlLogic.questionIds.split(',').map(item => Number(item))
-  let parentAnswer =controlLogic.parentAnswer.split('|')
+  let parentAnswer = controlLogic.parentAnswer.split('|')
+  console.log('打印questionIds', parentAnswer)
   let str = '依赖于'
-  for(let i in questionIds){
-    str += `第${serialNum(questionIds[i])}题第${parentAnswer[i]}选项，`
+  for (let i in questionIds) {
+    let serial = serialNum(questionIds[i], parentAnswer[i].split('、'));
+    str += `第${serial.num}题第${serial.answer.sort().join('、')}选项，`;
   }
-  if(questionIds.length>1){
-    str +=`为“${controlLogic.condition === 'and' ? '且' : '或'}”的关系`
-  }else{
+  if (questionIds.length > 1) {
+    str += `为“${controlLogic.condition === 'and' ? '且' : '或'}”的关系`;
+  } else {
     str = str.slice(0, -1);
   }
   return str
