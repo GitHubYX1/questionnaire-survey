@@ -1,13 +1,15 @@
 <template>
   <a-modal :visible="visible" width="860px" @cancel="onCancel" @ok="handleOk">
     <div class="modal-box">
-      <div class="editor-title flex" style="margin-bottom: 30px;">
+      <div class="editor-title flex" style="margin-bottom: 30px">
         <div class="title">标题：</div>
         <a-input v-model:value="titleValue" />
       </div>
       <div class="editor-title flex">
         <div class="title">说明</div>
-        <div class="title-rich"><rich-editor v-model="contentValue"></rich-editor></div>
+        <div class="title-rich">
+          <rich-editor v-model="contentValue"></rich-editor>
+        </div>
       </div>
     </div>
   </a-modal>
@@ -15,6 +17,7 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
+import { message } from "ant-design-vue";
 import RichEditor from "./rich-editor.vue";
 
 const visible = ref(false);
@@ -25,7 +28,7 @@ const emit = defineEmits(["titleModify"]);
 const open = (title: string, content: string) => {
   visible.value = true;
   titleValue.value = title;
-  contentValue.value = content
+  contentValue.value = content;
 };
 
 const onCancel = (e: any) => {
@@ -34,10 +37,11 @@ const onCancel = (e: any) => {
 
 const handleOk = () => {
   visible.value = false;
-  if (contentValue.value.replace(/<[^>]+>/g, "") == '') {
-    contentValue.value = ''
+  if (contentValue.value.replace(/<[^>]+>/g, "") == "") {
+    contentValue.value = "";
+    message.warning("说明文本必须要有文字！");
   }
-  console.log('打印文本', contentValue.value)
+  console.log("打印文本", contentValue.value);
   emit("titleModify", { title: titleValue.value, content: contentValue.value });
 };
 
