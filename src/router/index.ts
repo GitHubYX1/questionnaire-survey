@@ -50,6 +50,24 @@ const router = createRouter({
         title: '问卷测评',
       },
     },
+    {
+      path: '/data',
+      name: 'data',
+      redirect: '/data/analysis',
+      component: () => import('@/views/data/index.vue'),
+      children: [
+        {
+          name: '数据分析',
+          path: 'analysis',
+          component: () => import('@/views/data/pages/analysis.vue')
+        },
+        {
+          name: '答题数据',
+          path: 'answer',
+          component: () => import('@/views/data/pages/answer.vue')
+        },
+      ]
+    },
   ]
 })
 

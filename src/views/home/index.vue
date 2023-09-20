@@ -18,19 +18,6 @@ import { ref } from "vue";
 let value1 = ref("");
 </script>
 <style lang="scss" scoped>
-.ant-layout {
-  height: 100%;
-}
-
-.ant-layout-header {
-  background: #fff;
-  border-bottom: 1px solid #efefef;
-}
-.ant-layout-sider{
-  background: #fff;
-  border-right: 1px solid #efefef;
-}
-
 .header-box{
   font-size: 28px;
   font-weight: 700;

@@ -29,6 +29,7 @@
             <div class="project-operate-Left">
               <span @click="edit(item.id)"><form-outlined />编辑问卷</span>
               <span @click="answer(item.id)"><profile-outlined />回答问卷</span>
+              <span @click="dataAnalysis(item.id)"><FundOutlined />数据分析</span>
             </div>
             <div class="project-operate-right">
               <span><a-switch v-model:checked="item.state" @change="stateChange(item.id, item.state)"
@@ -84,6 +85,11 @@ const edit = (id: string) => {
 const answer = (id: string) => {
   router.push("/question?id=" + id);
 };
+
+const dataAnalysis = (id: string) => {
+  router.push("/data/analysis");
+  localStorage.setItem("SURVEYID", id);
+}
 
 //复制
 const copyClick = (item: surveyType) => {
