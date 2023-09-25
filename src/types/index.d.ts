@@ -38,7 +38,7 @@ export declare type questionType = {
   type: typeType;
   option: optionType[];
   must: 0 | 1;
-  column: number
+  column: number;
 };
 
 /**
@@ -49,11 +49,11 @@ export declare type questionType = {
  * @param condition 且 | 或
  */
 export declare type controlLogicType = {
-  questionIds:string,
-  childId:number,
-  parentAnswer:string,
-  condition:'and' | 'or',
-}
+  questionIds: string;
+  childId: number;
+  parentAnswer: string;
+  condition: "and" | "or";
+};
 
 declare type Nullable<T> = T | null;
 /**
@@ -75,7 +75,7 @@ export declare type surveyType = {
   modifyTime: string;
   state: boolean;
   question: questionType[];
-  controlLogic:controlLogicType[]
+  controlLogic: controlLogicType[];
 };
 
 /**
@@ -84,11 +84,11 @@ export declare type surveyType = {
  * @param content 答案
  */
 export declare type QuestionControlType = {
-  id:number;
-  parentIds:number[],
-  condition:'and' | 'or',
-  parentAnswer:Array<number[]>
-}
+  id: number;
+  parentIds: number[];
+  condition: "and" | "or";
+  parentAnswer: Array<number[]>;
+};
 
 /**
  * 答案
@@ -96,9 +96,9 @@ export declare type QuestionControlType = {
  * @param content 答案
  */
 export declare type answerType = {
-  questionId:number;
-  content:number | number[] | string
-}
+  questionId: number;
+  content: number | number[] | string;
+};
 
 /**
  * 调查答案
@@ -111,14 +111,14 @@ export declare type answerType = {
  * @param answer 答案内容
  */
 export declare type surveyAnswerType = {
-  answerId:string;
-  surveyId:string,
-  surveyTitle:string,
-  startTime:string;
-  endTime:string;
-  consumTime:string;
-  answer:answerType[]
-}
+  answerId: string;
+  surveyId: string;
+  surveyTitle: string;
+  startTime: string;
+  endTime: string;
+  consumTime: string;
+  answer: answerType[];
+};
 
 /**
  * 用户信息
@@ -127,7 +127,45 @@ export declare type surveyAnswerType = {
  * @param avatar 用户头像
  */
 export declare type userType = {
-  id:string;
-  name:string;
-  avatar:string;
-}
+  id: string;
+  name: string;
+  avatar: string;
+};
+
+/**
+ * 分析选项
+ * @param count 总计
+ * @param ratio 占比
+ */
+export declare type analysisOptionType = optionType & {
+  count: number;
+  ratio: number;
+};
+
+/**
+ * 填空题数据
+ * @param xh 序号
+ * @param count 文本
+ */
+export declare type fillType = {
+  xh: number;
+  count: string;
+};
+
+/**
+ * 数据分析
+ * @param id 题目id
+ * @param title 标题
+ * @param type 类型
+ * @param option 选项
+ * @param fill 填空题数据
+ * @param assessCount 总计
+ */
+export declare type analysisType = {
+  id: number;
+  title: string;
+  type: typeType;
+  option: analysisOptionType[];
+  fill: fillType[];
+  assessCount: number;
+};
