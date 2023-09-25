@@ -68,7 +68,7 @@ onMounted(() => {
 
 const newBuilt = () => {
   router.push("/investigation");
-  localStorage.setItem("SURVEYID", "");
+  storeData.modifySurveyId("");
 };
 
 //切换状态
@@ -79,7 +79,7 @@ const stateChange = (id: string, state: boolean) => {
 //点击编辑
 const edit = (id: string) => {
   router.push("/investigation");
-  localStorage.setItem("SURVEYID", id);
+  storeData.modifySurveyId(id);
 };
 //答题
 const answer = (id: string) => {
@@ -88,7 +88,7 @@ const answer = (id: string) => {
 
 const dataAnalysis = (id: string) => {
   router.push("/data/analysis");
-  localStorage.setItem("SURVEYID", id);
+  storeData.modifySurveyId(id);
 }
 
 //复制

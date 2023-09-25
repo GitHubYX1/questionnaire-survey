@@ -24,14 +24,14 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { surveyStore } from "../../../stores/survey";
+import { surveyStore } from "@/stores/survey";
 
 const router = useRouter();
 const storeData = surveyStore();
 const title = ref("");
 
 onMounted(() => {
-    let surveyId = localStorage.getItem("SURVEYID");
+    let surveyId = storeData.surveyId;
     if (surveyId) {
         let survey = storeData.surveySelected(surveyId);
         console.log("survey", survey);

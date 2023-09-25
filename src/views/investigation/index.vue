@@ -117,7 +117,7 @@ const serialNum = (id: number, parent:string[]=[]) => {
 };
 
 onMounted(() => {
-  let surveyId = localStorage.getItem("SURVEYID");
+  let surveyId = storeData.surveyId;
   let maxId = localStorage.getItem("MAXID");
   if (surveyId) {
     let survey = storeData.surveySelected(surveyId);
@@ -134,7 +134,7 @@ onMounted(() => {
         ? Number(maxId)
         : mostValue(surveyInfo.question, "id");
     } else {
-      localStorage.setItem("SURVEYID", "");
+      storeData.modifySurveyId("");
     }
   }
 });
@@ -295,7 +295,7 @@ const save = (state: boolean) => {
     storeData.surveyModify(surveyInfo);
   }
   localStorage.setItem("MAXID", String(questionMaxId.value));
-  localStorage.setItem("SURVEYID", surveyInfo.id);
+  storeData.modifySurveyId(surveyInfo.id);
   message.success("保存成功！");
   if (state) {
     router.replace("/project");

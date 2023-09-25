@@ -16,8 +16,9 @@ export const editStore = defineStore("edit", () => {
 
 export const surveyStore = defineStore("storeData", () => {
   const surveyData = ref<surveyType[]>(storage.getSession("SURVEYDATA") || []);
+  const surveyId = ref<string>(localStorage.getItem("SURVEYID") || "");
   /**获取调查*/
-  function surveySelected(id: string):surveyType {
+  function surveySelected(id: string): surveyType {
     return surveyData.value.filter((item) => item.id === id)[0];
   }
   /**新增调查*/
@@ -34,10 +35,10 @@ export const surveyStore = defineStore("storeData", () => {
     storage.setSession("SURVEYDATA", surveyData.value);
   }
   /**状态修改*/
-  function stateModify(id:string,state:boolean) {
-    surveyData.value.forEach(item=> {
-      if(item.id==id)item.state = state
-    })
+  function stateModify(id: string, state: boolean) {
+    surveyData.value.forEach((item) => {
+      if (item.id == id) item.state = state;
+    });
     storage.setSession("SURVEYDATA", surveyData.value);
   }
   /**调查删除*/
@@ -45,5 +46,18 @@ export const surveyStore = defineStore("storeData", () => {
     surveyData.value = surveyData.value.filter((item) => item.id !== id);
     storage.setSession("SURVEYDATA", surveyData.value);
   }
-  return { surveyData, surveySelected, surveyAdd, surveyModify, stateModify, surveyErasure };
+  function modifySurveyId(id:string){
+    surveyId.value = id;
+    localStorage.setItem("SURVEYID", id);
+  }
+  return {
+    surveyData,
+    surveySelected,
+    surveyAdd,
+    surveyModify,
+    stateModify,
+    surveyErasure,
+    surveyId,
+    modifySurveyId,
+  };
 });
