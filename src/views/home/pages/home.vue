@@ -48,7 +48,7 @@ const answerData = getAnswerData()
 
 const editClick =(surveyId:string,answerId:string)=>{
   let href = router.resolve({ path: "/preview", query: { id: surveyId, answerId: answerId } });
-  window.open(href.href, '_blank');
+  window.open(href.href, "_blank");
 }
 </script>
 <style lang='scss' scoped>

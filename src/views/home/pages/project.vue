@@ -83,7 +83,8 @@ const edit = (id: string) => {
 };
 //答题
 const answer = (id: string) => {
-  router.push("/question?id=" + id);
+  let href = router.resolve({ path: "/question", query: { id } });
+  window.open(href.href, "_blank");
 };
 
 const dataAnalysis = (id: string) => {
