@@ -14,8 +14,8 @@
         </div>
         <a-tooltip placement="退出">
             <div class="option flex align-items" @click="quit">
-                <poweroff-outlined style="color: #f20707;" />
-                <span>退出</span>
+                <export-outlined />
+                <span>返回</span>
             </div>
         </a-tooltip>
     </div>
