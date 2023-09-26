@@ -64,3 +64,45 @@ export async function getAnalysisData(
   });
   return { title: survey.title, count: answerData.length, data };
 }
+
+/**
+ * 答题数据
+ * @param id 题目id
+ */
+export async function getAnswerData(id: string): Promise<{ answer: surveyAnswerType[]; excleList: string[][] }> {
+  let answer: surveyAnswerType[] = storage.getSession("ANSWERDATA", id) || [];
+  let excleTop = ["答卷编号", "开始时间", "结束时间", "耗时"];
+  let excleContent: string[][] = [];
+  let survey = storeData.surveySelected(id);
+  answer.forEach((item, index) => {
+    let answerContent = [ item.answerId, item.startTime, item.endTime, item.consumTime ];
+    survey.question.forEach((question) => {
+      if (index == 0) {
+        excleTop.push(question.id + "." + question.title);
+      }
+      //获取答题数据
+      let content = item.answer.find((answer) => answer.questionId == question.id)?.content;
+      if (content && content.constructor == Array) {
+        let textData = [];
+        for (let i in content) {
+          let id = content[i];
+          let text = question.option.filter((option) => option.id == id)[0].content;
+          textData.push(id + "." + text);
+        }
+        answerContent.push(textData.join());
+      } else if (content) {
+        if (question.type === "单选") {
+          let text = question.option.filter((option) => option.id == content)[0].content;
+          answerContent.push(content + "." + text);
+        } else {
+          answerContent.push(String(content));
+        }
+      } else {
+        answerContent.push("");
+      }
+    });
+    excleContent.push(answerContent);
+  });
+  let excleList = [excleTop, ...excleContent];
+  return { answer, excleList };
+}

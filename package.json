@@ -16,6 +16,7 @@
     "ant-design-vue": "^3.2.20",
     "dayjs": "^1.11.8",
     "exceljs": "^4.3.0",
+    "file-saver": "^2.0.5",
     "pinia": "^2.1.3",
     "shortid": "^2.2.16",
     "vue": "^3.3.4",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@tsconfig/node18": "^2.0.1",
+    "@types/file-saver": "^2.0.5",
     "@types/node": "^18.16.17",
     "@types/shortid": "^0.0.29",
     "@vitejs/plugin-vue": "^4.2.3",

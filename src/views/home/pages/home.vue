@@ -18,7 +18,7 @@
       </div>
     </div>
     <a-card>
-      <a-table :dataSource="answerData" bordered rowKey="answerId">
+      <a-table :dataSource="answerData" bordered rowKey="answerId" :pagination="answerData.length < 10 ? false : true">
         <a-table-column key="surveyId" title="问卷id" dataIndex="surveyId" align="center" width="120px"></a-table-column>
         <a-table-column key="answerId" title="答案id" dataIndex="answerId" align="center" width="180px"></a-table-column>
         <a-table-column key="answerId" title="问卷名称" dataIndex="surveyTitle" align="center"></a-table-column>
@@ -47,7 +47,8 @@ const storeData = surveyStore();
 const answerData = getAnswerData()
 
 const editClick =(surveyId:string,answerId:string)=>{
-  router.push("/preview?id="+surveyId+"&answerId="+answerId);
+  let href = router.resolve({ path: "/preview", query: { id: surveyId, answerId: answerId } });
+  window.open(href.href, '_blank');
 }
 </script>
 <style lang='scss' scoped>

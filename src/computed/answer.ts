@@ -18,7 +18,6 @@ export function answerErasure(id: string,answerId?:string) {
     answerData = answerData.filter((item:surveyAnswerType) => item.answerId !== answerId);
     storage.setSession("ANSWERDATA", answerData,id);
   }
-  
 }
 
 /**获取答案*/
