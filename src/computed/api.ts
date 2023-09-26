@@ -13,13 +13,16 @@ const storeData = surveyStore();
  * 获取数据分析
  * @param id 题目id
  */
-export async function getAnalysisData(id: string):Promise<analysisType[]> {
-  let answerData: surveyAnswerType[] = storage.getSession("ANSWERDATA", id);
+export async function getAnalysisData(
+  id: string
+): Promise<{ title: string; count: number; data: analysisType[] }> {
+  let answerData: surveyAnswerType[] = storage.getSession("ANSWERDATA", id) || [];
   let survey = storeData.surveySelected(id);
   let answerList: answerType[] = [];
   answerData.forEach((item) => {
     answerList = answerList.concat(item.answer);
   });
+  //获取分析数据
   let data: analysisType[] = survey.question.map((item) => {
     let answerQuestion = answerList.filter((son) => son.questionId == item.id);
     let assessCount = answerQuestion.length;
@@ -59,5 +62,5 @@ export async function getAnalysisData(id: string):Promise<analysisType[]> {
       assessCount: assessCount,
     };
   });
-  return data;
+  return { title: survey.title, count: answerData.length, data };
 }

@@ -14,6 +14,10 @@ import dataHeader from "./components/data-header.vue";
 </script>
 
 <style lang="scss" scoped>
+.ant-layout-content{
+  overflow-y: auto;
+}
+
 .data-content {
   max-width: 1200px;
   margin: 0 auto;

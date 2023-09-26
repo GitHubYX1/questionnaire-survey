@@ -108,3 +108,7 @@
 .ant-form-item-label>label{
   font-size: 16px !important;
 }
+
+.ant-table-cell {
+  padding: 10px 10px !important;
+}
