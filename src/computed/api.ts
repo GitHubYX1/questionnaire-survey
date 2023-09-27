@@ -13,9 +13,7 @@ const storeData = surveyStore();
  * 获取数据分析
  * @param id 题目id
  */
-export async function getAnalysisData(
-  id: string
-): Promise<{
+export async function getAnalysisData(id: string): Promise<{
   title: string;
   count: number;
   start: string;
@@ -30,8 +28,13 @@ export async function getAnalysisData(
     answerList = answerList.concat(item.answer);
   });
   //获取开始到结束时间
-  let start = answerData[answerData.length - 1].startTime.split(" ")[0];
-  let end = answerData[0].endTime.split(" ")[0];
+  let start = "";
+  let end = "";
+  if (answerData.length) {
+    start = answerData[answerData.length - 1].startTime.split(" ")[0];
+    end = answerData[0].endTime.split(" ")[0];
+  }
+
   //获取分析数据
   let data: analysisType[] = survey.question.map((item) => {
     let answerQuestion = answerList.filter((son) => son.questionId == item.id);

@@ -1,6 +1,8 @@
 <template>
   <div class="data-header flex-between align-items">
-    <div class="data-source">{{ title }}</div>
+    <!-- <div class="data-source">{{ title }}</div> -->
+    <a-select v-model:value="surveyIdData" show-search :options="storeOptions" style="width: 380px"
+      :filter-option="filterOption" @select="select" />
     <div class="anv-list flex align-items">
       <div :class="['anv-item', selectedKe() == '/data/analysis' ? 'select' : '']" @click="routerPush('/data/analysis')">
         <PieChartOutlined />
@@ -25,18 +27,31 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { surveyStore } from "@/stores/survey";
 
+interface optionType {
+  value: string;
+  label: string;
+}
+
 const router = useRouter();
 const storeData = surveyStore();
-const title = ref("");
+const storeOptions = ref<optionType[]>([]);
+const surveyIdData = ref<string>("");
 
 onMounted(() => {
   let surveyId = storeData.surveyId;
   if (surveyId) {
-    let survey = storeData.surveySelected(surveyId);
-    console.log("survey", survey);
-    title.value = survey.title;
+    storeOptions.value = storeData.surveyData.map(item => ({ value: item.id, label: item.title }));
+    surveyIdData.value = surveyId;
   }
 });
+
+const filterOption = (input: string, option: optionType) => {
+  return option.label.toUpperCase().indexOf(input.toUpperCase()) >= 0;
+};
+
+const select = (event: string) => {
+  storeData.modifySurveyId(event);
+}
 
 const selectedKe = () => {
   return router.currentRoute.value.path;

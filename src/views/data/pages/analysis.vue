@@ -2,7 +2,7 @@
   <a-card class="analysis-list">
     <a-skeleton active :paragraph="{ rows: 10 }" :loading="loading">
       <div class="analysis-title">{{ titleText }}</div>
-      <div class="analysis-column flex-between align-items">
+      <div class="analysis-column flex-between align-items" v-if="startTime">
         <div class="step-info">
           <span>答题时间：{{ startTime }} 到 {{ endTime }}</span>
           <span>测评量：{{ assessCount }}</span>
