@@ -5,12 +5,10 @@
       <a-button v-if="answerData.length !== 0" type="primary" @click="download()">下载答案数据</a-button>
     </div>
     <a-table :dataSource="answerData" bordered rowKey="answerId" :pagination="answerData.length < 10 ? false : true">
-      <a-table-column key="surveyId" title="问卷id" dataIndex="surveyId" align="center" width="120px"></a-table-column>
-      <a-table-column key="answerId" title="答案id" dataIndex="answerId" align="center" width="180px"></a-table-column>
-      <a-table-column key="answerId" title="问卷名称" dataIndex="surveyTitle" align="center"></a-table-column>
-      <a-table-column key="answerId" title="开始时间" dataIndex="startTime" align="center" width="180px"></a-table-column>
-      <a-table-column key="answerId" title="结束时间" dataIndex="endTime" align="center" width="180px"></a-table-column>
-      <a-table-column key="answerId" title="答题用时" dataIndex="consumTime" align="center" width="180px"></a-table-column>
+      <a-table-column key="answerId" title="答卷编号" dataIndex="answerId" align="center"></a-table-column>
+      <a-table-column key="answerId" title="开始时间" dataIndex="startTime" align="center"></a-table-column>
+      <a-table-column key="answerId" title="结束时间" dataIndex="endTime" align="center"></a-table-column>
+      <a-table-column key="answerId" title="答题用时" dataIndex="consumTime" align="center"></a-table-column>
       <a-table-column key="answerId" title="操作" align="center" width="100px">
         <template #default="{ record }">
           <div class="record-operate">
