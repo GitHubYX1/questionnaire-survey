@@ -10,7 +10,7 @@
         <a-form layout="vertical" class="question-list" :model="formState" ref="formRef">
           <template v-for="item in questionData" :key="item.id">
             <transition name="slide-x" mode="out-in">
-              <div class="question-item" v-if="isShow(item.id)">
+              <div class="question-item" :id="'item-'+item.id" v-if="isShow(item.id)">
                 <div v-if="item.type === '段落说明'" v-html="item.title"></div>
                 <a-form-item v-else :label="item.title" :name="item.id" :required="item.must" :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
                   <a-radio-group v-if="item.type === '单选'" class="grid" :style="generateColumn(item.column)" v-model:value="formState[item.id]">
@@ -61,6 +61,7 @@ const formState = ref<Record<string, any>>({});
 const formRef = ref<FormInstance | null>(null);
 const startTime = ref<string>("");
 const controlData = ref<QuestionControlType[]>([]);
+const questionItem = document.getElementsByClassName("question-item");//获取题目元素
 
 //获取题目
 onMounted(() => {
@@ -150,6 +151,12 @@ const submitTo = () => {
     answerSave(surveyAnswerData)
     console.log("打印surveyAnswerData", surveyAnswerData);
     router.replace("/question/success");
+  }).catch(({ errorFields }) => {
+    if (errorFields && errorFields.length) {
+      //滚动到没有回答的问题
+      const firstErrorId: number = errorFields[0].name[0];
+      questionItem.namedItem("item-"+firstErrorId)?.scrollIntoView({ behavior: 'smooth' });
+    }
   });
 };
 </script>
