@@ -10,11 +10,11 @@
         <a-radio class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id" :value="subItem.id"
           :name="subItem.content">{{ subItem.content }}</a-radio>
       </a-radio-group>
-      <a-checkbox-group v-if="props.question.type === '多选'" class="grid" :style="generateColumn(props.question.column)">
+      <a-checkbox-group v-else-if="props.question.type === '多选'" class="grid" :style="generateColumn(props.question.column)">
         <a-checkbox class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id"
           :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
       </a-checkbox-group>
-      <a-input v-if="props.question.type === '填空'" />
+      <a-input v-else-if="props.question.type === '填空'" />
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="edit.editId != props.question.id">
         <div class="survey-menu-box">
