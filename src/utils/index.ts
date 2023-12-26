@@ -1,4 +1,13 @@
 import dayjs from 'dayjs';
+import type { optionType } from "@/types/index";
+
+//选项参数初始化
+export function optionInit(): optionType[] {
+  return [
+    { id: 1, content: "选项1" },
+    { id: 2, content: "选项2" },
+  ];
+}
 
 //获取最大值
 export function mostValue(arr: any[], value: string): number {

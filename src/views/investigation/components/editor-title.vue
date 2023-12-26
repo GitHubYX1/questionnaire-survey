@@ -17,7 +17,6 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { message } from "ant-design-vue";
 import RichEditor from "./rich-editor.vue";
 
 const visible = ref(false);
@@ -39,7 +38,6 @@ const handleOk = () => {
   visible.value = false;
   if (contentValue.value.replace(/<[^>]+>/g, "") == "") {
     contentValue.value = "";
-    message.warning("说明文本必须要有文字！");
   }
   console.log("打印文本", contentValue.value);
   emit("titleModify", { title: titleValue.value, content: contentValue.value });

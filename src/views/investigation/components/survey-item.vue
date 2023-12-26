@@ -16,7 +16,7 @@
       </a-checkbox-group>
       <a-input v-else-if="props.question.type === '填空'" />
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
-      <div class="survey-menu" v-if="edit.editId != props.question.id">
+      <div class="survey-menu" v-if="questionnaire.editId != props.question.id">
         <div class="survey-menu-box">
           <span class="survey-insert" @click="insertClick">{{
             insertNum !== index ? "在此题后插入新题" : "插入题目"
@@ -84,7 +84,7 @@
           <a @click="concernClick(1)">题目向前关联</a>
           <a @click="concernClick(2)">复制向前关联</a>
         </div>
-        <a-button type="primary" block size="large" @click="edit.resetting()">完成编辑</a-button>
+        <a-button type="primary" block size="large" @click="questionnaire.resetting()">完成编辑</a-button>
       </div>
     </div>
   </div>
@@ -94,22 +94,11 @@
 import { ref, type PropType } from "vue";
 import type { typeType, questionType } from "@/types/index";
 import { Modal } from "ant-design-vue";
-import { editStore } from "@/stores/survey";
+import { questionnaireStore } from "@/stores/questionnaire";
 import RichEditor from "./rich-editor.vue";
 
-const edit = editStore();
-const emit = defineEmits([
-  "insert",
-  "copy",
-  "erasure",
-  "move",
-  "mustSelect",
-  "typeModify",
-  "optionAdd",
-  "optionRemove",
-  "optionMove",
-  "concern",
-]);
+const questionnaire = questionnaireStore();
+const emit = defineEmits(["optionAdd","concern",]);
 
 const props = defineProps({
   question: {
@@ -146,11 +135,11 @@ function generateColumn(column: number) {
 const insertClick = () => {
   let index = props.index;
   if (index === props.insertNum) index = -1;
-  emit("insert", index);
+  questionnaire.insert( index);
 };
 //复制
 const copyClick = () => {
-  emit("copy", { question: props.question, index: props.index });
+  questionnaire.copy( props.question, props.index);
 };
 //删除
 const erasureClick = () => {
@@ -160,21 +149,21 @@ const erasureClick = () => {
     okText: "确认",
     cancelText: "取消",
     onOk() {
-      emit("erasure", props.index);
+      questionnaire.erasure( props.index);
     },
   });
 };
 //移动
 const moveClick = (action: string) => {
-  emit("move", { index: props.index, action });
+  questionnaire.move(props.index, action);
 };
 //点击编辑
 const editClick = () => {
-  edit.editCount(props.question.id);
+  questionnaire.editCount(props.question.id);
 };
 //点击必答
 const checkboxChange = () => {
-  emit("mustSelect", { index: props.index, must: mustBoolean.value });
+  questionnaire.mustSelect(props.index,mustBoolean.value);
 };
 //切换类型
 const typeChange = () => {
@@ -184,7 +173,7 @@ const typeChange = () => {
     okText: "确认",
     cancelText: "取消",
     onOk() {
-      emit("typeModify", { index: props.index, type: typeRadio.value });
+      questionnaire.typeModify(props.index,typeRadio.value);
     },
     onCancel() {
       typeRadio.value = props.question.type;
@@ -198,7 +187,7 @@ const optionAddClick = (optionIndex: number) => {
 //选项移除
 const optionRemoveClick = (optionIndex: number) => {
   if (props.question.option.length > 1) {
-    emit("optionRemove", { index: props.index, optionIndex });
+    questionnaire.optionRemove(props.index, optionIndex);
   } else {
     Modal.warning({
       title: "提示",
@@ -209,7 +198,7 @@ const optionRemoveClick = (optionIndex: number) => {
 //选项移动
 const optionMoveClick = (optionIndex: number, action: string) => {
   if (optionIndex == 0 && action == "上") return;
-  emit("optionMove", { index: props.index, optionIndex, action });
+  questionnaire.optionMove(props.index, optionIndex, action)
 };
 //题目关联
 const concernClick = (state: number) => {

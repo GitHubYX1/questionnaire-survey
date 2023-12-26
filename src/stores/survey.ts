@@ -3,17 +3,6 @@ import { defineStore } from "pinia";
 import type { surveyType } from "@/types/index";
 import storage from "@/utils/storage";
 
-export const editStore = defineStore("edit", () => {
-  const editId = ref(-1);
-  function editCount(id: number) {
-    editId.value = id;
-  }
-  function resetting() {
-    editId.value = -1;
-  }
-  return { editId, editCount, resetting };
-});
-
 export const surveyStore = defineStore("storeData", () => {
   const surveyData = ref<surveyType[]>(storage.getSession("SURVEYDATA") || []);
   const surveyId = ref<string>(localStorage.getItem("SURVEYID") || "");
