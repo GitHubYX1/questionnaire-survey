@@ -62,6 +62,7 @@ import shortId from "shortid";
 import { mostValue, getTime } from "@/utils/index";
 import { surveyStore } from "@/stores/survey";
 import { questionnaireStore } from "@/stores/questionnaire";
+import type { surveyType } from "@/types/index";
 
 const router = useRouter();
 const storeData = surveyStore();
@@ -92,8 +93,8 @@ const serialNum = (id: number, parent: string[] = []) => {
 };
 
 onMounted(() => {
-	let surveyId = storeData.surveyId;
-	let maxId = localStorage.getItem("MAXID");
+	const surveyId = storeData.surveyId;
+	const maxId = localStorage.getItem("MAXID");
 	if (surveyId) {
 		let survey = storeData.surveySelected(surveyId);
 		if (survey) {
@@ -102,6 +103,8 @@ onMounted(() => {
 		} else {
 			storeData.modifySurveyId("");
 		}
+	}else{
+		questionnaire.reset();
 	}
 });
 
@@ -111,16 +114,16 @@ const goBack = () => {
 
 //选项增加
 const optionAdd = (e: { index: number; optionIndex: number }) => {
-	let optionIndex = e.optionIndex;
-	let index = e.index;
-	let optionData: optionType[] = questionnaire.question[index].option.concat();
+	const optionIndex = e.optionIndex;
+	const index = e.index;
+	const optionData: optionType[] = questionnaire.question[index].option.concat();
 	if (optionIndex == -2) {
 		//批量增加
-		let text = optionData.map((item) => item.content).join("\n");
+		const text = optionData.map((item) => item.content).join("\n");
 		batchModal.value.batchOpen(index, text);
 	} else {
-		let id = mostValue(optionData, "id");
-		let options: optionType = { id, content: "选项" + id };
+		const id = mostValue(optionData, "id");
+		const options: optionType = { id, content: "选项" + id };
 		if (optionIndex == -1) {
 			optionData.push(options);
 		} else {
@@ -139,18 +142,32 @@ const save = (state: boolean) => {
 		});
 	}
 	questionnaire.state = state ? state : questionnaire.state;
+	const survey:surveyType = {
+		id: questionnaire.id,
+		title: questionnaire.title,
+		content: questionnaire.content,
+		createTime: questionnaire.createTime,
+		modifyTime: questionnaire.modifyTime,
+		state: questionnaire.state,
+		question: questionnaire.question,
+		controlLogic: questionnaire.controlLogic,
+	}
 	if (questionnaire.id == "") {
-		questionnaire.id = shortId.generate();
-		questionnaire.createTime = getTime();
-		storeData.surveyAdd(questionnaire);
+		survey.id = shortId.generate();
+		questionnaire.id = survey.id;
+		survey.createTime = getTime();
+		questionnaire.createTime = survey.createTime;
+		storeData.surveyAdd(survey);
 	} else {
-		questionnaire.modifyTime = getTime();
-		storeData.surveyModify(questionnaire);
+		survey.modifyTime = getTime();
+		questionnaire.modifyTime = survey.modifyTime;
+		storeData.surveyModify(survey);
 	}
 	localStorage.setItem("MAXID", String(questionnaire.questionMaxId));
 	storeData.modifySurveyId(questionnaire.id);
 	message.success("保存成功！");
 	if (state) {
+		questionnaire.reset();
 		router.replace("/project");
 	}
 };
@@ -168,17 +185,17 @@ const previewClick = () => {
 };
 //题目关联
 const concern = (e: { index: number; id: number; title: string; state: number }) => {
-	let { index, id, title, state } = e;
-	let question: questionType[] = JSON.parse(JSON.stringify(questionnaire.question));
-	let controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
+	const { index, id, title, state } = e;
+	const question: questionType[] = JSON.parse(JSON.stringify(questionnaire.question));
+	const controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
 	switch (state) {
 		case 1:
-			let data = question.slice(0, index).filter((item) => item.type !== "段落说明");
+		const data = question.slice(0, index).filter((item) => item.type !== "段落说明");
 			concernFrontRef.value.frontOpen(data, title, id, controlLogic);
 			return;
 		case 2:
 			if (!controlLogic) return message.info("此题没有关联逻辑，无法复制！");
-			let data2 = question.slice(index + 1);
+			const data2 = question.slice(index + 1);
 			concernCopyRef.value.copyOpen(data2, title, id, controlLogic);
 			return;
 		default:
@@ -187,13 +204,13 @@ const concern = (e: { index: number; id: number; title: string; state: number })
 };
 //显示关联
 const showConcern = (id: number) => {
-	let controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
+	const controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
 	if (!controlLogic) return "";
-	let questionIds = controlLogic.questionIds.split(",").map((item) => Number(item));
-	let parentAnswer = controlLogic.parentAnswer.split("|");
+	const questionIds = controlLogic.questionIds.split(",").map((item) => Number(item));
+	const parentAnswer = controlLogic.parentAnswer.split("|");
 	let str = "依赖于";
-	for (let i in questionIds) {
-		let serial = serialNum(questionIds[i], parentAnswer[i].split(","));
+	for (const i in questionIds) {
+		const serial = serialNum(questionIds[i], parentAnswer[i].split(","));
 		str += `第${serial.num}题第${serial.answer.sort().join("、")}选项，`;
 	}
 	if (questionIds.length > 1) {

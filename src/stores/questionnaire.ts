@@ -41,6 +41,20 @@ export const questionnaireStore = defineStore("questionnaire", {
 			this.controlLogic = survey.controlLogic;
 			this.questionMaxId = maxId ? Number(maxId) : mostValue(survey.question, "id");
 		},
+		//清空
+		reset() {
+			this.id = "";
+			this.title = "测试问卷";
+			this.content = "";
+			this.createTime = getTime();
+			this.modifyTime = getTime();
+			this.state = false;
+			this.question = [];
+			this.controlLogic = [];
+			this.questionMaxId = 1000;
+			this.insertNum = -1;
+			this.editId = -1;
+		},
 		//打开编辑
 		editCount(id: number) {
 			this.editId = id;
