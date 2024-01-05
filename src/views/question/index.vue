@@ -187,13 +187,13 @@ const submitTo = () => {
 }
 
 .question-item {
-  padding: 10px;
-  background: #fff;
-  border-radius: 5px;
   margin-bottom: 10px;
   font-size: 16px;
 
   .ant-form-item {
+    padding: 10px;
+    background: #fff;
+    border-radius: 5px;
     margin-bottom: 0;
   }
 
@@ -218,7 +218,7 @@ const submitTo = () => {
 @mixin transition-default() {
   &-enter-active,
   &-leave-active {
-    transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
+    transition: 0.2s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
   }
 }
 
