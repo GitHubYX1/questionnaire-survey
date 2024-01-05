@@ -1,9 +1,9 @@
 <template>
     <a-modal :visible="copyVisible" title="复制向前关联" width="800px" :mask="false" @cancel="onCancel" @ok="handleOk">
         <div class="copy-box">
-            <a-table :rowSelection="{ selectedRowKeys: childIds, onChange: onSelectChange }" :dataSource="tableData" :pagination="false" bordered rowKey="id">
+            <a-table :rowSelection="{ selectedRowKeys: childIds, onChange: onSelectChange }" :customRow="customRow" :scroll="{ y: 500 }" :dataSource="tableData" :pagination="false" bordered rowKey="id">
                 <a-table-column key="id" title="题目标题" align="center">
-                    <template #default="{ record, index }">
+                    <template #default="{ record }">
                         <div v-html="record.title"></div>
                     </template>
                 </a-table-column>
@@ -39,6 +39,19 @@ const onSelectChange = (sel:number[]) =>{
     childIds.value = sel;
 }
 
+//点击行
+const customRow = (record: questionType) => {
+    return {
+      onClick: () => {
+        if(!childIds.value.includes(record.id)){
+            childIds.value.push(record.id)
+        }else{
+            childIds.value = childIds.value.filter(item => item!== record.id);
+        }
+      },
+    };
+  };
+
 //取消
 const onCancel = (e: any) => {
     if (e.target.className != "ant-modal-wrap") copyVisible.value = false;
@@ -58,4 +71,8 @@ const handleOk = () => {
 
 defineExpose({ copyOpen });
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+:deep(.ant-table-cell){
+    cursor: pointer;
+}
+</style>
