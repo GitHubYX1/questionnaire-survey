@@ -114,7 +114,7 @@ const importFile = async (event: any) => {
           title: jsonData[i]["标题"],
           type: jsonData[i]["类型"],
           option: option,
-          must: 1,
+          must: jsonData[i]["必答题"] === "是" ? 1 : 0,
           column: 1,
         });
         id++;
