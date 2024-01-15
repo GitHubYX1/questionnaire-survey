@@ -61,6 +61,7 @@ export const questionnaireStore = defineStore("questionnaire", {
 		},
 		//关闭编辑
 		resetting() {
+			document.getElementById("focal")?.focus();
 			this.editId = -1;
 		},
 		//修改顶部标题

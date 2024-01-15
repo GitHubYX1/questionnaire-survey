@@ -41,6 +41,7 @@ const handleOk = () => {
   if (contentValue.value.replace(/<[^>]+>/g, "") == "") {
     contentValue.value = "";
   }
+  document.getElementById("focal")?.focus();
   console.log("打印文本", contentValue.value);
   emit("titleModify", { title: titleValue.value, content: contentValue.value });
 };
