@@ -12,8 +12,6 @@
   "dependencies": {
     "@ant-design/icons-vue": "^6.1.0",
     "@tinymce/tinymce-vue": "^5.1.1",
-    "@wangeditor/editor": "^5.1.23",
-    "@wangeditor/editor-for-vue": "^5.1.12",
     "ant-design-vue": "^3.2.20",
     "dayjs": "^1.11.8",
     "docxtemplater": "^3.39.1",
