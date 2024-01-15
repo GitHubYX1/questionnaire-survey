@@ -8,7 +8,7 @@
       <div class="editor-title flex">
         <div class="title">说明</div>
         <div class="title-rich">
-          <rich-editor v-model="contentValue"></rich-editor>
+          <rich-tinymce v-model="contentValue" ref="editorRef"></rich-tinymce>
         </div>
       </div>
     </div>
@@ -17,14 +17,16 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import RichEditor from "./rich-editor.vue";
+import RichTinymce from "./rich-tinymce.vue";
 
 const visible = ref(false);
 const titleValue = ref("");
 const contentValue = ref("");
 const emit = defineEmits(["titleModify"]);
+const editorRef = ref<any>();
 // 打开
 const open = (title: string, content: string) => {
+  editorRef.value?.setContent(content);
   visible.value = true;
   titleValue.value = title;
   contentValue.value = content;

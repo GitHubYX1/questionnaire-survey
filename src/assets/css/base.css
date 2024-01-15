@@ -68,19 +68,16 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0 !important;
 }
 
-ul,
-h1,
-h3,
-h4,
-p,
-dl,
-dd {
+* {
   padding: 0;
   margin: 0;
 }
 
-i {
-  font-style: normal;
+
+
+.tox-statusbar__branding {
+  display: none;
 }

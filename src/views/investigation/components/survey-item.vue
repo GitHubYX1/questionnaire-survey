@@ -53,8 +53,7 @@
             </a-select>
           </div>
         </template>
-
-        <rich-editor v-model="props.question.title" :height="200" :marginBottom="30" v-else></rich-editor>
+        <rich-tinymce v-model="props.question.title" v-else></rich-tinymce>
         <template v-if="props.question.type === '单选' || props.question.type === '多选'
           ">
           <a-table :dataSource="props.question.option" :pagination="false" bordered rowKey="id">
@@ -95,7 +94,7 @@ import { ref, type PropType } from "vue";
 import type { typeType, questionType } from "@/types/index";
 import { Modal } from "ant-design-vue";
 import { questionnaireStore } from "@/stores/questionnaire";
-import RichEditor from "./rich-editor.vue";
+import RichTinymce from "./rich-tinymce.vue";
 
 const questionnaire = questionnaireStore();
 const emit = defineEmits(["optionAdd","concern",]);

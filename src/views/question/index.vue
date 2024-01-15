@@ -12,7 +12,7 @@
             <transition name="slide-x" mode="out-in">
               <div class="question-item" :id="'item-'+item.id" v-if="isShow(item.id)">
                 <div v-if="item.type === '段落说明'" v-html="item.title"></div>
-                <a-form-item v-else :label="item.title" :name="item.id" :required="item.must" :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
+                <a-form-item v-else :label="item.title" :key="item.id" :name="item.id" :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
                   <a-radio-group v-if="item.type === '单选'" class="grid" :style="generateColumn(item.column)" v-model:value="formState[item.id]">
                     <a-radio class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-radio>
                   </a-radio-group>
