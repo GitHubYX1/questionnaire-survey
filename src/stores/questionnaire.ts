@@ -108,7 +108,7 @@ export const questionnaireStore = defineStore("questionnaire", {
 				this.questionMaxId = mostValue(this.question, "id");
 				this.resetting(); 
 				this.loading?.end();
-			},500)
+			},100)
 		},
 		//复制
 		copy(question: questionType, index: number) {

@@ -1,6 +1,6 @@
 <template>
   <div class="project-box flex-between">
-    <a-button type="primary" size="large" style="width: 200px" @click="newBuilt">+ 新建</a-button>
+    <a-button type="primary" size="large" style="width: 200px" @click="pushInvestigation('')">+ 新建</a-button>
     <div class="project-content">
       <div class="content-header flex-between align-items">
         <span>我的项目</span>
@@ -27,9 +27,11 @@
           </div>
           <div class="project-item-operate flex-between align-items">
             <div class="project-operate-Left">
-              <span @click="edit(item.id)"><form-outlined />编辑问卷</span>
+              <span @click="pushInvestigation(item.id)"><form-outlined />编辑问卷</span>
               <span @click="answer(item.id)"><profile-outlined />回答问卷</span>
-              <span @click="dataAnalysis(item.id)"><FundOutlined />数据分析</span>
+              <span @click="dataAnalysis(item.id)">
+                <FundOutlined />数据分析
+              </span>
             </div>
             <div class="project-operate-right">
               <span><a-switch v-model:checked="item.state" @change="stateChange(item.id, item.state)"
@@ -46,13 +48,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, inject } from "vue";
 import { useRouter } from "vue-router";
 import { Modal, Empty } from "ant-design-vue";
 import shortId from "shortid";
 import { getTime } from "@/utils/index";
 import { surveyStore } from "@/stores/survey";
-import type { surveyType } from "@/types/index";
+import type { surveyType, loadingType } from "@/types/index";
 import { getAnswerNum, answerErasure } from "@/computed/answer";
 
 const router = useRouter();
@@ -61,26 +63,28 @@ const surveyList = ref<surveyType[]>([]);
 const searchValue = ref("");
 const stateValue = ref<boolean | "">("");
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
+const loading = inject<loadingType>("loading");
 
 onMounted(() => {
   surveyList.value = storeData.surveyData;
 });
-
-const newBuilt = () => {
-  router.push("/investigation");
-  storeData.modifySurveyId("");
-};
 
 //切换状态
 const stateChange = (id: string, state: boolean) => {
   storeData.stateModify(id, state);
 };
 
-//点击编辑
-const edit = (id: string) => {
-  router.push("/investigation");
-  storeData.modifySurveyId(id);
+//跳转调查页
+const pushInvestigation = (id: string) => {
+  const loadingMessage = `问卷${id ? "打开" : "创建"}中，请稍等...`;
+  loading?.start(loadingMessage);
+  setTimeout(() => {
+    router.push("/investigation");
+    storeData.modifySurveyId(id);
+    loading?.end();
+  }, 100)
 };
+
 //答题
 const answer = (id: string) => {
   let href = router.resolve({ path: "/question", query: { id } });
