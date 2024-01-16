@@ -77,14 +77,11 @@ const concernCopyRef = ref<any>(null);
 const serialNum = (id: number, parent: string[] = []) => {
 	let num = 0;
 	let answer: number[] = [];
-	for (let i = 0; i < questionnaire.question.length; i++) {
-		let data = questionnaire.question[i];
+	for (const data of questionnaire.question) {
 		if (data.type !== "段落说明") num++;
 		if (data.id == id) {
 			if (parent.length !== 0) {
-				for (let j = 0; j < parent.length; j++) {
-					answer.push(data.option.indexOf(data.option.filter((item) => String(item.id) == parent[j])[0]) + 1);
-				}
+				answer = parent.map(id => data.option.findIndex(opt => String(opt.id) == id) + 1);
 			}
 			return { num, answer };
 		}
