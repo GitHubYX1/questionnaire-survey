@@ -1,6 +1,7 @@
+import { inject } from "vue";
 import { defineStore } from "pinia";
 import { mostValue, getTime, optionInit } from "@/utils/index";
-import type { typeType, optionType, questionType, surveyType, controlLogicType } from "@/types/index";
+import type { typeType, optionType, questionType, surveyType, controlLogicType, loadingType } from "@/types/index";
 
 /**
  * 问卷类型
@@ -12,6 +13,7 @@ interface questionnaireType extends surveyType {
 	questionMaxId: number;
 	insertNum: number;
 	editId: number;
+	loading:loadingType | undefined;
 }
 
 export const questionnaireStore = defineStore("questionnaire", {
@@ -27,6 +29,7 @@ export const questionnaireStore = defineStore("questionnaire", {
 		questionMaxId: 1000,
 		insertNum: -1,
 		editId: -1,
+		loading:inject<loadingType>("loading")
 	}),
 	actions: {
 		//初始化
@@ -95,13 +98,17 @@ export const questionnaireStore = defineStore("questionnaire", {
 		//获取导入数据
 		uploadData(e: { question: questionType[]; radio: string }) {
 			let { question, radio } = e;
-			if (radio == "add") {
-				this.question = this.question.concat(question);
-			} else {
-				this.question = question;
-			}
-			this.questionMaxId = mostValue(this.question, "id");
-			this.resetting(); 
+			this.loading?.start("问卷导入中，请稍等...");
+			setTimeout(()=> {
+				if (radio == "add") {
+					this.question = this.question.concat(question);
+				} else {
+					this.question = question;
+				}
+				this.questionMaxId = mostValue(this.question, "id");
+				this.resetting(); 
+				this.loading?.end();
+			},500)
 		},
 		//复制
 		copy(question: questionType, index: number) {

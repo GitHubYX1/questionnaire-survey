@@ -169,3 +169,15 @@ export declare type analysisType = {
   fill: fillType[];
   assessCount: number;
 };
+
+/**
+ * 数据加载
+ * @isLoading 是否开启加载页面
+ * @start 开启
+ * @end 关闭
+ */
+export declare type loadingType = {
+  isLoading: boolean;
+  start: (text?: string)=>void;
+  end: () => void;
+};
