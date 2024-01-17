@@ -30,7 +30,6 @@ import 'tinymce/plugins/pagebreak' //分页
 import 'tinymce/plugins/insertdatetime' //时间插入
 import 'tinymce/plugins/nonbreaking' //插入不间断空格
 import 'tinymce/plugins/advlist' //高级列表插件
-import 'tinymce/plugins/autoresize' //编辑器大小自适应
 import 'tinymce/skins/content/default/content.css' //内容区域css样式
 import 'tinymce/skins/ui/oxide/content.min.css' //皮肤
 import 'tinymce/skins/ui/oxide/skin.min.css' //皮肤
@@ -51,12 +50,11 @@ const props = defineProps({
 
 const init = {
     height: 400,
-    min_height: 400,
     selector: 'textarea',
     language: 'zh-Hans',
     skin: false,
     content_css: false,
-    plugins: 'code preview searchreplace fullscreen image link media template codesample table charmap pagebreak nonbreaking insertdatetime advlist lists wordcount autoresize indent2em',
+    plugins: 'code preview searchreplace fullscreen image link media template codesample table charmap pagebreak nonbreaking insertdatetime advlist lists wordcount  indent2em',
     toolbar: 'code undo redo cut copy paste pastetext forecolor backcolor bold italic underline strikethrough link | alignleft aligncenter alignright alignjustify outdent indent indent2em | \
      styleselect formatselect fontselect fontsizeselect | bullist numlist | blockquote subscript superscript removeformat | \
                      table image media charmap pagebreak insertdatetime  preview  fullscreen   lineheight ',
@@ -81,6 +79,7 @@ const init = {
         }
     },
     // menubar: false, //隐藏菜单栏
+    resize: false,//关闭缩放
     autosave_ask_before_unload: false,
     toolbar_mode: 'wrap',
     automatic_uploads: false,
@@ -89,8 +88,6 @@ const init = {
     paste_data_images: true,
     default_link_target: "_blank",
     link_default_protocol: "https",
-
-
 }
 let textContent = ref(props.modelValue)
 const emit = defineEmits(["update:modelValue"]);
