@@ -206,10 +206,10 @@ const showConcern = (id: number) => {
 	const questionIds = controlLogic.questionIds.split(",").map((item) => Number(item));
 	const parentAnswer = controlLogic.parentAnswer.split("|");
 	let str = "依赖于";
-	for (const i in questionIds) {
-		const serial = serialNum(questionIds[i], parentAnswer[i].split(","));
-		str += `第${serial.num}题第${serial.answer.sort().join("、")}选项，`;
-	}
+	questionIds.forEach((qid, index) => {
+        const { num, answer } = serialNum(qid, parentAnswer[index].split(","));
+        str += `第${num}题第${answer.sort().join("、")}选项，`;
+    });
 	if (questionIds.length > 1) {
 		str += `为“${controlLogic.condition === "and" ? "且" : "或"}”的关系`;
 	} else {
