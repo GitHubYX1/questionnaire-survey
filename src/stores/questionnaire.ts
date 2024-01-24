@@ -13,7 +13,7 @@ interface questionnaireType extends surveyType {
 	questionMaxId: number;
 	insertNum: number;
 	editId: number;
-	loading:loadingType | undefined;
+	loading: loadingType | undefined;
 }
 
 export const questionnaireStore = defineStore("questionnaire", {
@@ -29,7 +29,7 @@ export const questionnaireStore = defineStore("questionnaire", {
 		questionMaxId: 1000,
 		insertNum: -1,
 		editId: -1,
-		loading:inject<loadingType>("loading")
+		loading: inject<loadingType>("loading")
 	}),
 	actions: {
 		//初始化
@@ -93,34 +93,35 @@ export const questionnaireStore = defineStore("questionnaire", {
 			}
 			this.questionMaxId += 1;
 			console.log("打印数据", this.question);
-			this.resetting(); 
+			this.resetting();
 		},
 		//获取导入数据
 		uploadData(e: { question: questionType[]; radio: string }) {
 			let { question, radio } = e;
 			this.loading?.start("问卷导入中，请稍等...");
-			setTimeout(()=> {
+			setTimeout(() => {
 				if (radio == "add") {
 					this.question = this.question.concat(question);
 				} else {
 					this.question = question;
 				}
 				this.questionMaxId = mostValue(this.question, "id");
-				this.resetting(); 
+				this.resetting();
 				this.loading?.end();
-			},100)
+			}, 100)
 		},
 		//复制
 		copy(question: questionType, index: number) {
 			question.id = this.questionMaxId;
 			this.question.splice(index + 1, 0, question);
 			this.questionMaxId += 1;
-			this.resetting(); 
+			this.resetting();
 		},
 		//删除
-		erasure(index: number) {
+		erasure(id: number, index: number) {
+			this.controlLogic = this.controlLogic.filter((item) => item.childId !== id && !item.questionIds.includes(String(id)));
 			this.question.splice(index, 1);
-			this.resetting(); 
+			this.resetting();
 		},
 		//移动
 		move(index: number, action: string) {
@@ -139,7 +140,7 @@ export const questionnaireStore = defineStore("questionnaire", {
 		//插入数据
 		insert(index: number) {
 			this.insertNum = index;
-			this.resetting(); 
+			this.resetting();
 		},
 		//选项是否必答
 		mustSelect(index: number, must: boolean) {
