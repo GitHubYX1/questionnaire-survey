@@ -127,7 +127,8 @@ const insertClick = () => {
 };
 //复制
 const copyClick = () => {
-  questionnaire.copy(props.question, props.index);
+  const copy = {...props.question}
+  questionnaire.copy(copy, props.index);
 };
 //删除
 const erasureClick = () => {
