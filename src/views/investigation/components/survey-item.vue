@@ -1,26 +1,19 @@
 <template>
   <div class="survey-item">
-    <div :class="['survey-title', props.question.must ? 'required' : '']" v-if="props.question.type !== '段落说明'">
-      {{ props.serialNum }}.{{ props.question.title }}
-    </div>
+    <div :class="['survey-title', props.question.must ? 'required' : '']" v-if="props.question.type !== '段落说明'">{{ props.serialNum }}.{{ props.question.title }}</div>
     <div v-else v-html="props.question.title"></div>
     <div class="survey-option">
-      <a-radio-group v-if="props.question.type === '单选'" class="grid" :style="generateColumn(props.question.column)"
-        v-model:value="radioData">
-        <a-radio class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id" :value="subItem.id"
-          :name="subItem.content">{{ subItem.content }}</a-radio>
+      <a-radio-group v-if="props.question.type === '单选'" class="grid" :style="generateColumn(props.question.column)" v-model:value="radioData">
+        <a-radio class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-radio>
       </a-radio-group>
       <a-checkbox-group v-else-if="props.question.type === '多选'" class="grid" :style="generateColumn(props.question.column)">
-        <a-checkbox class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id"
-          :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
+        <a-checkbox class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
       </a-checkbox-group>
       <a-input v-else-if="props.question.type === '填空'" />
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="questionnaire.editId != props.question.id">
         <div class="survey-menu-box">
-          <span class="survey-insert" @click="insertClick">{{
-            insertNum !== index ? "在此题后插入新题" : "插入题目"
-          }}</span>
+          <span class="survey-insert" @click="insertClick">{{ insertNum !== index ? "在此题后插入新题" : "插入题目" }}</span>
           <div class="menu-buttom">
             <a-button type="primary" ghost size="small" @click="editClick">编辑</a-button>
             <a-button type="primary" ghost size="small" @click="copyClick">复制</a-button>
@@ -45,8 +38,7 @@
               <a-radio class="editor-option" value="填空">填空</a-radio>
             </a-radio-group>
             <a-checkbox class="editor-option" v-model:checked="mustBoolean" @change="checkboxChange">必答</a-checkbox>
-            <a-select v-model:value="props.question.column" style="width: 100px" v-if="props.question.type === '单选' || props.question.type === '多选'
-              ">
+            <a-select v-model:value="props.question.column" style="width: 100px" v-if="props.question.type === '单选' || props.question.type === '多选'">
               <a-select-option :value="1">一列</a-select-option>
               <a-select-option :value="2">两列</a-select-option>
               <a-select-option :value="3">三列</a-select-option>
@@ -54,8 +46,7 @@
           </div>
         </template>
         <rich-tinymce v-model="props.question.title" v-else></rich-tinymce>
-        <template v-if="props.question.type === '单选' || props.question.type === '多选'
-          ">
+        <template v-if="props.question.type === '单选' || props.question.type === '多选'">
           <a-table :dataSource="props.question.option" :pagination="false" bordered rowKey="id">
             <a-table-column key="id" title="选项文字" align="center">
               <template #default="{ record, index }">
@@ -66,16 +57,14 @@
             </a-table-column>
             <a-table-column key="id" title="上下移动" align="center">
               <template #default="{ index }">
-                <span class="option-icon">
-                  <arrow-up-outlined @click="optionMoveClick(index, '上')" /></span>
+                <span class="option-icon"> <arrow-up-outlined @click="optionMoveClick(index, '上')" /></span>
                 <span class="option-icon"><arrow-down-outlined @click="optionMoveClick(index, '下')" /></span>
               </template>
             </a-table-column>
           </a-table>
           <div class="option-add">
             <a-button type="link" size="large" @click="optionAddClick(-1)">添加选项</a-button>
-            <a-button type="link" size="large" @click="optionAddClick(-2)">
-              批量添加</a-button>
+            <a-button type="link" size="large" @click="optionAddClick(-2)"> 批量添加</a-button>
           </div>
         </template>
         <div class="logic-set flex align-items">
@@ -97,7 +86,7 @@ import { questionnaireStore } from "@/stores/questionnaire";
 import RichTinymce from "./rich-tinymce.vue";
 
 const questionnaire = questionnaireStore();
-const emit = defineEmits(["optionAdd","concern",]);
+const emit = defineEmits(["optionAdd", "concern"]);
 
 const props = defineProps({
   question: {
@@ -116,10 +105,10 @@ const props = defineProps({
     type: Number,
     default: -1,
   },
-  showConcern:{
-    type:String,
+  showConcern: {
+    type: String,
     default: "",
-  }
+  },
 });
 
 let radioData = ref("");
@@ -134,11 +123,11 @@ function generateColumn(column: number) {
 const insertClick = () => {
   let index = props.index;
   if (index === props.insertNum) index = -1;
-  questionnaire.insert( index);
+  questionnaire.insert(index);
 };
 //复制
 const copyClick = () => {
-  questionnaire.copy( props.question, props.index);
+  questionnaire.copy(props.question, props.index);
 };
 //删除
 const erasureClick = () => {
@@ -148,7 +137,22 @@ const erasureClick = () => {
     okText: "确认",
     cancelText: "取消",
     onOk() {
-      questionnaire.erasure( props.index);
+      const id = props.question.id;
+      const controlLogic = questionnaire.controlLogic.filter((item) => item.childId === id || item.questionIds.includes(String(id)));
+      //判断是否有逻辑关联
+      if (controlLogic.length) {
+        Modal.confirm({
+          title: "提示",
+          content: `题目有关联控制逻辑，删除题目，题目会从关联控制逻辑中删除，是否继续？`,
+          okText: "确认",
+          cancelText: "取消",
+          onOk() {
+            questionnaire.erasure(id, props.index);
+          },
+        });
+      } else {
+        questionnaire.erasure(id, props.index);
+      }
     },
   });
 };
@@ -162,7 +166,7 @@ const editClick = () => {
 };
 //点击必答
 const checkboxChange = () => {
-  questionnaire.mustSelect(props.index,mustBoolean.value);
+  questionnaire.mustSelect(props.index, mustBoolean.value);
 };
 //切换类型
 const typeChange = () => {
@@ -172,7 +176,7 @@ const typeChange = () => {
     okText: "确认",
     cancelText: "取消",
     onOk() {
-      questionnaire.typeModify(props.index,typeRadio.value);
+      questionnaire.typeModify(props.index, typeRadio.value);
     },
     onCancel() {
       typeRadio.value = props.question.type;
@@ -197,7 +201,7 @@ const optionRemoveClick = (optionIndex: number) => {
 //选项移动
 const optionMoveClick = (optionIndex: number, action: string) => {
   if (optionIndex == 0 && action == "上") return;
-  questionnaire.optionMove(props.index, optionIndex, action)
+  questionnaire.optionMove(props.index, optionIndex, action);
 };
 //题目关联
 const concernClick = (state: number) => {
@@ -215,7 +219,7 @@ const concernClick = (state: number) => {
   padding: 10px;
   border-bottom: 1px solid #efefef;
 
-  .show-concern{
+  .show-concern {
     color: #808084;
     font-size: 14px;
     margin-top: 5px;
