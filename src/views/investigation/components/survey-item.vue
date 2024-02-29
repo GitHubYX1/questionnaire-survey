@@ -14,9 +14,10 @@
         <a-checkbox class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id"
           :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
       </a-checkbox-group>
-      <a-select v-else-if="props.question.type === '下拉'" placeholder="请选择下拉列表" style="max-width: 260px;width: 100%;"
+      <a-select v-else-if="props.question.type === '下拉'" style="max-width: 260px;width: 100%;" placeholder="请选择下拉列表"
         :options="props.question.option" :fieldNames="{ label: 'content', value: 'id' }"></a-select>
-      <a-rate v-else-if="props.question.type === '评分'" :value="scoreOption/2" style="font-size: 28px" :count="scoreOption" disabled />
+      <a-rate v-else-if="props.question.type === '评分'" :value="scoreOption / 2" style="font-size: 28px" :count="scoreOption"
+        disabled />
       <a-input v-else-if="props.question.type === '填空'" />
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="questionnaire.editId != props.question.id">

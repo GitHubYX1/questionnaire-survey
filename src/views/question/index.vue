@@ -10,15 +10,25 @@
         <a-form layout="vertical" class="question-list" :model="formState" ref="formRef">
           <template v-for="item in questionData" :key="item.id">
             <transition name="slide-x" mode="out-in">
-              <div class="question-item" :id="'item-'+item.id" v-if="isShow(item.id)">
+              <div class="question-item" :id="'item-' + item.id" v-if="isShow(item.id)">
                 <div v-if="item.type === '段落说明'" v-html="item.title"></div>
-                <a-form-item v-else :label="item.title" :key="item.id" :name="item.id" :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
-                  <a-radio-group v-if="item.type === '单选'" class="grid" :style="generateColumn(item.column)" v-model:value="formState[item.id]">
-                    <a-radio class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-radio>
+                <a-form-item v-else :label="item.title" :key="item.id" :name="item.id"
+                  :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
+                  <a-radio-group v-if="item.type === '单选'" class="grid" :style="generateColumn(item.column)"
+                    v-model:value="formState[item.id]">
+                    <a-radio class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id"
+                      :name="subItem.content">{{ subItem.content }}</a-radio>
                   </a-radio-group>
-                  <a-checkbox-group v-else-if="item.type === '多选'" class="grid" :style="generateColumn(item.column)" v-model:value="formState[item.id]">
-                    <a-checkbox class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
+                  <a-checkbox-group v-else-if="item.type === '多选'" class="grid" :style="generateColumn(item.column)"
+                    v-model:value="formState[item.id]">
+                    <a-checkbox class="flex item-option" v-for="subItem in item.option" :key="subItem.id"
+                      :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
                   </a-checkbox-group>
+                  <a-select v-else-if="item.type === '下拉'" style="max-width: 260px;width: 100%;" placeholder="请选择下拉列表"
+                    v-model:value="formState[item.id]" :options="item.option"
+                    :fieldNames="{ label: 'content', value: 'id' }"></a-select>
+                  <a-rate v-else-if="item.type === '评分'" v-model:value="formState[item.id]" style="font-size: 28px"
+                    :count="item.option.length" />
                   <a-input v-else-if="item.type === '填空'" v-model:value="formState[item.id]"></a-input>
                 </a-form-item>
               </div>
@@ -79,10 +89,10 @@ onMounted(() => {
     infoHeader.id = survey.id;
     questionData.value = survey.question;
     //获取逻辑
-    controlData.value = survey.controlLogic.map(item=>({
-      id:item.childId,
+    controlData.value = survey.controlLogic.map(item => ({
+      id: item.childId,
       parentIds: item.questionIds.split(',').map((item: string) => Number(item)),
-      condition:item.condition,
+      condition: item.condition,
       parentAnswer: item.parentAnswer.split('|').map((item: string) =>
         item.split(',').map((id) => Number(id)),
       ),
@@ -122,7 +132,7 @@ const isShow = (id: number) => {
       )
     })
     let bool = findControl.condition === 'or' ? logicList.some((item) => item) : logicList.every((item) => item);
-    if(!bool) delete formState.value[id];
+    if (!bool) delete formState.value[id];
     return bool
   }
   return true
@@ -155,7 +165,7 @@ const submitTo = () => {
     if (errorFields && errorFields.length) {
       //滚动到没有回答的问题
       const firstErrorId: number = errorFields[0].name[0];
-      questionItem.namedItem("item-"+firstErrorId)?.scrollIntoView({ behavior: 'smooth' });
+      questionItem.namedItem("item-" + firstErrorId)?.scrollIntoView({ behavior: 'smooth' });
     }
   });
 };
@@ -216,6 +226,7 @@ const submitTo = () => {
 }
 
 @mixin transition-default() {
+
   &-enter-active,
   &-leave-active {
     transition: 0.2s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
@@ -224,6 +235,7 @@ const submitTo = () => {
 
 .slide-x {
   @include transition-default();
+
   &-enter-from,
   &-leave-to {
     opacity: 0;
@@ -233,11 +245,10 @@ const submitTo = () => {
 
 .slide-x-reverse {
   @include transition-default();
+
   &-enter-from,
   &-leave-to {
     opacity: 0;
     transform: translateX(15px);
   }
-}
-
-</style>
+}</style>
