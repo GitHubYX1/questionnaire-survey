@@ -22,6 +22,7 @@
 import { ref } from "vue";
 import Excel from "exceljs";
 import type { questionType } from "@/types/index";
+import { scoreOptionInit } from "@/utils";
 import { message } from "ant-design-vue";
 
 const props = defineProps({
@@ -108,6 +109,12 @@ const importFile = async (event: any) => {
         if (option.length && option.length !== idSet.size) {
           loading.value = false;
           return (errorText.value = "第" + index + "题目选项序号有重复！");
+        }
+        if(jsonData[i]["类型"] === "评分"){
+          if(option.length > 10){
+            return (errorText.value = "第" + index + "题目评分选项不能超过10个！");
+          }
+          option = scoreOptionInit(option.length)
         }
         questionList.push({
           id: id,
