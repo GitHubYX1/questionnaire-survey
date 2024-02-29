@@ -1,6 +1,6 @@
 import { inject } from "vue";
 import { defineStore } from "pinia";
-import { mostValue, getTime, optionInit } from "@/utils/index";
+import { mostValue, getTime, optionInit, scoreOptionInit } from "@/utils/index";
 import type { typeType, optionType, questionType, surveyType, controlLogicType, loadingType } from "@/types/index";
 
 /**
@@ -82,8 +82,10 @@ export const questionnaireStore = defineStore("questionnaire", {
 				must: 1,
 				column: 1,
 			};
-			if (contrl.type === "单选" || contrl.type == "多选") {
+			if (contrl.type === "单选" || contrl.type == "多选" || contrl.type == "下拉") {
 				questionAdd.option = optionInit();
+			}else if(contrl.type === "评分"){
+				questionAdd.option = scoreOptionInit(5);
 			}
 			if (this.insertNum == -1) {
 				this.question.push(questionAdd);
@@ -201,5 +203,9 @@ export const questionnaireStore = defineStore("questionnaire", {
 				console.log("打印所有关联题surveyInfo.controlLogic", this.controlLogic);
 			}
 		},
+		//评分选项修改
+		scoreOptionModify(index: number,num:number){
+			this.question[index].option = scoreOptionInit(num);
+		}
 	},
 });

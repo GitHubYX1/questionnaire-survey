@@ -1,10 +1,12 @@
 <template>
   <div class="control-nav">
-    <p class="control-title">控件栏</p>
-    <div class="control-list flex-between flex-wrap">
-      <div class="control-item" v-for="item in contrlData" :key="item.id" @click="clickControl(item)">
-        <component :is="item.icon"></component>
-        {{ item.title }}
+    <div class="control-box" v-for="item in contrlData" :key="item.key">
+      <div class="control-title">{{ item.title }}</div>
+      <div class="control-list flex-between flex-wrap">
+        <div class="control-item" v-for="children in item.children" :key="children.key" @click="clickControl(children)">
+          <component :is="children.icon"></component>
+          {{ children.title }}
+        </div>
       </div>
     </div>
     <a-button type="primary" block size="large" @click="download">下载导入问卷模板</a-button>
@@ -15,22 +17,24 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import type { contrlType, questionType } from "@/types/index";
+import type { contrlType, questionType, contrlChildrenType } from "@/types/index";
 import { contrlList } from "@/assets/common/local-data";
 import surveyUpload from "./survey-upload.vue";
 
 const props = defineProps({
-  questionMaxId:{
-    type:Number,
+  questionMaxId: {
+    type: Number,
     default: 1000,
   }
 });
 
+const expandedKeys = ref<string[]>(['0', '1', '2']);
+
 const contrlData: contrlType[] = contrlList;
 const uploadRef = ref<any>(null);
-const emit = defineEmits(["deriveContrl","uploadData"]);
+const emit = defineEmits(["deriveContrl", "uploadData"]);
 
-const clickControl = (contrl: contrlType) => {
+const clickControl = (contrl: contrlChildrenType) => {
   emit("deriveContrl", { title: contrl.title, type: contrl.type });
 };
 
@@ -38,7 +42,7 @@ const download = () => {
   window.open("问卷模板.xlsx")
 }
 
-const upload =(e:{ question: questionType[], radio: string })=>{
+const upload = (e: { question: questionType[], radio: string }) => {
   emit("uploadData", e);
 }
 </script>

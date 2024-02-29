@@ -9,6 +9,23 @@ export function optionInit(): optionType[] {
   ];
 }
 
+//评分选项初始化
+export function scoreOptionInit(num:number): optionType[] {
+  const arr: optionType[] = [
+    { id: 1, content: "1星" },
+    { id: 2, content: "2星" },
+    { id: 3, content: "3星" },
+    { id: 4, content: "4星" },
+    { id: 5, content: "5星" },
+    { id: 6, content: "6星" },
+    { id: 7, content: "7星" },
+    { id: 8, content: "8星" },
+    { id: 9, content: "9星" },
+    { id: 10, content: "10星" },
+  ];
+  return arr.slice(0, num);
+}
+
 //获取最大值
 export function mostValue(arr: any[], value: string): number {
   return (

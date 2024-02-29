@@ -1,4 +1,4 @@
-export declare type typeType = "单选" | "多选" | "填空" | "段落说明";
+export declare type typeType = "单选" | "多选" | '下拉' | '评分' | "填空" | "段落说明";
 
 /**
  * 空件项
@@ -8,7 +8,20 @@ export declare type typeType = "单选" | "多选" | "填空" | "段落说明";
  * @param icon 图标
  */
 export declare type contrlType = {
-  id: number;
+  key: string;
+  title: string;
+  children: contrlChildrenType[];
+};
+
+/**
+ * 空件项
+ * @param key id
+ * @param title 控件标题
+ * @param type 类型
+ * @param icon 图标
+ */
+export declare type contrlChildrenType = {
+  key: string;
   title: string;
   type: typeType;
   icon: string;
