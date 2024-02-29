@@ -112,6 +112,7 @@ const importFile = async (event: any) => {
         }
         if(jsonData[i]["类型"] === "评分"){
           if(option.length > 10){
+            loading.value = false;
             return (errorText.value = "第" + index + "题目评分选项不能超过10个！");
           }
           option = scoreOptionInit(option.length)
