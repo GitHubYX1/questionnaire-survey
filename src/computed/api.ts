@@ -43,7 +43,7 @@ export async function getAnalysisData(id: string): Promise<{
       let count = 0;
       let assess = item.type !== "多选" ? assessCount : 0;
       answerQuestion.forEach((answer) => {
-        if (item.type == "单选") {
+        if (item.type !== "多选") {
           if (answer.content == son.id) {
             count += 1;
           }
