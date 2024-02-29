@@ -77,9 +77,9 @@
             <a-button type="link" size="large" @click="optionAddClick(-2)"> 批量添加</a-button>
           </div>
         </template>
-        <div class="score-option" v-if="props.question.type === '评分'">
-          选项个数：{{ }}
-          <a-select style="width: 100px" v-model:value="scoreOption" @change="scoreOptionChange">
+        <div class="score-option" v-else-if="props.question.type === '评分'">
+          选项个数：
+          <a-select style="width: 200px" v-model:value="scoreOption" @change="scoreOptionChange">
             <a-select-option v-for="i in 10" :key="i" :value="i">{{ i }}个</a-select-option>
           </a-select>
         </div>
