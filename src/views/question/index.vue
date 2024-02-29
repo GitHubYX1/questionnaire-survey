@@ -29,7 +29,10 @@
                     :fieldNames="{ label: 'content', value: 'id' }"></a-select>
                   <a-rate v-else-if="item.type === '评分'" v-model:value="formState[item.id]" style="font-size: 28px"
                     :count="item.option.length" />
-                  <a-input v-else-if="item.type === '填空'" v-model:value="formState[item.id]"></a-input>
+                  <template v-else-if="item.type === '填空'">
+                    <a-input v-if="item.column === 1" v-model:value="formState[item.id]"></a-input>
+                    <a-textarea v-else :rows="item.column" v-model:value="formState[item.id]" />
+                  </template>
                 </a-form-item>
               </div>
             </transition>

@@ -16,9 +16,12 @@
       </a-checkbox-group>
       <a-select v-else-if="props.question.type === '下拉'" class="drop-down" placeholder="请选择下拉列表"
         :options="props.question.option" :fieldNames="{ label: 'content', value: 'id' }"></a-select>
-      <a-rate v-else-if="props.question.type === '评分'" :value="scoreOption / 2" style="font-size: 28px" :count="scoreOption"
-        disabled />
-      <a-input v-else-if="props.question.type === '填空'" />
+      <a-rate v-else-if="props.question.type === '评分'" :value="scoreOption / 2" style="font-size: 28px"
+        :count="scoreOption" disabled />
+      <template v-else-if="props.question.type === '填空'">
+        <a-input v-if="props.question.column === 1" />
+        <a-textarea v-else :rows="props.question.column" />
+      </template>
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="questionnaire.editId != props.question.id">
         <div class="survey-menu-box">
@@ -52,6 +55,13 @@
               <a-select-option :value="1">一列</a-select-option>
               <a-select-option :value="2">两列</a-select-option>
               <a-select-option :value="3">三列</a-select-option>
+            </a-select>
+            <a-select v-model:value="props.question.column" style="width: 100px"
+              v-else-if="props.question.type === '填空'">
+              <a-select-option :value="1">一行</a-select-option>
+              <a-select-option :value="2">两行</a-select-option>
+              <a-select-option :value="3">三行</a-select-option>
+              <a-select-option :value="4">四行</a-select-option>
             </a-select>
           </div>
         </template>

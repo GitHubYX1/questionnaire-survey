@@ -86,6 +86,8 @@ export const questionnaireStore = defineStore("questionnaire", {
 				questionAdd.option = optionInit();
 			}else if(contrl.type === "评分"){
 				questionAdd.option = scoreOptionInit(5);
+			}else if(contrl.title === '简答题'){
+				questionAdd.column = 2;
 			}
 			if (this.insertNum == -1) {
 				this.question.push(questionAdd);
