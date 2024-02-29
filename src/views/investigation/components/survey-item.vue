@@ -14,7 +14,7 @@
         <a-checkbox class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id"
           :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
       </a-checkbox-group>
-      <a-select v-else-if="props.question.type === '下拉'" style="max-width: 260px;width: 100%;" placeholder="请选择下拉列表"
+      <a-select v-else-if="props.question.type === '下拉'" class="drop-down" placeholder="请选择下拉列表"
         :options="props.question.option" :fieldNames="{ label: 'content', value: 'id' }"></a-select>
       <a-rate v-else-if="props.question.type === '评分'" :value="scoreOption / 2" style="font-size: 28px" :count="scoreOption"
         disabled />

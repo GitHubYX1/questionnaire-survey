@@ -24,7 +24,7 @@
                     <a-checkbox class="flex item-option" v-for="subItem in item.option" :key="subItem.id"
                       :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
                   </a-checkbox-group>
-                  <a-select v-else-if="item.type === '下拉'" style="max-width: 260px;width: 100%;" placeholder="请选择下拉列表"
+                  <a-select v-else-if="item.type === '下拉'" class="drop-down" placeholder="请选择下拉列表"
                     v-model:value="formState[item.id]" :options="item.option"
                     :fieldNames="{ label: 'content', value: 'id' }"></a-select>
                   <a-rate v-else-if="item.type === '评分'" v-model:value="formState[item.id]" style="font-size: 28px"
@@ -251,4 +251,5 @@ const submitTo = () => {
     opacity: 0;
     transform: translateX(15px);
   }
-}</style>
+}
+</style>

@@ -112,3 +112,8 @@
 .ant-table-cell {
   padding: 10px 10px !important;
 }
+
+.drop-down{
+  max-width: 400px;
+  width: 100%;
+}
