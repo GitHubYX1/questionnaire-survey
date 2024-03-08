@@ -108,4 +108,4 @@ const getContent = () => {
 }
 defineExpose({ setContent, getContent })
 </script>
-<style lang="scss" scoped></style>@/assets/tinymce/langs/zh-Hans.js
+<style lang="scss" scoped></style>
