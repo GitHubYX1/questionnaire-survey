@@ -8,7 +8,7 @@
       <div class="question-content" v-if="infoHeader.content" v-html="infoHeader.content"></div>
       <a-skeleton active :paragraph="{ rows: 16 }" :loading="questionData.length === 0">
         <a-form layout="vertical" class="question-list" :model="formState" ref="formRef">
-          <template v-for="item in questionData" :key="item.id">
+          <template v-for="item in questionData[pageIndex]" :key="item.id">
             <transition name="slide-x" mode="out-in">
               <div class="question-item" :id="'item-' + item.id" v-if="isShow(item.id)">
                 <div v-if="item.type === '段落说明'" v-html="item.title"></div>
@@ -38,7 +38,10 @@
             </transition>
           </template>
         </a-form>
-        <a-button type="primary" block size="large" @click="submitTo">提交</a-button>
+        <a-button v-if="pageIndex !== 0" block size="large" @click="prevPage">上一页</a-button>
+        <a-button v-if="pageIndex === questionData.length - 1" type="primary" block size="large"
+          @click="submitTo(true)">提交</a-button>
+        <a-button v-else type="primary" block size="large" @click="submitTo(false)">下一页</a-button>
       </a-skeleton>
     </section>
   </div>
@@ -69,12 +72,13 @@ const infoHeader = reactive({
   content: "",
   id: "",
 });
-const questionData = ref<questionType[]>([]);
+const questionData = ref<questionType[][]>([]);
 const formState = ref<Record<string, any>>({});
 const formRef = ref<FormInstance | null>(null);
 const startTime = ref<string>("");
 const controlData = ref<QuestionControlType[]>([]);
 const questionItem = document.getElementsByClassName("question-item");//获取题目元素
+const pageIndex = ref(0);
 
 //获取题目
 onMounted(() => {
@@ -90,7 +94,21 @@ onMounted(() => {
     infoHeader.title = survey.title;
     infoHeader.content = survey.content;
     infoHeader.id = survey.id;
-    questionData.value = survey.question;
+
+    const questionLsit: questionType[][] = [[]];
+    let page = 0;
+
+    // questionData.value = survey.question;
+    survey.question.forEach(item => {
+      if (item.type !== '分页') {
+        questionLsit[page].push(item);
+      } else {
+        page++;
+        questionLsit.push([]);
+      }
+    })
+    questionData.value = questionLsit.filter(item => item.length !== 0);
+    console.log("questionLsit", questionLsit);
     //获取逻辑
     controlData.value = survey.controlLogic.map(item => ({
       id: item.childId,
@@ -142,9 +160,12 @@ const isShow = (id: number) => {
 }
 
 //提交数据
-const submitTo = () => {
+const submitTo = (isSubmit: boolean) => {
   formRef.value?.validate().then(() => {
     console.log("打印获取数据", formState.value);
+    if (!isSubmit) {
+      return nextPage('next')
+    }
     if (props.preview) return message.error("此问卷为预览状态，不能提交！");
     let answerData: answerType[] = [];
     let formData = formState.value;
@@ -172,6 +193,27 @@ const submitTo = () => {
     }
   });
 };
+
+//上一页
+const prevPage = ()=>{
+  questionData.value[pageIndex.value].forEach(item=>{
+    delete formState.value[item.id]
+  })
+  nextPage("prev")
+}
+
+//分页
+const nextPage = (type: 'next' | 'prev' = 'next') => {
+  type === 'next' ? pageIndex.value++ : pageIndex.value--;
+  if (isPageEmpty(questionData.value[pageIndex.value])) {
+    nextPage(type);
+  }
+}
+
+//判断当前是否为空
+const isPageEmpty = (question: questionType[]) => {
+  return question.filter(item => isShow(item.id)).length === 0;
+}
 </script>
 <style lang='scss' scoped>
 .question {
@@ -254,5 +296,9 @@ const submitTo = () => {
     opacity: 0;
     transform: translateX(15px);
   }
+}
+
+.ant-btn {
+  margin-top: 10px;
 }
 </style>
