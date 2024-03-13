@@ -61,6 +61,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.questionMaxId = 1000;
       this.insertNum = -1;
       this.editId = -1;
+	  this.totalPage = 1;
     },
     //打开编辑
     editCount(id: number) {
