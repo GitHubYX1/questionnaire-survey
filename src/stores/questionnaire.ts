@@ -61,7 +61,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.questionMaxId = 1000;
       this.insertNum = -1;
       this.editId = -1;
-	  this.totalPage = 1;
+      this.totalPage = 1;
     },
     //打开编辑
     editCount(id: number) {
@@ -113,11 +113,14 @@ export const questionnaireStore = defineStore("questionnaire", {
       let { question, radio } = e;
       this.loading?.start("问卷导入中，请稍等...");
       setTimeout(() => {
-        if (radio == "add") {
-          this.question = this.question.concat(question);
-        } else {
-          this.question = question;
-        }
+        if (radio === "create") this.totalPage = 1;
+        question.forEach((item) => {
+          if (item.type === "分页") {
+            this.totalPage++;
+            item.currentPage = this.totalPage;
+          }
+        });
+        this.question = radio === "add" ? this.question.concat(question) : question;
         this.questionMaxId = mostValue(this.question, "id");
         this.resetting();
         this.loading?.end();

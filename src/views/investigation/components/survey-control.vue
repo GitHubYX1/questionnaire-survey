@@ -28,8 +28,6 @@ const props = defineProps({
   }
 });
 
-const expandedKeys = ref<string[]>(['0', '1', '2']);
-
 const contrlData: contrlType[] = contrlList;
 const uploadRef = ref<any>(null);
 const emit = defineEmits(["deriveContrl", "uploadData"]);
