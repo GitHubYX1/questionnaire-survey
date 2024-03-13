@@ -185,7 +185,7 @@ const previewClick = () => {
 //题目关联
 const concern = (e: { index: number; id: number; title: string; state: number }) => {
 	const { index, id, title, state } = e;
-	const question: questionType[] = JSON.parse(JSON.stringify(questionnaire.question));
+	const question: questionType[] = JSON.parse(JSON.stringify(questionnaire.question.filter(item=>item.type !== "分页")));
 	const controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
 	switch (state) {
 		case 1:
