@@ -79,6 +79,7 @@ const startTime = ref<string>("");
 const controlData = ref<QuestionControlType[]>([]);
 const questionItem = document.getElementsByClassName("question-item");//获取题目元素
 const pageIndex = ref(0);
+const answerIdRef = ref("");
 
 //获取题目
 onMounted(() => {
@@ -97,8 +98,6 @@ onMounted(() => {
 
     const questionLsit: questionType[][] = [[]];
     let page = 0;
-
-    // questionData.value = survey.question;
     survey.question.forEach(item => {
       if (item.type !== '分页') {
         questionLsit[page].push(item);
@@ -121,6 +120,7 @@ onMounted(() => {
     startTime.value = getTime();
     //判断是否有有答案
     if (answerId) {
+      answerIdRef.value = answerId;
       let answer = answerSelected(surveyId, answerId);
       if (!answer) return message.error("未找到相关答案");
       let state: any = {}
@@ -195,10 +195,11 @@ const submitTo = (isSubmit: boolean) => {
 };
 
 //上一页
-const prevPage = ()=>{
-  questionData.value[pageIndex.value].forEach(item=>{
-    delete formState.value[item.id]
-  })
+const prevPage = () => {
+  if (!answerIdRef.value)
+    questionData.value[pageIndex.value].forEach(item => {
+      delete formState.value[item.id]
+    })
   nextPage("prev")
 }
 
