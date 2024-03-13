@@ -17,12 +17,12 @@
                   <a-radio-group v-if="item.type === '单选'" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
                     <a-radio class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id"
-                      :name="subItem.content">{{ subItem.content }}</a-radio>
+                      :name="subItem.content">{{ subItem.content.replace(/\\n/g,'\n') }}</a-radio>
                   </a-radio-group>
                   <a-checkbox-group v-else-if="item.type === '多选'" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
                     <a-checkbox class="flex item-option" v-for="subItem in item.option" :key="subItem.id"
-                      :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
+                      :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g,'\n') }}</a-checkbox>
                   </a-checkbox-group>
                   <a-select v-else-if="item.type === '下拉'" class="drop-down" placeholder="请选择下拉列表"
                     v-model:value="formState[item.id]" :options="item.option"
@@ -264,6 +264,7 @@ const isPageEmpty = (question: questionType[]) => {
     line-height: 40px;
     font-size: 16px;
     padding: 0 10px;
+    white-space: pre-wrap;
 
     &:hover {
       background: #f9f9f9;
