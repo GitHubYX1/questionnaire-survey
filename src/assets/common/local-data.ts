@@ -56,6 +56,12 @@ export const contrlList: contrlType[] = [
     children: [
       {
         key: "3-1",
+        title: "分页",
+        type: "分页",
+        icon: "column-height-outlined",
+      },
+      {
+        key: "3-2",
         title: "段落说明",
         type: "段落说明",
         icon: "edit-outlined",

@@ -1,8 +1,10 @@
 <template>
   <div class="survey-item">
-    <div :class="['survey-title', props.question.must ? 'required' : '']" v-if="props.question.type !== '段落说明'">{{
-      props.serialNum }}.{{ props.question.title }}</div>
-    <div v-else v-html="props.question.title"></div>
+    <div v-if="props.question.type === '段落说明'" v-html="props.question.title"></div>
+    <div class="survey-paging" v-else-if="props.question.type === '分页'">{{`第${props.question.currentPage}页（共${questionnaire.totalPage}页）`}}</div>
+    <div :class="['survey-title', props.question.must ? 'required' : '']" v-else>
+      {{ props.serialNum }}.{{ props.question.title }}
+    </div>
     <div class="survey-option">
       <a-radio-group v-if="props.question.type === '单选'" class="grid" :style="generateColumn(props.question.column)"
         v-model:value="radioData">
@@ -27,8 +29,10 @@
         <div class="survey-menu-box">
           <span class="survey-insert" @click="insertClick">{{ insertNum !== index ? "在此题后插入新题" : "插入题目" }}</span>
           <div class="menu-buttom">
-            <a-button type="primary" ghost size="small" @click="editClick">编辑</a-button>
-            <a-button type="primary" ghost size="small" @click="copyClick">复制</a-button>
+            <template v-if="props.question.type">
+              <a-button type="primary" ghost size="small" @click="editClick">编辑</a-button>
+              <a-button type="primary" ghost size="small" @click="copyClick">复制</a-button>
+            </template>
             <a-button type="primary" ghost size="small" @click="erasureClick">删除</a-button>
             <a-button type="primary" ghost size="small" @click="moveClick('上')">上移</a-button>
             <a-button type="primary" ghost size="small" @click="moveClick('下')">下移</a-button>
@@ -259,8 +263,8 @@ const scoreOptionChange = (num: number) => {
   }
 
   .survey-menu {
-    height: 35px;
-    line-height: 35px;
+    height: 30px;
+    line-height: 30px;
   }
 
   .survey-menu-box {

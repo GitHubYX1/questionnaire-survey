@@ -23,6 +23,7 @@
 					<div class="investigation-intro" v-if="questionnaire.content" v-html="questionnaire.content"></div>
 				</div>
 				<div class="editor-list">
+					<div class="survey-paging" v-if="questionnaire.totalPage!== 1">第1页（共{{questionnaire.totalPage}}页）</div>
 					<survey-item
 						v-for="(item, index) in questionnaire.question"
 						:key="item.id"
@@ -72,13 +73,14 @@ const dataTitle = ref<any>(null);
 const batchModal = ref<any>(null);
 const concernFrontRef = ref<any>(null);
 const concernCopyRef = ref<any>(null);
+const serialRemoveType = ["段落说明","分页"];
 
 //获取序号
 const serialNum = (id: number, parent: string[] = []) => {
 	let num = 0;
 	let answer: number[] = [];
 	for (const data of questionnaire.question) {
-		if (data.type !== "段落说明") num++;
+		if (!serialRemoveType.includes(data.type)) num++;
 		if (data.id == id) {
 			if (parent.length !== 0) {
 				answer = parent.map(id => data.option.findIndex(opt => String(opt.id) == id) + 1);
@@ -187,7 +189,7 @@ const concern = (e: { index: number; id: number; title: string; state: number })
 	const controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
 	switch (state) {
 		case 1:
-		const data = question.slice(0, index).filter((item) => item.type !== "段落说明");
+		const data = question.slice(0, index).filter((item) => !serialRemoveType.includes(item.type));
 			concernFrontRef.value.frontOpen(data, title, id, controlLogic);
 			return;
 		case 2:

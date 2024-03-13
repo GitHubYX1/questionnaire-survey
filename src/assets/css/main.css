@@ -117,3 +117,9 @@
   max-width: 400px;
   width: 100%;
 }
+
+.survey-paging{
+  text-align: center;
+  color: #6A6A82;
+  padding-top: 10px;
+}

@@ -1,4 +1,4 @@
-export declare type typeType = "单选" | "多选" | '下拉' | '评分' | "填空" | "段落说明";
+export declare type typeType = "单选" | "多选" | '下拉' | '评分' | "填空" | "分页" | "段落说明";
 
 /**
  * 空件项
@@ -44,6 +44,7 @@ export declare type optionType = {
  * @param option 选项
  * @param must 是否必选
  * @param column 选项列数
+ * @param currentPage 当前页
  */
 export declare type questionType = {
   id: number;
@@ -52,6 +53,7 @@ export declare type questionType = {
   option: optionType[];
   must: 0 | 1;
   column: number;
+  currentPage?:number;
 };
 
 /**
