@@ -29,7 +29,7 @@
         <div class="survey-menu-box">
           <span class="survey-insert" @click="insertClick">{{ insertNum !== index ? "在此题后插入新题" : "插入题目" }}</span>
           <div class="menu-buttom">
-            <template v-if="props.question.type">
+            <template v-if="props.question.type !== '分页'">
               <a-button type="primary" ghost size="small" @click="editClick">编辑</a-button>
               <a-button type="primary" ghost size="small" @click="copyClick">复制</a-button>
             </template>
