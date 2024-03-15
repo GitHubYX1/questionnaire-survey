@@ -207,7 +207,8 @@ const prevPage = () => {
 const nextPage = (type: 'next' | 'prev' = 'next') => {
   type === 'next' ? pageIndex.value++ : pageIndex.value--;
   if (isPageEmpty(questionData.value[pageIndex.value])) {
-     nextPage(type);
+    nextPage(type);
+    return
   }
   questionItem[0].scrollIntoView({ behavior: 'smooth' });
 }
