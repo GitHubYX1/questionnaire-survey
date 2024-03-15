@@ -5,7 +5,7 @@
     </header>
     <section class="question-section">
       <!-- 前言 -->
-      <div class="question-content" v-if="infoHeader.content" v-html="infoHeader.content"></div>
+      <div class="question-content" v-if="infoHeader.content && pageIndex === 0" v-html="infoHeader.content"></div>
       <a-skeleton active :paragraph="{ rows: 16 }" :loading="questionData.length === 0">
         <a-form layout="vertical" class="question-list" :model="formState" ref="formRef">
           <template v-for="item in questionData[pageIndex]" :key="item.id">
@@ -17,12 +17,12 @@
                   <a-radio-group v-if="item.type === '单选'" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
                     <a-radio class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id"
-                      :name="subItem.content">{{ subItem.content.replace(/\\n/g,'\n') }}</a-radio>
+                      :name="subItem.content">{{ subItem.content.replace(/\\n/g, '\n') }}</a-radio>
                   </a-radio-group>
                   <a-checkbox-group v-else-if="item.type === '多选'" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
                     <a-checkbox class="flex item-option" v-for="subItem in item.option" :key="subItem.id"
-                      :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g,'\n') }}</a-checkbox>
+                      :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g, '\n') }}</a-checkbox>
                   </a-checkbox-group>
                   <a-select v-else-if="item.type === '下拉'" class="drop-down" placeholder="请选择下拉列表"
                     v-model:value="formState[item.id]" :options="item.option"
