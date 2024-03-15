@@ -207,8 +207,9 @@ const prevPage = () => {
 const nextPage = (type: 'next' | 'prev' = 'next') => {
   type === 'next' ? pageIndex.value++ : pageIndex.value--;
   if (isPageEmpty(questionData.value[pageIndex.value])) {
-    nextPage(type);
+     nextPage(type);
   }
+  questionItem[0].scrollIntoView({ behavior: 'smooth' });
 }
 
 //判断当前是否为空
