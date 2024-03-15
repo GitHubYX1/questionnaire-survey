@@ -190,7 +190,7 @@ const previewClick = () => {
 //题目关联
 const concern = (e: { index: number; id: number; title: string; state: number }) => {
   const { index, id, title, state } = e;
-  const question: questionType[] = JSON.parse(JSON.stringify(questionnaire.question.filter((item) => item.type !== "分页")));
+  const question: questionType[] = JSON.parse(JSON.stringify(questionnaire.question));
   const controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
   switch (state) {
     case 1:
@@ -199,7 +199,7 @@ const concern = (e: { index: number; id: number; title: string; state: number })
       return;
     case 2:
       if (!controlLogic) return message.info("此题没有关联逻辑，无法复制！");
-      const data2 = question.slice(index + 1);
+      const data2 = question.slice(index + 1).filter((item) => item.type !== "分页");
       concernCopyRef.value.copyOpen(data2, title, id, controlLogic);
       return;
     default:
