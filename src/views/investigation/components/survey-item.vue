@@ -153,7 +153,7 @@ function generateColumn(column: number) {
 //插入数据
 const insertClick = () => {
   let index = props.index;
-  if (index === props.insertNum) index = -1;
+  if (index === props.insertNum) index = -2;
   questionnaire.insert(index);
 };
 //复制

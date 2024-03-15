@@ -28,7 +28,7 @@ export const questionnaireStore = defineStore("questionnaire", {
     question: [],
     controlLogic: [],
     questionMaxId: 1000,
-    insertNum: -1,
+    insertNum: -2,
     editId: -1,
     loading: inject<loadingType>("loading"),
     totalPage: 1,
@@ -59,7 +59,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.question = [];
       this.controlLogic = [];
       this.questionMaxId = 1000;
-      this.insertNum = -1;
+      this.insertNum = -2;
       this.editId = -1;
       this.totalPage = 1;
     },
@@ -98,11 +98,11 @@ export const questionnaireStore = defineStore("questionnaire", {
         questionAdd.currentPage = this.totalPage;
         questionAdd.must = 0;
       }
-      if (this.insertNum == -1) {
+      if (this.insertNum == -2) {
         this.question.push(questionAdd);
       } else {
         this.question.splice(this.insertNum + 1, 0, questionAdd);
-        this.insertNum = -1;
+        this.insertNum = -2;
       }
       this.questionMaxId += 1;
       console.log("打印数据", this.question);
