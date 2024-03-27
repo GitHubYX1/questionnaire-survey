@@ -16,9 +16,7 @@ import 'tinymce/plugins/table' // 插入表格插件
 import 'tinymce/plugins/lists' // 列表插件
 import 'tinymce/plugins/charmap' // 特殊字符
 import 'tinymce/plugins/wordcount' // 字数统计插件
-import 'tinymce/plugins/codesample' // 插入代码
 import 'tinymce/plugins/code' // 查看源码
-import 'tinymce/plugins/codesample'; //代码示例
 import 'tinymce/plugins/link' //编辑链接
 import 'tinymce/plugins/insertdatetime' //时间插入
 import 'tinymce/plugins/nonbreaking' //插入不间断空格
@@ -47,7 +45,7 @@ const init = {
     language: 'zh-Hans',
     skin: false,
     content_css: false,
-    plugins: 'code image link media codesample table charmap nonbreaking insertdatetime advlist lists wordcount indent2em',
+    plugins: 'code image link media table charmap nonbreaking insertdatetime advlist lists wordcount indent2em',
     toolbar: 'code undo redo cut copy paste pastetext forecolor backcolor bold italic underline strikethrough link | alignleft aligncenter alignright alignjustify outdent indent indent2em | \
      styleselect formatselect fontselect fontsizeselect | bullist numlist | blockquote subscript superscript removeformat nonbreaking| \
                      table image media charmap insertdatetime lineheight',
