@@ -1,4 +1,4 @@
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 import type { optionType } from "@/types/index";
 
 //选项参数初始化
