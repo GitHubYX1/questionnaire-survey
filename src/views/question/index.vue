@@ -11,25 +11,25 @@
           <template v-for="item in questionData[pageIndex]" :key="item.id">
             <transition name="slide-x" mode="out-in">
               <div class="question-item" :id="'item-' + item.id" v-if="isShow(item.id)">
-                <div v-if="item.type === '段落说明'" v-html="item.title"></div>
+                <div v-if="item.type === PARAGRAPH" v-html="item.title"></div>
                 <a-form-item v-else :label="item.title" :key="item.id" :name="item.id"
                   :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
-                  <a-radio-group v-if="item.type === '单选'" class="grid" :style="generateColumn(item.column)"
+                  <a-radio-group v-if="item.type === RADIO" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
                     <a-radio class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id"
                       :name="subItem.content">{{ subItem.content.replace(/\\n/g, '\n') }}</a-radio>
                   </a-radio-group>
-                  <a-checkbox-group v-else-if="item.type === '多选'" class="grid" :style="generateColumn(item.column)"
+                  <a-checkbox-group v-else-if="item.type === CHECKBOX" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
                     <a-checkbox class="flex item-option" v-for="subItem in item.option" :key="subItem.id"
                       :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g, '\n') }}</a-checkbox>
                   </a-checkbox-group>
-                  <a-select v-else-if="item.type === '下拉'" class="drop-down" placeholder="请选择下拉列表"
+                  <a-select v-else-if="item.type === DROP" class="drop-down" placeholder="请选择下拉列表"
                     v-model:value="formState[item.id]" :options="item.option"
                     :fieldNames="{ label: 'content', value: 'id' }"></a-select>
-                  <a-rate v-else-if="item.type === '评分'" v-model:value="formState[item.id]" style="font-size: 28px"
+                  <a-rate v-else-if="item.type === SCORE" v-model:value="formState[item.id]" style="font-size: 28px"
                     :count="item.option.length" />
-                  <template v-else-if="item.type === '填空'">
+                  <template v-else-if="item.type === FILL">
                     <a-input v-if="item.column === 1" v-model:value="formState[item.id]"></a-input>
                     <a-textarea v-else :rows="item.column" v-model:value="formState[item.id]" />
                   </template>
@@ -57,6 +57,8 @@ import type { questionType, answerType, surveyAnswerType, QuestionControlType } 
 import { surveyStore } from "@/stores/survey";
 import { getTime, timeDiff } from "@/utils/index";
 import { answerSave, answerSelected } from "@/computed/answer";
+import { typeEnum } from "@/assets/common/enums";
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH } = typeEnum;
 
 const props = defineProps({
   preview: {
@@ -99,7 +101,7 @@ onMounted(() => {
     const questionLsit: questionType[][] = [[]];
     let page = 0;
     survey.question.forEach(item => {
-      if (item.type !== '分页') {
+      if (item.type !== PAGING) {
         questionLsit[page].push(item);
       } else {
         page++;

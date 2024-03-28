@@ -1,6 +1,8 @@
 import storage from "@/utils/storage";
 import type { surveyAnswerType, answerType, analysisType, analysisOptionType, fillType } from "@/types/index";
 import { surveyStore } from "@/stores/survey";
+import { typeEnum } from "@/assets/common/enums";
+const { RADIO, CHECKBOX, FILL, PAGING } = typeEnum;
 
 const storeData = surveyStore();
 /**
@@ -35,9 +37,9 @@ export async function getAnalysisData(id: string): Promise<{
       let assessCount = answerQuestion.length;
       let option: analysisOptionType[] = item.option.map((son) => {
         let count = 0;
-        let assess = item.type !== "多选" ? assessCount : 0;
+        let assess = item.type !== CHECKBOX ? assessCount : 0;
         answerQuestion.forEach((answer) => {
-          if (item.type !== "多选") {
+          if (item.type !== CHECKBOX) {
             if (answer.content == son.id) {
               count += 1;
             }
@@ -54,7 +56,7 @@ export async function getAnalysisData(id: string): Promise<{
         return { ...son, count, ratio };
       });
       let fill: fillType[] = [];
-      if (item.type == "填空" && answerQuestion.length) {
+      if (item.type == FILL && answerQuestion.length) {
         fill = answerQuestion.map((son, index) => ({
           xh: index + 1,
           count: String(son.content),
@@ -69,7 +71,7 @@ export async function getAnalysisData(id: string): Promise<{
         assessCount: assessCount,
       };
     })
-    .filter((item) => item.type !== "分页");
+    .filter((item) => item.type !== PAGING);
   return { title: survey.title, count: answerData.length, start, end, data };
 }
 
@@ -85,7 +87,7 @@ export async function getAnswerData(id: string): Promise<{ answer: surveyAnswerT
   answer.forEach((item, index) => {
     let answerContent = [item.answerId, item.startTime, item.endTime, item.consumTime];
     survey.question.forEach((question) => {
-      if (index === 0 && question.type !== "分页") {
+      if (index === 0 && question.type !== PAGING) {
         excleTop.push(question.id + "." + question.title);
       }
       //获取答题数据
@@ -99,13 +101,13 @@ export async function getAnswerData(id: string): Promise<{ answer: surveyAnswerT
         }
         answerContent.push(textData.join());
       } else if (content) {
-        if (question.type === "单选") {
+        if (question.type === RADIO) {
           let text = question.option.filter((option) => option.id == content)[0].content;
           answerContent.push(content + "." + text);
         } else {
           answerContent.push(String(content));
         }
-      } else if (question.type !== "分页") {
+      } else if (question.type !== PAGING) {
         answerContent.push("");
       }
     });

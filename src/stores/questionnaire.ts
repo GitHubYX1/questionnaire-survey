@@ -1,7 +1,9 @@
 import { inject } from "vue";
 import { defineStore } from "pinia";
+import { typeEnum } from "@/assets/common/enums";
 import { mostValue, getTime, optionInit, scoreOptionInit } from "@/utils/index";
-import type { typeType, optionType, questionType, surveyType, controlLogicType, loadingType } from "@/types/index";
+import type { optionType, questionType, surveyType, controlLogicType, loadingType } from "@/types/index";
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING } = typeEnum;
 
 /**
  * 问卷类型
@@ -44,7 +46,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.state = survey.state;
       this.question = survey.question;
       this.controlLogic = survey.controlLogic;
-      const totalPage = survey.question.filter((item) => item.type === "分页").length;
+      const totalPage = survey.question.filter((item) => item.type === PAGING).length;
       this.totalPage = totalPage + 1;
       this.questionMaxId = maxId ? Number(maxId) : mostValue(survey.question, "id");
     },
@@ -78,7 +80,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.content = e.content;
     },
     //获取控件
-    deriveContrl(contrl: { title: string; type: typeType }) {
+    deriveContrl(contrl: { title: string; type: typeEnum }) {
       const questionAdd: questionType = {
         id: this.questionMaxId,
         title: contrl.title,
@@ -87,13 +89,13 @@ export const questionnaireStore = defineStore("questionnaire", {
         must: 1,
         column: 1,
       };
-      if (contrl.type === "单选" || contrl.type == "多选" || contrl.type == "下拉") {
+      if (contrl.type === RADIO || contrl.type == CHECKBOX || contrl.type == DROP) {
         questionAdd.option = optionInit();
-      } else if (contrl.type === "评分") {
+      } else if (contrl.type === SCORE) {
         questionAdd.option = scoreOptionInit(5);
       } else if (contrl.title === "简答题") {
         questionAdd.column = 2;
-      } else if (contrl.title === "分页") {
+      } else if (contrl.title === PAGING) {
         this.totalPage++;
         questionAdd.currentPage = this.totalPage;
         questionAdd.must = 0;
@@ -115,7 +117,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       setTimeout(() => {
         if (radio === "create") this.totalPage = 1;
         question.forEach((item) => {
-          if (item.type === "分页") {
+          if (item.type === PAGING) {
             this.totalPage++;
             item.currentPage = this.totalPage;
           }
@@ -135,7 +137,7 @@ export const questionnaireStore = defineStore("questionnaire", {
     },
     //删除
     erasure(id: number, index: number) {
-      if (this.question[index].type === "分页") {
+      if (this.question[index].type === PAGING) {
         this.totalPage--;
         this.question.forEach((item, sonIndex) => {
           if (item.currentPage && sonIndex > index) {
@@ -197,10 +199,10 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.question[index].must = must ? 1 : 0;
     },
     //类型修改
-    typeModify(index: number, type: typeType) {
-      if (this.question[index].type == "填空" && type !== "填空") {
+    typeModify(index: number, type: typeEnum) {
+      if (this.question[index].type == FILL && type !== FILL) {
         this.question[index].option = optionInit();
-      } else if (type === "填空") {
+      } else if (type === FILL) {
         this.question[index].option = [];
         this.question[index].column = 1;
       }

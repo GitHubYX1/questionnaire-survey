@@ -69,6 +69,7 @@ import { mostValue, getTime } from "@/utils/index";
 import { surveyStore } from "@/stores/survey";
 import { questionnaireStore } from "@/stores/questionnaire";
 import type { surveyType } from "@/types/index";
+import { typeEnum } from "@/assets/common/enums";
 
 const router = useRouter();
 const storeData = surveyStore();
@@ -78,7 +79,7 @@ const dataTitle = ref<any>(null);
 const batchModal = ref<any>(null);
 const concernFrontRef = ref<any>(null);
 const concernCopyRef = ref<any>(null);
-const serialRemoveType = ["段落说明", "分页"];
+const serialRemoveType = [typeEnum.PARAGRAPH, typeEnum.PAGING];
 
 //获取序号
 const serialNum = (id: number, parent: string[] = []) => {
@@ -199,7 +200,7 @@ const concern = (e: { index: number; id: number; title: string; state: number })
       return;
     case 2:
       if (!controlLogic) return message.info("此题没有关联逻辑，无法复制！");
-      const data2 = question.slice(index + 1).filter((item) => item.type !== "分页");
+      const data2 = question.slice(index + 1).filter((item) => item.type !== typeEnum.PAGING);
       concernCopyRef.value.copyOpen(data2, title, id, controlLogic);
       return;
     default:

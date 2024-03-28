@@ -22,6 +22,7 @@
 import { ref } from "vue";
 import Excel from "exceljs";
 import type { questionType } from "@/types/index";
+import { typeEnum } from "@/assets/common/enums";
 import { scoreOptionInit } from "@/utils";
 import { message } from "ant-design-vue";
 
@@ -88,8 +89,8 @@ const importFile = async (event: any) => {
       let questionList: questionType[] = [];
       for (let i = 0; i < jsonData.length; i++) {
         let index = i + 1;
-        if (jsonData[i]["类型"] == "分页") {
-          jsonData[i]["标题"] = "分页";
+        if (jsonData[i]["类型"] == typeEnum.PAGING) {
+          jsonData[i]["标题"] = typeEnum.PAGING;
         } else if (!jsonData[i]["标题"]) {
           loading.value = false;
           return (errorText.value = "第" + index + "题目标题未填写！");
@@ -112,7 +113,7 @@ const importFile = async (event: any) => {
           loading.value = false;
           return (errorText.value = "第" + index + "题目选项序号有重复！");
         }
-        if (jsonData[i]["类型"] === "评分") {
+        if (jsonData[i]["类型"] === typeEnum.SCORE) {
           if (option.length > 10) {
             loading.value = false;
             return (errorText.value = "第" + index + "题目评分选项不能超过10个！");

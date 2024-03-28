@@ -15,11 +15,11 @@
         </a-button>
       </div>
       <div class="analysis-item" v-for="item in topicData" :key="item.id">
-        <template v-if="item.type !== '段落说明'">
+        <template v-if="item.type !== typeEnum.PARAGRAPH">
           <div class="analysis-item-title">
             {{ item.title }} <span>[{{ item.type }}]</span>
           </div>
-          <analysisTable v-if="item.type !== '填空'" :tableData="item"></analysisTable>
+          <analysisTable v-if="item.type !== typeEnum.FILL" :tableData="item"></analysisTable>
           <a-button v-else type="primary" @click="lookInfo(item)">详细作答情况</a-button>
         </template>
         <div v-else class="analysis-item-html" v-html="item.title"></div>
@@ -40,6 +40,7 @@ import docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import JSZipUtils from "jszip-utils";
 import { saveAs } from "file-saver";
+import { typeEnum } from "@/assets/common/enums";
 
 const storeData = surveyStore();
 
@@ -80,10 +81,10 @@ const exportclick = () => {
   let queryStepListData = topicData.value.map(item => {
     let topicShow = true;
     let typeShow = true;
-    if (item.type === "段落说明") {
+    if (item.type === typeEnum.PARAGRAPH) {
       topicShow = false;
       item.title = item.title.replace(/<[^>]+>/g, "")
-    } else if (item.type === "填空") {
+    } else if (item.type === typeEnum.FILL) {
       typeShow = false;
     }
     return {

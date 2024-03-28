@@ -1,26 +1,26 @@
 <template>
   <div class="survey-item">
-    <div v-if="props.question.type === '段落说明'" v-html="props.question.title"></div>
-    <div class="survey-paging" v-else-if="props.question.type === '分页'">{{`第${props.question.currentPage}页（共${questionnaire.totalPage}页）`}}</div>
+    <div v-if="props.question.type === PARAGRAPH" v-html="props.question.title"></div>
+    <div class="survey-paging" v-else-if="props.question.type === PAGING">{{`第${props.question.currentPage}页（共${questionnaire.totalPage}页）`}}</div>
     <div :class="['survey-title', props.question.must ? 'required' : '']" v-else>
       {{ props.serialNum }}.{{ props.question.title }}
     </div>
     <div class="survey-option">
-      <a-radio-group v-if="props.question.type === '单选'" class="grid" :style="generateColumn(props.question.column)"
+      <a-radio-group v-if="props.question.type === RADIO" class="grid" :style="generateColumn(props.question.column)"
         v-model:value="radioData">
         <a-radio class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id" :value="subItem.id"
           :name="subItem.content">{{ subItem.content }}</a-radio>
       </a-radio-group>
-      <a-checkbox-group v-else-if="props.question.type === '多选'" class="grid"
+      <a-checkbox-group v-else-if="props.question.type === CHECKBOX" class="grid"
         :style="generateColumn(props.question.column)">
         <a-checkbox class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id"
           :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
       </a-checkbox-group>
-      <a-select v-else-if="props.question.type === '下拉'" class="drop-down" placeholder="请选择下拉列表"
+      <a-select v-else-if="props.question.type === DROP" class="drop-down" placeholder="请选择下拉列表"
         :options="props.question.option" :fieldNames="{ label: 'content', value: 'id' }"></a-select>
-      <a-rate v-else-if="props.question.type === '评分'" :value="scoreOption / 2" style="font-size: 28px"
+      <a-rate v-else-if="props.question.type === SCORE" :value="scoreOption / 2" style="font-size: 28px"
         :count="scoreOption" disabled />
-      <template v-else-if="props.question.type === '填空'">
+      <template v-else-if="props.question.type === FILL">
         <a-input v-if="props.question.column === 1" />
         <a-textarea v-else :rows="props.question.column" />
       </template>
@@ -29,7 +29,7 @@
         <div class="survey-menu-box">
           <span class="survey-insert" @click="insertClick">{{ insertNum !== index ? "在此题后插入新题" : "插入题目" }}</span>
           <div class="menu-buttom">
-            <template v-if="props.question.type !== '分页'">
+            <template v-if="props.question.type !== PAGING">
               <a-button type="primary" ghost size="small" @click="editClick">编辑</a-button>
               <a-button type="primary" ghost size="small" @click="copyClick">复制</a-button>
             </template>
@@ -42,26 +42,26 @@
         </div>
       </div>
       <div class="item-editor" v-else>
-        <template v-if="props.question.type !== '段落说明'">
+        <template v-if="props.question.type !== PARAGRAPH">
           <div class="editor-title">
             <p class="title">题目标题：</p>
             <a-input v-model:value="props.question.title" />
           </div>
           <div class="editor-type flex align-items">
             <a-radio-group v-model:value="typeRadio" :name="'radio' + props.question.id" @change="typeChange">
-              <a-radio class="editor-option" value="单选">单选</a-radio>
-              <a-radio class="editor-option" value="多选">多选</a-radio>
-              <a-radio class="editor-option" value="填空">填空</a-radio>
+              <a-radio class="editor-option" :value="RADIO">单选</a-radio>
+              <a-radio class="editor-option" :value="CHECKBOX">多选</a-radio>
+              <a-radio class="editor-option" :value="FILL">填空</a-radio>
             </a-radio-group>
             <a-checkbox class="editor-option" v-model:checked="mustBoolean" @change="checkboxChange">必答</a-checkbox>
             <a-select v-model:value="props.question.column" style="width: 100px"
-              v-if="props.question.type === '单选' || props.question.type === '多选'">
+              v-if="props.question.type === RADIO || props.question.type === CHECKBOX">
               <a-select-option :value="1">一列</a-select-option>
               <a-select-option :value="2">两列</a-select-option>
               <a-select-option :value="3">三列</a-select-option>
             </a-select>
             <a-select v-model:value="props.question.column" style="width: 100px"
-              v-else-if="props.question.type === '填空'">
+              v-else-if="props.question.type === FILL">
               <a-select-option :value="1">一行</a-select-option>
               <a-select-option :value="2">两行</a-select-option>
               <a-select-option :value="3">三行</a-select-option>
@@ -70,7 +70,7 @@
           </div>
         </template>
         <rich-tinymce v-model="props.question.title" v-else></rich-tinymce>
-        <template v-if="props.question.option.length && props.question.type !== '评分'">
+        <template v-if="props.question.option.length && props.question.type !== SCORE">
           <a-table :dataSource="props.question.option" :pagination="false" bordered rowKey="id">
             <a-table-column key="id" title="选项文字" align="center">
               <template #default="{ record, index }">
@@ -91,7 +91,7 @@
             <a-button type="link" size="large" @click="optionAddClick(-2)"> 批量添加</a-button>
           </div>
         </template>
-        <div class="score-option" v-else-if="props.question.type === '评分'">
+        <div class="score-option" v-else-if="props.question.type === SCORE">
           选项个数：
           <a-select style="width: 200px" v-model:value="scoreOption" @change="scoreOptionChange">
             <a-select-option v-for="i in 10" :key="i" :value="i">{{ i }}个</a-select-option>
@@ -110,10 +110,12 @@
 
 <script lang="ts" setup>
 import { ref, type PropType } from "vue";
-import type { typeType, questionType } from "@/types/index";
+import type { questionType } from "@/types/index";
 import { Modal } from "ant-design-vue";
 import { questionnaireStore } from "@/stores/questionnaire";
 import RichTinymce from "./rich-tinymce.vue";
+import { typeEnum } from "@/assets/common/enums";
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH } = typeEnum;
 
 const questionnaire = questionnaireStore();
 const emit = defineEmits(["optionAdd", "concern"]);
@@ -143,7 +145,7 @@ const props = defineProps({
 
 let radioData = ref("");
 const mustBoolean = ref<boolean>(props.question.must == 1 ? true : false);
-const typeRadio = ref<typeType>(props.question.type);
+const typeRadio = ref<typeEnum>(props.question.type);
 const scoreOption = ref(props.question.option.length);
 
 function generateColumn(column: number) {

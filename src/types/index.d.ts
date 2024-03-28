@@ -1,4 +1,4 @@
-export declare type typeType = "单选" | "多选" | '下拉' | '评分' | "填空" | "分页" | "段落说明";
+import { typeEnum } from "@/assets/common/enums";
 
 /**
  * 空件项
@@ -23,7 +23,7 @@ export declare type contrlType = {
 export declare type contrlChildrenType = {
   key: string;
   title: string;
-  type: typeType;
+  type: typeEnum;
   icon: string;
 };
 
@@ -49,7 +49,7 @@ export declare type optionType = {
 export declare type questionType = {
   id: number;
   title: string;
-  type: typeType;
+  type: typeEnum;
   option: optionType[];
   must: 0 | 1;
   column: number;
@@ -179,7 +179,7 @@ export declare type fillType = {
 export declare type analysisType = {
   id: number;
   title: string;
-  type: typeType;
+  type: typeEnum;
   option: analysisOptionType[];
   fill: fillType[];
   assessCount: number;

@@ -47,6 +47,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { message } from "ant-design-vue";
+import { typeEnum } from "@/assets/common/enums";
 import type { optionType, questionType, controlLogicType } from "@/types/index";
 
 interface selectType {
@@ -77,7 +78,7 @@ const filterOption = (input: string, option: selectType) => {
 
 // 打开
 const frontOpen = (data: questionType[], title: string, id: number, controlLogic: controlLogicType | undefined) => {
-  data = data.map((item, index) => { item.title = (index + 1) + '.' + item.title; return item }).filter(item => item.type !== '填空');
+  data = data.map((item, index) => { item.title = (index + 1) + '.' + item.title; return item }).filter(item => item.type !== typeEnum.FILL);
   if (data.length === 0) return message.info("此题前面没有选项题，无法设置关联逻辑！");
   frontVisible.value = true;
   concernData.value = [{
