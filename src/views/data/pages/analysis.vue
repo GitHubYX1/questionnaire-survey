@@ -1,5 +1,6 @@
 <template>
   <a-card class="analysis-list">
+    <screen @screenData="screenData"></screen>
     <a-skeleton active :paragraph="{ rows: 10 }" :loading="loading">
       <div class="analysis-title">{{ titleText }}</div>
       <div class="analysis-column flex-between align-items" v-if="startTime">
@@ -36,6 +37,7 @@ import { getAnalysisData } from "@/computed/api";
 import type { analysisType } from "@/types/index";
 import analysisTable from "../components/analysis-table.vue";
 import checkText from "../components/check-text.vue";
+import screen from "../components/screen.vue";
 import docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import JSZipUtils from "jszip-utils";
@@ -52,12 +54,11 @@ const checkRef = ref<any>(null);
 const startTime = ref<string>("");
 const endTime = ref<string>("");
 const downloadLoading = ref(false);
+const date = ref(["", ""]);
 
 const queryData = async () => {
   loading.value = true;
-  let { title, count, start, end, data } = await getAnalysisData(
-    storeData.surveyId
-  );
+  let { title, count, start, end, data } = await getAnalysisData(storeData.surveyId, date.value);
   titleText.value = title;
   assessCount.value = count;
   topicData.value = data;
@@ -78,12 +79,12 @@ const exportclick = () => {
   downloadLoading.value = true;
   let docxsrc = "data.docx"; //模板文件的位置
   console.log("topicData", topicData.value);
-  let queryStepListData = topicData.value.map(item => {
+  let queryStepListData = topicData.value.map((item) => {
     let topicShow = true;
     let typeShow = true;
     if (item.type === typeEnum.PARAGRAPH) {
       topicShow = false;
-      item.title = item.title.replace(/<[^>]+>/g, "")
+      item.title = item.title.replace(/<[^>]+>/g, "");
     } else if (item.type === typeEnum.FILL) {
       typeShow = false;
     }
@@ -93,15 +94,15 @@ const exportclick = () => {
       title: item.title,
       type: item.type,
       option: item.option,
-      assessCount: item.assessCount
-    }
-  })
+      assessCount: item.assessCount,
+    };
+  });
   const data = {
     form: {
       title: titleText.value,
     },
-    list: queryStepListData
-  }
+    list: queryStepListData,
+  };
   // 读取并获得模板文件的二进制内容
   JSZipUtils.getBinaryContent(docxsrc, function (error: any, content: any) {
     // docxsrc是模板。我们在导出的时候，会根据此模板来导出对应的数据
@@ -127,22 +128,30 @@ const exportclick = () => {
         message: error.message,
         name: error.name,
         stack: error.stack,
-        properties: error.properties
+        properties: error.properties,
       };
-      console.log(JSON.stringify({
-        error: e
-      }));
+      console.log(
+        JSON.stringify({
+          error: e,
+        })
+      );
       throw error;
     }
     // 生成一个代表docxtemplater对象的zip文件（不是一个真实的文件，而是在内存中的表示）
     let out = doc.getZip().generate({
       type: "blob",
-      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     });
     // 将目标文件对象保存为目标类型的文件，并命名
     saveAs(out, titleText.value);
     downloadLoading.value = false;
   });
+};
+
+//筛选
+const screenData = async (query: { date: string[] }) => {
+  date.value = query.date;
+  await queryData();
 };
 
 watch(

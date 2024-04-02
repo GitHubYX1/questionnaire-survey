@@ -9,7 +9,10 @@ const storeData = surveyStore();
  * 获取数据分析
  * @param id 题目id
  */
-export async function getAnalysisData(id: string): Promise<{
+export async function getAnalysisData(
+  id: string,
+  screenDate = ["", ""]
+): Promise<{
   title: string;
   count: number;
   start: string;
@@ -19,6 +22,13 @@ export async function getAnalysisData(id: string): Promise<{
   let answerData: surveyAnswerType[] = storage.getSession("ANSWERDATA", id) || [];
   let survey = storeData.surveySelected(id);
   let answerList: answerType[] = [];
+  if (screenDate[0]) {
+    const dateTime = [new Date(screenDate[0]).getTime(), new Date(screenDate[1]).getTime()];
+    answerData = answerData.filter((item) => {
+      const endTime = new Date(item.endTime).getTime();
+      return dateTime[0] <= endTime && dateTime[1] >= endTime;
+    });
+  }
   answerData.forEach((item) => {
     answerList = answerList.concat(item.answer);
   });
@@ -79,11 +89,18 @@ export async function getAnalysisData(id: string): Promise<{
  * 答题数据
  * @param id 题目id
  */
-export async function getAnswerData(id: string): Promise<{ answer: surveyAnswerType[]; excleList: string[][] }> {
+export async function getAnswerData(id: string, screenDate = ["", ""]): Promise<{ answer: surveyAnswerType[]; excleList: string[][] }> {
   let answer: surveyAnswerType[] = storage.getSession("ANSWERDATA", id) || [];
   let excleTop = ["答卷编号", "开始时间", "结束时间", "耗时"];
   let excleContent: string[][] = [];
   let survey = storeData.surveySelected(id);
+  if (screenDate[0]) {
+    const dateTime = [new Date(screenDate[0]).getTime(), new Date(screenDate[1]).getTime()];
+    answer = answer.filter((item) => {
+      const endTime = new Date(item.endTime).getTime();
+      return dateTime[0] <= endTime && dateTime[1] >= endTime;
+    });
+  }
   answer.forEach((item, index) => {
     let answerContent = [item.answerId, item.startTime, item.endTime, item.consumTime];
     survey.question.forEach((question) => {

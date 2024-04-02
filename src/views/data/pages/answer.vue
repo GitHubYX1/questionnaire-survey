@@ -1,5 +1,6 @@
 <template>
   <a-card class="answer-index">
+    <screen @screenData="screenData"></screen>
     <div class="answer-operate flex-between">
       <span>问卷答案</span>
       <a-button v-if="answerData.length !== 0" type="primary" @click="download()">下载答案数据</a-button>
@@ -34,6 +35,7 @@ import { surveyStore } from "@/stores/survey";
 import { getAnswerData } from "@/computed/api";
 import type { surveyAnswerType } from "@/types/index";
 import { answerErasure } from "@/computed/answer";
+import screen from "../components/screen.vue";
 import * as Excel from "exceljs";
 import { saveAs } from "file-saver";
 
@@ -41,9 +43,10 @@ const router = useRouter();
 const storeData = surveyStore();
 const answerData = ref<surveyAnswerType[]>([]);
 const excleData = ref<string[][]>([]);
+const date = ref(["", ""]);
 
 const getData = async () => {
-  let { answer, excleList } = await getAnswerData(storeData.surveyId);
+  let { answer, excleList } = await getAnswerData(storeData.surveyId, date.value);
   answerData.value = answer;
   excleData.value = excleList;
 };
@@ -57,7 +60,7 @@ const editClick = (surveyId: string, answerId: string) => {
 //删除
 const courseDelete = async (surveyId: string, answerId: string) => {
   answerErasure(surveyId, answerId);
-  await getData()
+  await getData();
 };
 //下载答案
 const download = () => {
@@ -87,6 +90,12 @@ const download = () => {
   });
 };
 
+//筛选
+const screenData = async (query: { date: string[] }) => {
+  date.value = query.date;
+  await getData();
+};
+
 watch(
   () => storeData.surveyId,
   async () => {
@@ -97,7 +106,7 @@ watch(
 </script>
 <style lang="scss" scoped>
 .answer-operate {
-  margin-bottom: 15px;
+  margin: 15px 0;
   font-size: 16px;
 }
 
@@ -108,7 +117,7 @@ watch(
     cursor: pointer;
 
     &:hover {
-      color: #1890FF;
+      color: #1890ff;
     }
   }
 
@@ -117,8 +126,7 @@ watch(
     margin-left: 10px;
 
     &:hover {
-      color: #FF4D4F;
-
+      color: #ff4d4f;
     }
   }
 }
