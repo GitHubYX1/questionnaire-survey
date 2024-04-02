@@ -222,13 +222,13 @@ const isPageEmpty = (question: questionType[]) => {
 </script>
 <style lang='scss' scoped>
 .question {
-  max-width: 1200px;
+  max-width: 1000px;
   max-height: 100%;
   margin: 0 auto;
 }
 
 .question-header {
-  padding: 10px;
+  padding: 10px 30px;
   background: #2071e2;
 }
 
@@ -240,6 +240,7 @@ const isPageEmpty = (question: questionType[]) => {
   text-align: center;
   color: #fff;
   font-weight: 700;
+  margin: 0;
 }
 
 .question-content {
