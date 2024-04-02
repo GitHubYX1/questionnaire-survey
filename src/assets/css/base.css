@@ -22,3 +22,8 @@ body {
   padding: 0;
   margin: 0;
 }
+
+/* 隐藏tinymce自带的logo */
+.tox-statusbar__branding{
+  display: none;
+}
