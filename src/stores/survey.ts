@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
+import cloneDeep from "lodash.clonedeep";
 import type { surveyType } from "@/types/index";
 import storage from "@/utils/storage";
 
@@ -8,7 +9,7 @@ export const surveyStore = defineStore("storeData", () => {
   const surveyId = ref<string>(localStorage.getItem("SURVEYID") || "");
   /**获取调查*/
   function surveySelected(id: string): surveyType {
-    return surveyData.value.filter((item) => item.id === id)[0];
+    return cloneDeep(surveyData.value.filter((item) => item.id === id)[0]);
   }
   /**新增调查*/
   function surveyAdd(survey: surveyType) {
@@ -35,7 +36,7 @@ export const surveyStore = defineStore("storeData", () => {
     surveyData.value = surveyData.value.filter((item) => item.id !== id);
     storage.setSession("SURVEYDATA", surveyData.value);
   }
-  function modifySurveyId(id:string){
+  function modifySurveyId(id: string) {
     surveyId.value = id;
     localStorage.setItem("SURVEYID", id);
   }
