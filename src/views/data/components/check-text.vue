@@ -1,6 +1,6 @@
 <template>
   <a-modal :visible="checkShow" :title="titleData" width="50%" @cancel="onCancel" :footer="false">
-    <a-table :dataSource="checkData" bordered rowKey="xh" :pagination="checkData.length < 10 ? false : true">
+    <a-table :dataSource="checkData" bordered rowKey="xh" :pagination="checkData.length <= 10 ? false : true">
       <a-table-column key="xh" title="序号" dataIndex="xh" align="center" width="100px"></a-table-column>
       <a-table-column key="xh" title="答案文本" dataIndex="count" align="center"></a-table-column>
     </a-table>

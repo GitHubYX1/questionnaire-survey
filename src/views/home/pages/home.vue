@@ -18,7 +18,7 @@
       </div>
     </div>
     <a-card>
-      <a-table :dataSource="answerData" bordered rowKey="answerId" :pagination="answerData.length < 10 ? false : true">
+      <a-table :dataSource="answerData" bordered rowKey="answerId" :pagination="answerData.length <= 10 ? false : true">
         <a-table-column key="surveyId" title="问卷id" dataIndex="surveyId" align="center" width="120px"></a-table-column>
         <a-table-column key="answerId" title="答案id" dataIndex="answerId" align="center" width="180px"></a-table-column>
         <a-table-column key="answerId" title="问卷名称" dataIndex="surveyTitle" align="center"></a-table-column>
