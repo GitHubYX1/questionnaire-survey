@@ -191,11 +191,15 @@ const previewClick = () => {
 //题目关联
 const concern = (e: { index: number; id: number; title: string; state: number }) => {
   const { index, id, title, state } = e;
-  const question: questionType[] = JSON.parse(JSON.stringify(questionnaire.question));
+  const question: questionType[] = [...questionnaire.question];
   const controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
   switch (state) {
     case 1:
-      const data = question.slice(0, index).filter((item) => !serialRemoveType.includes(item.type));
+      const data = question
+        .slice(0, index)
+        .filter((item) => !serialRemoveType.includes(item.type))
+        .map((item, index) => ({ ...item, title: index + 1 + "." + item.title }))
+        .filter((item) => item.type !== typeEnum.FILL);
       concernFrontRef.value.frontOpen(data, title, id, controlLogic);
       return;
     case 2:
