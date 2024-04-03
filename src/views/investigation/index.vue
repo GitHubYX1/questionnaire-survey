@@ -114,6 +114,7 @@ onMounted(() => {
 });
 
 const goBack = () => {
+  questionnaire.reset();
   router.replace("/project");
 };
 
