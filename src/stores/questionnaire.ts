@@ -44,7 +44,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.createTime = survey.createTime;
       this.modifyTime = survey.modifyTime;
       this.state = survey.state;
-      this.question = survey.question;
+      this.question = [...survey.question];
       this.controlLogic = survey.controlLogic;
       const totalPage = survey.question.filter((item) => item.type === PAGING).length;
       this.totalPage = totalPage + 1;
