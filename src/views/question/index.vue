@@ -1,6 +1,6 @@
 <template>
   <div class="question">
-    <header class="question-header">
+    <header class="question-header" v-if="infoHeader.title">
       <h2 class="header-title">{{ infoHeader.title }}</h2>
     </header>
     <section class="question-section">
