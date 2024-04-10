@@ -26,14 +26,14 @@
             </div>
           </div>
           <div class="project-item-operate flex-between align-items">
-            <div class="project-operate-Left">
+            <div class="project-operate">
               <span @click="pushInvestigation(item.id)"><form-outlined />编辑问卷</span>
               <span @click="answer(item.id)"><profile-outlined />回答问卷</span>
               <span @click="dataAnalysis(item.id)">
                 <FundOutlined />数据分析
               </span>
             </div>
-            <div class="project-operate-right">
+            <div class="project-operate">
               <span><a-switch v-model:checked="item.state" @change="stateChange(item.id, item.state)"
                   checked-children="发布" un-checked-children="停止" /></span>
               <span @click="copyClick(item)"><copy-outlined />复制</span>
@@ -173,7 +173,7 @@ const onScreen = () => {
     .project-item-operate {
       padding: 15px 0;
 
-      .project-operate-Left {
+      .project-operate {
         color: #7a7a7a;
         cursor: pointer;
 
@@ -184,19 +184,8 @@ const onScreen = () => {
             color: #1890ff;
           }
         }
-      }
-
-      .project-operate-right {
-        font-size: 14px;
-        color: #7a7a7a;
-        cursor: pointer;
-
-        >span {
-          margin: 0 15px;
-
-          &:hover {
-            color: #1890ff;
-          }
+        .anticon {
+          margin-right: 6px;
         }
       }
     }
