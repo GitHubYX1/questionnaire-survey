@@ -128,9 +128,8 @@ const onScreen = () => {
 </script>
 <style lang="scss" scoped>
 .project-box {
-  width: 1400px;
-  padding: 15px 0;
-  margin: 0 auto;
+
+  padding: 15px 50px;
 
   .project-content {
     width: calc(100% - 260px);
