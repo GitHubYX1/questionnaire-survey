@@ -54,6 +54,7 @@ export declare type questionType = {
   must: 0 | 1;
   column: number;
   currentPage?:number;
+  optionShow?:number[]
 };
 
 /**
@@ -119,6 +120,7 @@ export declare type QuestionControlType = {
   parentIds: number[];
   condition: "and" | "or";
   parentAnswer: Array<number[]>;
+  optionId?:number;
 };
 
 /**

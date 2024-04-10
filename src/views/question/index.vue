@@ -10,22 +10,25 @@
         <a-form layout="vertical" class="question-list" :model="formState" ref="formRef">
           <template v-for="item in questionData[pageIndex]" :key="item.id">
             <transition name="slide-x" mode="out-in">
-              <div class="question-item" :id="'item-' + item.id" v-if="isShow(item.id)">
+              <div class="question-item" :id="'item-' + item.id" v-if="isShow(item.id, item)">
                 <div v-if="item.type === PARAGRAPH" v-html="item.title"></div>
                 <a-form-item v-else :label="item.title" :key="item.id" :name="item.id"
                   :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
                   <a-radio-group v-if="item.type === RADIO" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
-                    <a-radio class="flex item-option" v-for="subItem in item.option" :key="subItem.id" :value="subItem.id"
-                      :name="subItem.content">{{ subItem.content.replace(/\\n/g, '\n') }}</a-radio>
+                    <a-radio class="flex item-option"
+                      v-for="subItem in filterAnswer(item.id, item.optionShow, item.option)" :key="subItem.id"
+                      :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g,
+                        '\n') }}</a-radio>
                   </a-radio-group>
                   <a-checkbox-group v-else-if="item.type === CHECKBOX" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
-                    <a-checkbox class="flex item-option" v-for="subItem in item.option" :key="subItem.id"
+                    <a-checkbox class="flex item-option"
+                      v-for="subItem in filterAnswer(item.id, item.optionShow, item.option)" :key="subItem.id"
                       :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g, '\n') }}</a-checkbox>
                   </a-checkbox-group>
                   <a-select v-else-if="item.type === DROP" class="drop-down" placeholder="请选择下拉列表"
-                    v-model:value="formState[item.id]" :options="item.option"
+                    v-model:value="formState[item.id]" :options="filterAnswer(item.id, item.optionShow, item.option)"
                     :fieldNames="{ label: 'content', value: 'id' }"></a-select>
                   <a-rate v-else-if="item.type === SCORE" v-model:value="formState[item.id]" style="font-size: 28px"
                     :count="item.option.length" />
@@ -53,7 +56,7 @@ import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import shortId from "shortid";
 import type { FormInstance } from "ant-design-vue/es/form";
-import type { questionType, answerType, surveyAnswerType, QuestionControlType } from "@/types/index";
+import type { questionType, answerType, surveyAnswerType, QuestionControlType, optionType } from "@/types/index";
 import { surveyStore } from "@/stores/survey";
 import { getTime, timeDiff } from "@/utils/index";
 import { answerSave, answerSelected } from "@/computed/answer";
@@ -79,6 +82,7 @@ const formState = ref<Record<string, any>>({});
 const formRef = ref<FormInstance | null>(null);
 const startTime = ref<string>("");
 const controlData = ref<QuestionControlType[]>([]);
+const optionLogic = ref<QuestionControlType[]>([]);
 const questionItem = document.getElementsByClassName("question-item");//获取题目元素
 const pageIndex = ref(0);
 const answerIdRef = ref("");
@@ -119,6 +123,18 @@ onMounted(() => {
         item.split(',').map((id) => Number(id)),
       ),
     }))
+    optionLogic.value = survey.controlOption.map(item => ({
+      id: item.childId,
+      parentIds: item.questionIds.split(',').map((item: string) => Number(item)),
+      condition: item.condition,
+      optionId: item.optionId,
+      parentAnswer: item.parentAnswer.split('|').map((item: string) =>
+        item.split(',').map((id) => Number(id)),
+      ),
+    })) || []
+    console.log('====================================');
+    console.log("optionLogic", optionLogic.value);
+    console.log('====================================');
     startTime.value = getTime();
     //判断是否有有答案
     if (answerId) {
@@ -140,11 +156,14 @@ onMounted(() => {
 function generateColumn(column: number) {
   return { 'grid-template-columns': `repeat(${column}, minmax(0, 1fr))` };
 }
+
 //是否显示题目
-const isShow = (id: number) => {
+const isShow = (id: number, question: questionType) => {
   const findControl = unref(controlData).find((item) => item.id === id);
+  const filterOption = unref(optionLogic).filter((item) => item.id === id);
+  const form = unref(formState);
+  //题目控制逻辑处理
   if (findControl) {
-    const form = unref(formState);
     let logicList: boolean[] = [];
     findControl.parentIds.forEach((parentId, index) => {
       const answer = findControl.parentAnswer[index];
@@ -158,7 +177,38 @@ const isShow = (id: number) => {
     if (!bool) delete formState.value[id];
     return bool
   }
+  // 选择控制逻辑处理
+  if (filterOption.length) {
+    const optionShow: number[] = []
+    filterOption.forEach((item) => {
+      const parentId = item.parentIds[0]
+      const answer = item.parentAnswer[0]
+      const logicSome = answer.some(item => {
+        return Array.isArray(form[parentId]) ? form[parentId].includes(item) : form[parentId] == item
+      })
+      if (!logicSome && item.optionId) optionShow.push(item.optionId)
+    })
+    question.optionShow = optionShow;//通过浅复制赋值
+    if (optionShow.length === question.option.length) {
+      delete formState.value[id];
+      return false
+    }
+  }
   return true
+}
+
+// 选项筛选
+const filterAnswer = (id: number, optionShow: number[] | undefined, option: optionType[]) => {
+  if (optionShow?.length) {
+    //清除选项
+    let form = formState.value[id];
+    form = Array.isArray(form) ? form.filter(item => optionShow.includes(item)) : (optionShow.includes(form) ? form : '')
+    formState.value[id] = form;
+    return option.filter(item => optionShow.includes(item.id))
+  } else {
+    return option;
+  }
+
 }
 
 //提交数据
@@ -217,7 +267,7 @@ const nextPage = (type: 'next' | 'prev' = 'next') => {
 
 //判断当前是否为空
 const isPageEmpty = (question: questionType[]) => {
-  return question.filter(item => isShow(item.id)).length === 0;
+  return question.filter(item => isShow(item.id, item)).length === 0;
 }
 </script>
 <style lang='scss' scoped>
