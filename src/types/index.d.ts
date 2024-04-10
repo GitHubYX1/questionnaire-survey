@@ -62,13 +62,27 @@ export declare type questionType = {
  * @param childId 子id (子id代表当前控制题目)
  * @param parentAnswer 题目答案
  * @param condition 且 | 或
+ * @param optionId 选项id
  */
 export declare type controlLogicType = {
   questionIds: string;
   childId: number;
   parentAnswer: string;
   condition: "and" | "or";
+  optionId?:number;
 };
+
+/**
+ * 选项控制
+ * @param questionId 题目id
+ * @param control 控制逻辑
+ */
+export declare type controlOptionType = {
+  questionId: number;
+  control:controlLogicType[]
+};
+
+
 
 declare type Nullable<T> = T | null;
 /**
@@ -81,6 +95,7 @@ declare type Nullable<T> = T | null;
  * @param state 问卷状态
  * @param question 问卷题目
  * @param controlLogic 控制逻辑
+ * @param controlOption 选项关联
  */
 export declare type surveyType = {
   id: string;
@@ -91,6 +106,7 @@ export declare type surveyType = {
   state: boolean;
   question: questionType[];
   controlLogic: controlLogicType[];
+  controlOption: controlLogicType[];
 };
 
 /**

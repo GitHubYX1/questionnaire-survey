@@ -35,10 +35,12 @@
             :index="index"
             :question="item"
             :insertNum="questionnaire.insertNum"
-            :serialNum="serialNum(item.id).num"
+            :serialNum="questionnaire.serialNum(item.id).num"
             :showConcern="showConcern(item.id)"
+            :optionLogic="optionLogic(item.id)"
             @optionAdd="optionAdd"
             @concern="concern"
+            
           ></survey-item>
           <div class="editor-empty" v-if="questionnaire.question.length == 0">
             <a-empty description="暂无题目" />
@@ -46,9 +48,10 @@
         </div>
       </div>
       <editor-title ref="dataTitle" @titleModify="questionnaire.titleModify"></editor-title>
-      <batch-add ref="batchModal" @optionBatchAdd="questionnaire.optionBatchAdd"></batch-add>
+      <batch-add ref="batchModal"></batch-add>
       <concern-front ref="concernFrontRef" @getFront="questionnaire.getFront"></concern-front>
       <concern-copy ref="concernCopyRef" @getCopy="questionnaire.getCopy"></concern-copy>
+      <concern-option ref="concernOptionRef" :logicText="questionnaire.logicText" @optionChange="optionChange"></concern-option>
     </div>
   </div>
 </template>
@@ -63,13 +66,15 @@ import EditorTitle from "./components/editor-title.vue";
 import BatchAdd from "./components/batch-add.vue";
 import ConcernFront from "./components/concern-front.vue"; //题目向前关联
 import ConcernCopy from "./components/concern-copy.vue"; //复制向前关联
+import ConcernOption from "./components/concern-option.vue"; //复制向前关联
 import { message, Modal } from "ant-design-vue";
 import shortId from "shortid";
 import { mostValue, getTime } from "@/utils/index";
 import { surveyStore } from "@/stores/survey";
 import { questionnaireStore } from "@/stores/questionnaire";
-import type { surveyType } from "@/types/index";
+import type { surveyType, controlOptionType } from "@/types/index";
 import { typeEnum } from "@/assets/common/enums";
+import cloneDeep from "lodash.clonedeep";
 
 const router = useRouter();
 const storeData = surveyStore();
@@ -79,23 +84,8 @@ const dataTitle = ref<any>(null);
 const batchModal = ref<any>(null);
 const concernFrontRef = ref<any>(null);
 const concernCopyRef = ref<any>(null);
+const concernOptionRef = ref<any>(null);
 const serialRemoveType = [typeEnum.PARAGRAPH, typeEnum.PAGING];
-
-//获取序号
-const serialNum = (id: number, parent: string[] = []) => {
-  let num = 0;
-  let answer: number[] = [];
-  for (const data of questionnaire.question) {
-    if (!serialRemoveType.includes(data.type)) num++;
-    if (data.id == id) {
-      if (parent.length !== 0) {
-        answer = parent.map((id) => data.option.findIndex((opt) => String(opt.id) == id) + 1);
-      }
-      return { num, answer };
-    }
-  }
-  return { num, answer };
-};
 
 onMounted(() => {
   const surveyId = storeData.surveyId;
@@ -157,6 +147,7 @@ const save = (state: boolean) => {
     state: questionnaire.state,
     question: questionnaire.question,
     controlLogic: questionnaire.controlLogic,
+    controlOption:questionnaire.controlOption,
   };
   if (questionnaire.id == "") {
     survey.id = shortId.generate();
@@ -192,7 +183,7 @@ const previewClick = () => {
 //题目关联
 const concern = (e: { index: number; id: number; title: string; state: number }) => {
   const { index, id, title, state } = e;
-  const question: questionType[] = [...questionnaire.question];
+  const question: questionType[] = cloneDeep(questionnaire.question);
   const controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
   switch (state) {
     case 1:
@@ -208,6 +199,15 @@ const concern = (e: { index: number; id: number; title: string; state: number })
       const data2 = question.slice(index + 1).filter((item) => item.type !== typeEnum.PAGING);
       concernCopyRef.value.copyOpen(data2, title, id, controlLogic);
       return;
+    case 3:
+      const data3 = question
+        .slice(0, index)
+        .filter((item) => !serialRemoveType.includes(item.type))
+        .map((item, index) => ({ ...item, title: index + 1 + "." + item.title }))
+        .filter((item) => item.type !== typeEnum.FILL);
+        const controlOption = questionnaire.controlOption?.filter((item) => item.childId === id);
+      concernOptionRef.value.optionOpen(data3, title, question[index].option, id,controlOption);
+      return;
     default:
       return;
   }
@@ -215,21 +215,17 @@ const concern = (e: { index: number; id: number; title: string; state: number })
 //显示关联
 const showConcern = (id: number) => {
   const controlLogic = questionnaire.controlLogic.find((item) => item.childId === id);
-  if (!controlLogic) return "";
-  const questionIds = controlLogic.questionIds.split(",").map((item) => Number(item));
-  const parentAnswer = controlLogic.parentAnswer.split("|");
-  let str = "依赖于";
-  questionIds.forEach((qid, index) => {
-    const { num, answer } = serialNum(qid, parentAnswer[index].split(","));
-    str += `第${num}题第${answer.sort().join("、")}选项，`;
-  });
-  if (questionIds.length > 1) {
-    str += `为“${controlLogic.condition === "and" ? "且" : "或"}”的关系`;
-  } else {
-    str = str.slice(0, -1);
-  }
-  return str;
+  return questionnaire.logicText(controlLogic);
 };
+
+// 获取选项关联
+const optionChange = (optionLogic:controlOptionType)=>{
+  questionnaire.getControlOption(optionLogic)
+}
+//获取当前项的选项关联
+const optionLogic = (id:number)=>{
+  return questionnaire.controlOption.filter((item) => item.childId === id);
+}
 </script>
 
 <style lang="scss" scoped>

@@ -1,25 +1,28 @@
 <template>
   <div class="survey-item">
     <div v-if="props.question.type === PARAGRAPH" v-html="props.question.title"></div>
-    <div class="survey-paging" v-else-if="props.question.type === PAGING">{{`第${props.question.currentPage}页（共${questionnaire.totalPage}页）`}}</div>
-    <div :class="['survey-title', props.question.must ? 'required' : '']" v-else>
-      {{ props.serialNum }}.{{ props.question.title }}
-    </div>
+    <div class="survey-paging" v-else-if="props.question.type === PAGING">{{ `第${props.question.currentPage}页（共${questionnaire.totalPage}页）` }}</div>
+    <div :class="['survey-title', props.question.must ? 'required' : '']" v-else>{{ props.serialNum }}.{{ props.question.title }}</div>
     <div class="survey-option">
-      <a-radio-group v-if="props.question.type === RADIO" class="grid" :style="generateColumn(props.question.column)"
-        v-model:value="radioData">
-        <a-radio class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id" :value="subItem.id"
-          :name="subItem.content">{{ subItem.content }}</a-radio>
+      <a-radio-group v-if="props.question.type === RADIO" class="grid" :style="generateColumn(props.question.column)" v-model:value="radioData">
+        <a-radio class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">
+          {{ subItem.content }}
+          <span v-if="optionLogic.length" class="item-logic">{{ optionLogicText(subItem.id, optionLogic) }}</span>
+        </a-radio>
       </a-radio-group>
-      <a-checkbox-group v-else-if="props.question.type === CHECKBOX" class="grid"
-        :style="generateColumn(props.question.column)">
-        <a-checkbox class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id"
-          :value="subItem.id" :name="subItem.content">{{ subItem.content }}</a-checkbox>
+      <a-checkbox-group v-else-if="props.question.type === CHECKBOX" class="grid" :style="generateColumn(props.question.column)">
+        <a-checkbox class="flex item-option" v-for="subItem in props.question.option" :key="subItem.id" :value="subItem.id" :name="subItem.content">
+          {{ subItem.content }}
+          <span v-if="optionLogic.length" class="item-logic">{{ optionLogicText(subItem.id, optionLogic) }}</span>
+        </a-checkbox>
       </a-checkbox-group>
-      <a-select v-else-if="props.question.type === DROP" class="drop-down" placeholder="请选择下拉列表"
-        :options="props.question.option" :fieldNames="{ label: 'content', value: 'id' }"></a-select>
-      <a-rate v-else-if="props.question.type === SCORE" :value="scoreOption / 2" style="font-size: 28px"
-        :count="scoreOption" disabled />
+      <a-select v-else-if="props.question.type === DROP" class="drop-down" placeholder="请选择下拉列表">
+        <a-select-option v-for="subItem in props.question.option" :key="subItem.id" :value="subItem.id">
+          {{ subItem.content }}
+          <span v-if="optionLogic.length" class="item-logic">{{ optionLogicText(subItem.id, optionLogic) }}</span>
+        </a-select-option>
+      </a-select>
+      <a-rate v-else-if="props.question.type === SCORE" :value="scoreOption / 2" style="font-size: 28px" :count="scoreOption" disabled />
       <template v-else-if="props.question.type === FILL">
         <a-input v-if="props.question.column === 1" />
         <a-textarea v-else :rows="props.question.column" />
@@ -54,14 +57,12 @@
               <a-radio class="editor-option" :value="FILL">填空</a-radio>
             </a-radio-group>
             <a-checkbox class="editor-option" v-model:checked="mustBoolean" @change="checkboxChange">必答</a-checkbox>
-            <a-select v-model:value="props.question.column" style="width: 100px"
-              v-if="props.question.type === RADIO || props.question.type === CHECKBOX">
+            <a-select v-model:value="props.question.column" style="width: 100px" v-if="props.question.type === RADIO || props.question.type === CHECKBOX">
               <a-select-option :value="1">一列</a-select-option>
               <a-select-option :value="2">两列</a-select-option>
               <a-select-option :value="3">三列</a-select-option>
             </a-select>
-            <a-select v-model:value="props.question.column" style="width: 100px"
-              v-else-if="props.question.type === FILL">
+            <a-select v-model:value="props.question.column" style="width: 100px" v-else-if="props.question.type === FILL">
               <a-select-option :value="1">一行</a-select-option>
               <a-select-option :value="2">两行</a-select-option>
               <a-select-option :value="3">三行</a-select-option>
@@ -101,6 +102,7 @@
           <span>逻辑设置：</span>
           <a @click="concernClick(1)">题目向前关联</a>
           <a @click="concernClick(2)">复制向前关联</a>
+          <a @click="concernClick(3)" v-if="props.question.type === RADIO || props.question.type === CHECKBOX || props.question.type === DROP">选项关联</a>
         </div>
         <a-button type="primary" block size="large" @click="questionnaire.resetting()">完成编辑</a-button>
       </div>
@@ -110,7 +112,7 @@
 
 <script lang="ts" setup>
 import { ref, type PropType } from "vue";
-import type { questionType } from "@/types/index";
+import type { questionType, controlLogicType } from "@/types/index";
 import { Modal } from "ant-design-vue";
 import { questionnaireStore } from "@/stores/questionnaire";
 import RichTinymce from "./rich-tinymce.vue";
@@ -141,6 +143,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  optionLogic: {
+    type: Array as PropType<controlLogicType[]>,
+    default: [],
+  },
 });
 
 let radioData = ref("");
@@ -160,7 +166,7 @@ const insertClick = () => {
 };
 //复制
 const copyClick = () => {
-  const copy = { ...props.question }
+  const copy = { ...props.question };
   questionnaire.copy(copy, props.index);
 };
 //删除
@@ -173,11 +179,12 @@ const erasureClick = () => {
     onOk() {
       const id = props.question.id;
       const controlLogic = questionnaire.controlLogic.filter((item) => item.childId === id || item.questionIds.includes(String(id)));
+      const controlOption = questionnaire.controlOption.filter((item) => item.childId === id || item.questionIds.includes(String(id)));
       //判断是否有逻辑关联
-      if (controlLogic.length) {
+      if (controlLogic.length || controlOption.length) {
         Modal.confirm({
           title: "提示",
-          content: `题目有关联控制逻辑，删除题目，题目会从关联控制逻辑中删除，是否继续？`,
+          content: `题目有关联控制逻辑，删除题目，和题目相关的逻辑控制会删除，是否继续？`,
           okText: "确认",
           cancelText: "取消",
           onOk() {
@@ -224,7 +231,23 @@ const optionAddClick = (optionIndex: number) => {
 //选项移除
 const optionRemoveClick = (optionIndex: number) => {
   if (props.question.option.length > 1) {
-    questionnaire.optionRemove(props.index, optionIndex);
+    const id = props.question.id;
+    const controlLogic = questionnaire.controlLogic.filter((item) => item.questionIds.includes(String(id)));
+    const controlOption = questionnaire.controlOption.filter((item) => item.childId === id || item.questionIds.includes(String(id)));
+    //判断是否有逻辑关联
+    if (controlLogic.length || controlOption.length) {
+      Modal.confirm({
+        title: "提示",
+        content: `题目选项有关联控制逻辑，删除选项，和题目相关的逻辑控制会删除，是否继续？`,
+        okText: "确认",
+        cancelText: "取消",
+        onOk() {
+          questionnaire.optionRemove(props.index, optionIndex);
+        },
+      });
+    } else {
+      questionnaire.optionRemove(props.index, optionIndex);
+    }
   } else {
     Modal.warning({
       title: "提示",
@@ -250,6 +273,16 @@ const concernClick = (state: number) => {
 //选项个数
 const scoreOptionChange = (num: number) => {
   questionnaire.scoreOptionModify(props.index, num);
+};
+
+//选项逻辑控制
+const optionLogicText = (id: number, control: controlLogicType[]) => {
+  for (const item of control) {
+    if (id === item.optionId) {
+      return `（${questionnaire.logicText(item)}）`;
+    }
+  }
+  return "";
 };
 </script>
 <style lang="scss" scoped>
@@ -321,6 +354,11 @@ const scoreOptionChange = (num: number) => {
   &:hover {
     background: #f9f9f9;
   }
+}
+
+.item-logic {
+  color: #efa030;
+  font-size: 14px;
 }
 
 .item-editor {

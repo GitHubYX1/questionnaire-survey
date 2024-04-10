@@ -192,6 +192,7 @@ defineExpose({ frontOpen })
 
     p {
       padding: 6px 0;
+      margin: 0;
     }
   }
 
