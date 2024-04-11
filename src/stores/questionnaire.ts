@@ -5,6 +5,10 @@ import { mostValue, getTime, optionInit, scoreOptionInit } from "@/utils/index";
 import type { optionType, questionType, surveyType, controlLogicType, loadingType, controlOptionType } from "@/types/index";
 const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING } = typeEnum;
 const serialRemoveType = [typeEnum.PARAGRAPH, typeEnum.PAGING];
+const DEFAULT_QUESTIONNAIRE_TITLE = "测试问卷";
+const INITIAL_QUESTION_MAX_ID = 1000;
+const INSERT_NUM_DEFAULT = -2;
+const EDIT_ID_DEFAULT = -1;
 
 /**
  * 问卷类型
@@ -23,7 +27,7 @@ interface questionnaireType extends surveyType {
 export const questionnaireStore = defineStore("questionnaire", {
   state: (): questionnaireType => ({
     id: "",
-    title: "测试问卷",
+    title: DEFAULT_QUESTIONNAIRE_TITLE,
     content: "",
     createTime: "",
     modifyTime: "",
@@ -31,9 +35,9 @@ export const questionnaireStore = defineStore("questionnaire", {
     question: [],
     controlLogic: [],
     controlOption: [],
-    questionMaxId: 1000,
-    insertNum: -2,
-    editId: -1,
+    questionMaxId: INITIAL_QUESTION_MAX_ID,
+    insertNum: INSERT_NUM_DEFAULT,
+    editId: EDIT_ID_DEFAULT,
     loading: inject<loadingType>("loading"),
     totalPage: 1,
   }),
@@ -56,16 +60,16 @@ export const questionnaireStore = defineStore("questionnaire", {
     //清空
     reset() {
       this.id = "";
-      this.title = "测试问卷";
+      this.title = DEFAULT_QUESTIONNAIRE_TITLE;
       this.content = "";
       this.createTime = getTime();
       this.modifyTime = getTime();
       this.state = false;
       this.question = [];
       this.controlLogic = [];
-      this.questionMaxId = 1000;
-      this.insertNum = -2;
-      this.editId = -1;
+      this.questionMaxId = INITIAL_QUESTION_MAX_ID;
+      this.insertNum = INSERT_NUM_DEFAULT;
+      this.editId = EDIT_ID_DEFAULT;
       this.totalPage = 1;
     },
     //打开编辑
@@ -75,7 +79,7 @@ export const questionnaireStore = defineStore("questionnaire", {
     //关闭编辑
     resetting() {
       document.getElementById("focal")?.focus();
-      this.editId = -1;
+      this.editId = EDIT_ID_DEFAULT;
     },
     //修改顶部标题
     titleModify(e: { title: string; content: string }) {
@@ -92,7 +96,7 @@ export const questionnaireStore = defineStore("questionnaire", {
         must: 1,
         column: 1,
       };
-      if (contrl.type === RADIO || contrl.type == CHECKBOX || contrl.type == DROP) {
+      if ([RADIO, CHECKBOX, DROP].includes(contrl.type)) {
         questionAdd.option = optionInit();
       } else if (contrl.type === SCORE) {
         questionAdd.option = scoreOptionInit(5);
@@ -103,11 +107,11 @@ export const questionnaireStore = defineStore("questionnaire", {
         questionAdd.currentPage = this.totalPage;
         questionAdd.must = 0;
       }
-      if (this.insertNum == -2) {
+      if (this.insertNum === INSERT_NUM_DEFAULT) {
         this.question.push(questionAdd);
       } else {
         this.question.splice(this.insertNum + 1, 0, questionAdd);
-        this.insertNum = -2;
+        this.insertNum = INSERT_NUM_DEFAULT;
       }
       this.questionMaxId += 1;
       console.log("打印数据", this.question);
@@ -158,17 +162,17 @@ export const questionnaireStore = defineStore("questionnaire", {
       let arr = this.question;
       let position = 0;
       let mark = true;
-      if (action == "上") {
+      if (action === "上") {
         this.question.splice(index - 1, 1, ...arr.splice(index, 1, arr[index - 1]));
         position = index - 1;
-      } else if (action == "下") {
+      } else if (action === "下") {
         this.question.splice(index, 1, ...arr.splice(index + 1, 1, arr[index]));
         position = index + 1;
-      } else if (action == "前") {
+      } else if (action === "前") {
         this.question.unshift(arr.splice(index, 1)[0]);
         position = 0;
         mark = false;
-      } else if (action == "后") {
+      } else if (action === "后") {
         this.question.push(arr.splice(index, 1)[0]);
         position = this.question.length - 1;
         mark = false;
@@ -204,7 +208,7 @@ export const questionnaireStore = defineStore("questionnaire", {
     },
     //类型修改
     typeModify(index: number, type: typeEnum) {
-      if (this.question[index].type == FILL && type !== FILL) {
+      if (this.question[index].type === FILL && type !== FILL) {
         this.question[index].option = optionInit();
       } else if (type === FILL) {
         this.question[index].option = [];
@@ -236,9 +240,9 @@ export const questionnaireStore = defineStore("questionnaire", {
     //选项移动
     optionMove(index: number, optionIndex: number, action: string) {
       let arr = this.question[index].option.concat();
-      if (action == "上") {
+      if (action === "上") {
         arr.splice(optionIndex - 1, 1, ...arr.splice(optionIndex, 1, arr[optionIndex - 1]));
-      } else if (action == "下") {
+      } else if (action === "下") {
         arr.splice(optionIndex, 1, ...arr.splice(optionIndex + 1, 1, arr[optionIndex]));
       }
       this.question[index].option = arr;
@@ -274,7 +278,7 @@ export const questionnaireStore = defineStore("questionnaire", {
         if (!serialRemoveType.includes(data.type)) num++;
         if (data.id === id) {
           if (parent.length !== 0) {
-            answer = parent.map((id) => data.option.findIndex((opt) => String(opt.id) == id) + 1);
+            answer = parent.map((id) => data.option.findIndex((opt) => String(opt.id) === id) + 1);
           }
           return { num, answer };
         }
