@@ -310,21 +310,12 @@ export const questionnaireStore = defineStore("questionnaire", {
     },
     // 获取选项关联
     getControlOption(optionLogic: controlOptionType) {
-      if (optionLogic.control.length) {
-        for (const item of optionLogic.control) {
-          const index = this.controlOption.findIndex((element) => item.childId + String(item.optionId) === element.childId + String(element.optionId));
-          if (index !== -1) {
-            this.controlOption[index] = item;
-          } else {
-            this.controlOption.push(item);
-          }
-        }
-        this.controlOption = this.controlOption.sort(function (a, b) {
+      this.controlOption = this.controlOption
+        .filter((item) => item.childId !== optionLogic.questionId)
+        .concat(optionLogic.control)
+        .sort(function (a, b) {
           return a.childId - b.childId;
         });
-      } else {
-        this.controlOption = this.controlOption.filter((item) => item.childId === optionLogic.questionId);
-      }
     },
   },
 });
