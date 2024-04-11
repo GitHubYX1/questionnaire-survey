@@ -8,12 +8,14 @@
           <template #default="{ record, index }">
             <div class="option-condition align-items flex-between" v-if="controlId !== record.id">
               <div class="option-control">{{ logicText(record.control) }}</div>
-              <a-button class="option-button" type="link" size="large" @click="controlSet(record.id)">{{ record.control ? "修改" : "添加关联" }}</a-button>
+              <a-button type="link" size="large" @click="controlSet(record.id)">{{ record.control ? "修改" : "添加关联" }}</a-button>
             </div>
             <div class="option-condition" v-else>
               <concern-select :options="questions" :childId="questionId" :optionId="record.id" :control="record.control" :showAdd="false" ref="concernRef"></concern-select>
-              <a-button type="primary" size="small" @click="determineConcern(index)">确定</a-button>
-              <a-button type="primary" size="small" danger style="margin-left: 10px" @click="deleteConcern(index)">删除关联</a-button>
+              <div class="option-button">
+                <a-button type="primary" size="small" @click="determineConcern(index)">确定</a-button>
+                <a-button type="primary" size="small" danger style="margin-left: 10px" @click="deleteConcern(index)">删除关联</a-button>
+              </div>
             </div>
           </template>
         </a-table-column>
@@ -124,5 +126,9 @@ defineExpose({ optionOpen });
       width: 480px;
     }
   }
+}
+
+.option-button{
+  margin-left: 100px;
 }
 </style>
