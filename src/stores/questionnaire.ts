@@ -272,7 +272,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       let answer: number[] = [];
       for (const data of this.question) {
         if (!serialRemoveType.includes(data.type)) num++;
-        if (data.id == id) {
+        if (data.id === id) {
           if (parent.length !== 0) {
             answer = parent.map((id) => data.option.findIndex((opt) => String(opt.id) == id) + 1);
           }
@@ -287,10 +287,16 @@ export const questionnaireStore = defineStore("questionnaire", {
       const questionIds = controlLogic.questionIds.split(",").map((item) => Number(item));
       const parentAnswer = controlLogic.parentAnswer.split("|");
       let str = "依赖于";
-      questionIds.forEach((qid, index) => {
-        const { num, answer } = this.serialNum(qid, parentAnswer[index].split(","));
-        str += `第${num}题第${answer.sort().join("、")}选项，`;
-      });
+      str += questionIds
+        .map((qid, index) => {
+          const { num, answer } = this.serialNum(qid, parentAnswer[index].split(","));
+          return { num: num, text: `第${num}题第${answer.sort().join("、")}选项，` };
+        })
+        .sort(function (a, b) {
+          return a.num - b.num;
+        })
+        .map((item) => item.text)
+        .join("");
       if (questionIds.length > 1) {
         str += `为“${controlLogic.condition === "and" ? "且" : "或"}”的关系`;
       } else {
