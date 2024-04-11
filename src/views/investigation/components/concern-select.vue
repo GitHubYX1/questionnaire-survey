@@ -3,7 +3,7 @@
     <a-form layout="vertical" class="front-list" :model="formFront" ref="formFrontRef">
       <div class="front-item" v-for="(item, index) in concernData" :key="index">
         <div class="front-title flex align-items">
-          <div class="front-text">关联题目{{ index + 1 }}:</div>
+          <div class="front-text">关联题目<span v-if="concernData.length > 1">{{ index + 1 }}</span> :</div>
           <div class="front-search flex-between align-items">
             <a-select
               v-model:value="item.value"
@@ -11,7 +11,7 @@
               :options="options"
               :fieldNames="{ label: 'title', value: 'id' }"
               @select="select(index, $event)"
-              style="width: 85%"
+              style="width: 90%"
               :filter-option="filterOption"
             />
             <template v-if="showAdd">
@@ -154,13 +154,11 @@ const select = (index: number, value: number) => {
     return message.info("关联题目不能重复");
   }
   let data = props.options.find((item) => item.id == value);
+  const id = concernData.value[index].id;
+  delete formFront.value[id];
+  concernData.value[index].value = data?.title||"";
   concernData.value[index].id = value;
   concernData.value[index].option = data?.option || [];
-  if (concernData.value.length == 1) {
-    formFront.value = {};
-  } else {
-    delete formFront.value[value];
-  }
 };
 
 //确定
@@ -168,6 +166,8 @@ const getConcern = () => {
   let ids: string[] = [];
   let parentAnswer = [];
   let from = formFront.value;
+  console.log("from",from);
+  
   for (let i in from) {
     if (from[i].length) {
       ids.push(i);
