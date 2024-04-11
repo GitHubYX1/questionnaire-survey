@@ -27,7 +27,7 @@ import type { optionType, questionType, controlOptionType, controlLogicType } fr
 import concernSelect from "./concern-select.vue";
 
 interface optionControlType extends optionType {
-  control?: controlLogicType | null;
+  control?: controlLogicType;
 }
 
 const props = defineProps({
@@ -100,13 +100,13 @@ const determineConcern = (index: number) => {
   if (concern.parentAnswer) {
     optionData.value[index].control = concern;
   } else {
-    optionData.value[index].control = null;
+    optionData.value[index].control = undefined;
   }
   controlId.value = null;
 };
 //删除关联
 const deleteConcern = (index: number) => {
-  optionData.value[index].control = null;
+  optionData.value[index].control = undefined;
   controlId.value = null;
 };
 
