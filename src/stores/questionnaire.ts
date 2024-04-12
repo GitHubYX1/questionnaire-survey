@@ -312,10 +312,7 @@ export const questionnaireStore = defineStore("questionnaire", {
     getControlOption(optionLogic: controlOptionType) {
       this.controlOption = this.controlOption
         .filter((item) => item.childId !== optionLogic.questionId)
-        .concat(optionLogic.control)
-        .sort(function (a, b) {
-          return a.childId - b.childId;
-        });
+        .concat(optionLogic.control);
     },
   },
 });
