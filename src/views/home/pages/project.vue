@@ -155,7 +155,7 @@ const onScreen = () => {
     padding: 0 15px;
     background: #fff;
     border: 1px solid #e6e6e6;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
 
     .project-item-info {
       border-bottom: 1px solid #e6e6e6;
