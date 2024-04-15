@@ -5,11 +5,29 @@ import { typeEnum } from "@/assets/common/enums";
 const { RADIO, CHECKBOX, FILL, PAGING } = typeEnum;
 
 const storeData = surveyStore();
+
+/**
+ * 获取答题数据
+ * @param id 题目id
+ * @param screenDate 时间范围
+ */
+function getAnswer(id: string, screenDate = ["", ""]) {
+  let answerData: surveyAnswerType[] = storage.getSession("ANSWERDATA", id) || [];
+  if (screenDate[0]) {
+    const dateTime = [new Date(screenDate[0]).getTime(), new Date(screenDate[1]).getTime()];
+    answerData = answerData.filter((item) => {
+      const endTime = new Date(item.endTime).getTime();
+      return dateTime[0] <= endTime && dateTime[1] >= endTime;
+    });
+  }
+  return answerData;
+}
+
 /**
  * 获取数据分析
  * @param id 题目id
  */
-export async function getAnalysisData(
+export async function processAnalysisData(
   id: string,
   screenDate = ["", ""]
 ): Promise<{
@@ -19,16 +37,9 @@ export async function getAnalysisData(
   end: string;
   data: analysisType[];
 }> {
-  let answerData: surveyAnswerType[] = storage.getSession("ANSWERDATA", id) || [];
+  let answerData: surveyAnswerType[] = getAnswer(id, screenDate);
   let survey = storeData.surveySelected(id);
   let answerList: answerType[] = [];
-  if (screenDate[0]) {
-    const dateTime = [new Date(screenDate[0]).getTime(), new Date(screenDate[1]).getTime()];
-    answerData = answerData.filter((item) => {
-      const endTime = new Date(item.endTime).getTime();
-      return dateTime[0] <= endTime && dateTime[1] >= endTime;
-    });
-  }
   answerData.forEach((item) => {
     answerList = answerList.concat(item.answer);
   });
@@ -89,18 +100,11 @@ export async function getAnalysisData(
  * 答题数据
  * @param id 题目id
  */
-export async function getAnswerData(id: string, screenDate = ["", ""]): Promise<{ answer: surveyAnswerType[]; excleList: string[][] }> {
-  let answer: surveyAnswerType[] = storage.getSession("ANSWERDATA", id) || [];
+export async function processAnswerData(id: string, screenDate = ["", ""]): Promise<{ answer: surveyAnswerType[]; excleList: string[][] }> {
+  let answer: surveyAnswerType[] = getAnswer(id, screenDate);
   let excleTop = ["答卷编号", "开始时间", "结束时间", "耗时"];
   let excleContent: string[][] = [];
   let survey = storeData.surveySelected(id);
-  if (screenDate[0]) {
-    const dateTime = [new Date(screenDate[0]).getTime(), new Date(screenDate[1]).getTime()];
-    answer = answer.filter((item) => {
-      const endTime = new Date(item.endTime).getTime();
-      return dateTime[0] <= endTime && dateTime[1] >= endTime;
-    });
-  }
   answer.forEach((item, index) => {
     let answerContent = [item.answerId, item.startTime, item.endTime, item.consumTime];
     survey.question.forEach((question) => {
@@ -108,7 +112,7 @@ export async function getAnswerData(id: string, screenDate = ["", ""]): Promise<
         excleTop.push(question.id + "." + question.title);
       }
       //获取答题数据
-      let content = item.answer.find((answer) => answer.questionId == question.id)?.content;
+      let content = item.answer.find((son) => son.questionId == question.id)?.content;
       if (content && content.constructor == Array) {
         let textData = [];
         for (let i in content) {

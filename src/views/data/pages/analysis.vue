@@ -33,7 +33,7 @@
 <script lang="ts" setup>
 import { ref, watch } from "vue";
 import { surveyStore } from "@/stores/survey";
-import { getAnalysisData } from "@/computed/api";
+import { processAnalysisData } from "@/computed/api";
 import type { analysisType } from "@/types/index";
 import analysisTable from "../components/analysis-table.vue";
 import checkText from "../components/check-text.vue";
@@ -58,7 +58,7 @@ const date = ref(["", ""]);
 
 const queryData = async () => {
   loading.value = true;
-  let { title, count, start, end, data } = await getAnalysisData(storeData.surveyId, date.value);
+  let { title, count, start, end, data } = await processAnalysisData(storeData.surveyId, date.value);
   titleText.value = title;
   assessCount.value = count;
   topicData.value = data;

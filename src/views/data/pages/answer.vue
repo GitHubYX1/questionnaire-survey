@@ -32,7 +32,7 @@
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { surveyStore } from "@/stores/survey";
-import { getAnswerData } from "@/computed/api";
+import { processAnswerData } from "@/computed/api";
 import type { surveyAnswerType } from "@/types/index";
 import { answerErasure } from "@/computed/answer";
 import screen from "../components/screen.vue";
@@ -46,7 +46,7 @@ const excleData = ref<string[][]>([]);
 const date = ref(["", ""]);
 
 const getData = async () => {
-  let { answer, excleList } = await getAnswerData(storeData.surveyId, date.value);
+  let { answer, excleList } = await processAnswerData(storeData.surveyId, date.value);
   answerData.value = answer;
   excleData.value = excleList;
 };
