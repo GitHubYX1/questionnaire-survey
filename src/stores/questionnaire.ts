@@ -1,6 +1,6 @@
 import { inject } from "vue";
 import { defineStore } from "pinia";
-import { typeEnum } from "@/assets/common/enums";
+import { typeEnum, validateEnum } from "@/assets/common/enums";
 import { mostValue, getTime, optionInit, scoreOptionInit } from "@/utils/index";
 import type { optionType, questionType, surveyType, controlLogicType, loadingType, controlOptionType } from "@/types/index";
 const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING } = typeEnum;
@@ -95,6 +95,9 @@ export const questionnaireStore = defineStore("questionnaire", {
         option: [],
         must: 1,
         column: 1,
+        chooseMin: 0,
+        chooseMax: 0,
+        validateType: validateEnum.DEFAULT,
       };
       if ([RADIO, CHECKBOX, DROP].includes(contrl.type)) {
         questionAdd.option = optionInit();
@@ -310,9 +313,7 @@ export const questionnaireStore = defineStore("questionnaire", {
     },
     // 获取选项关联
     getControlOption(optionLogic: controlOptionType) {
-      this.controlOption = this.controlOption
-        .filter((item) => item.childId !== optionLogic.questionId)
-        .concat(optionLogic.control);
+      this.controlOption = this.controlOption.filter((item) => item.childId !== optionLogic.questionId).concat(optionLogic.control);
     },
   },
 });

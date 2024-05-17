@@ -1,4 +1,4 @@
-import { typeEnum } from "@/assets/common/enums";
+import { typeEnum, validateEnum } from "@/assets/common/enums";
 
 /**
  * 空件项
@@ -45,6 +45,10 @@ export declare type optionType = {
  * @param must 是否必选
  * @param column 选项列数
  * @param currentPage 当前页
+ * @param chooseMin 选择最小
+ * @param chooseMax 选择最大值
+ * @param validateType 验证类型
+ * @param optionShow 选项显示
  */
 export declare type questionType = {
   id: number;
@@ -53,8 +57,11 @@ export declare type questionType = {
   option: optionType[];
   must: 0 | 1;
   column: number;
-  currentPage?:number;
-  optionShow?:number[]
+  currentPage?: number;
+  chooseMin: number;
+  chooseMax: number;
+  validateType: validateEnum;
+  optionShow?: number[];
 };
 
 /**
@@ -70,7 +77,7 @@ export declare type controlLogicType = {
   childId: number;
   parentAnswer: string;
   condition: "and" | "or";
-  optionId?:number;
+  optionId?: number;
 };
 
 /**
@@ -80,10 +87,8 @@ export declare type controlLogicType = {
  */
 export declare type controlOptionType = {
   questionId: number;
-  control:controlLogicType[]
+  control: controlLogicType[];
 };
-
-
 
 declare type Nullable<T> = T | null;
 /**
@@ -120,7 +125,7 @@ export declare type QuestionControlType = {
   parentIds: number[];
   condition: "and" | "or";
   parentAnswer: Array<number[]>;
-  optionId?:number;
+  optionId?: number;
 };
 
 /**
@@ -211,6 +216,6 @@ export declare type analysisType = {
  */
 export declare type loadingType = {
   isLoading: boolean;
-  start: (text?: string)=>void;
+  start: (text?: string) => void;
   end: () => void;
 };

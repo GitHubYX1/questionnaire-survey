@@ -1,5 +1,5 @@
 /** 题目类型 */
-export enum typeEnum  {
+export enum typeEnum {
   /** 单选 */
   RADIO = "单选",
   /** 多选 */
@@ -15,3 +15,31 @@ export enum typeEnum  {
   /** 段落说明 */
   PARAGRAPH = "段落说明",
 }
+
+/** 验证类型 */
+export enum validateEnum {
+  /** 不校验 */
+  DEFAULT = "",
+  /** 身份证号 */
+  ID_CARD = "ID",
+  /** 手机号 */
+  MOBILE = "tel",
+  /** 固话 */
+  TEL = "phone",
+  /** 纯数字 */
+  NUMBER = "number",
+  /** QQ */
+  QQ = "qq",
+  /** 邮箱 */
+  EMAIL = "mail",
+}
+
+export const validateOption = [
+  { value: validateEnum.DEFAULT, label: "不校验" },
+  { value: validateEnum.ID_CARD, label: "身份证号" },
+  { value: validateEnum.MOBILE, label: "手机号" },
+  { value: validateEnum.TEL, label: "固定电话" },
+  { value: validateEnum.NUMBER, label: "数字" },
+  { value: validateEnum.QQ, label: "QQ" },
+  { value: validateEnum.EMAIL, label: "邮箱" },
+];

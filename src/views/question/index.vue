@@ -12,8 +12,7 @@
             <transition name="slide-x" mode="out-in">
               <div class="question-item" :id="'item-' + item.id" v-if="isShow(item.id, item)">
                 <div v-if="item.type === PARAGRAPH" v-html="item.title"></div>
-                <a-form-item v-else :label="item.title" :key="item.id" :name="item.id"
-                  :rules="item.must ? [{ required: true, message: '请完成该评价' }] : []">
+                <a-form-item v-else :label="item.title" :key="item.id" :name="item.id" :rules="rulesValidate(item)">
                   <a-radio-group v-if="item.type === RADIO" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
                     <a-radio class="flex item-option"
@@ -55,13 +54,24 @@ import { ref, unref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import shortId from "shortid";
-import type { FormInstance } from "ant-design-vue/es/form";
+import type { FormInstance, Rule } from "ant-design-vue/es/form";
 import type { questionType, answerType, surveyAnswerType, QuestionControlType, optionType } from "@/types/index";
 import { surveyStore } from "@/stores/survey";
 import { getTime, timeDiff } from "@/utils/index";
 import { answerSave, answerSelected } from "@/computed/answer";
-import { typeEnum } from "@/assets/common/enums";
+import { isMobile, isIdCard, isEmail, isQQ, isTel, isNumber } from "@/utils/validate";
+import { typeEnum, validateEnum } from "@/assets/common/enums";
+
 const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH } = typeEnum;
+
+const fillValidateMap = {
+  [validateEnum.ID_CARD]: { msg: "请输入正确的身份证号", fn: isIdCard },
+  [validateEnum.MOBILE]: { msg: "请输入正确的手机号", fn: isMobile },
+  [validateEnum.TEL]: { msg: "请输入正确的固话号码", fn: isTel },
+  [validateEnum.NUMBER]: { msg: "请输入正确的数字", fn: isNumber },
+  [validateEnum.QQ]: { msg: "请输入正确的QQ号", fn: isQQ },
+  [validateEnum.EMAIL]: { msg: "请输入正确的邮箱", fn: isEmail },
+}
 
 const props = defineProps({
   preview: {
@@ -132,9 +142,7 @@ onMounted(() => {
         item.split(',').map((id) => Number(id)),
       ),
     })) || []
-    console.log('====================================');
     console.log("optionLogic", optionLogic.value);
-    console.log('====================================');
     startTime.value = getTime();
     //判断是否有有答案
     if (answerId) {
@@ -208,7 +216,6 @@ const filterAnswer = (id: number, optionShow: number[] | undefined, option: opti
   } else {
     return option;
   }
-
 }
 
 //提交数据
@@ -268,6 +275,35 @@ const nextPage = (type: 'next' | 'prev' = 'next') => {
 //判断当前是否为空
 const isPageEmpty = (question: questionType[]) => {
   return question.filter(item => isShow(item.id, item)).length === 0;
+}
+
+// 验证规则
+const rulesValidate = (item: questionType) => {
+  return item.must ? [{
+    required: true, validator: (_rule: Rule, value: string | number | number[]) => {
+      // 对value进行初步的类型和空值检查
+      if (!value || (Array.isArray(value) && value.length === 0)) {
+        return Promise.reject("请完成该评价");
+      }
+      // 填空题内容校验
+      if (typeof (value) === "string" && item.validateType !== validateEnum.DEFAULT) {
+        const fvm = fillValidateMap[item.validateType];
+        if (fvm && !fvm.fn(value)) {
+          return Promise.reject(fvm.msg);
+        }
+      }
+      // 多选题选项数量校验
+      if (Array.isArray(value)) {
+        if (item.chooseMin !== 0 && value.length < item.chooseMin) {
+          return Promise.reject(`最少选择${item.chooseMin}项`);
+        }
+        if (item.chooseMax !== 0 && value.length > item.chooseMax) {
+          return Promise.reject(`最多选择${item.chooseMax}项`);
+        }
+      }
+      return Promise.resolve();
+    }, trigger: 'change'
+  }] : [];
 }
 </script>
 <style lang='scss' scoped>

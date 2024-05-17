@@ -22,7 +22,7 @@
 import { ref } from "vue";
 import Excel from "exceljs";
 import type { questionType } from "@/types/index";
-import { typeEnum } from "@/assets/common/enums";
+import { typeEnum, validateEnum } from "@/assets/common/enums";
 import { scoreOptionInit } from "@/utils";
 import { message } from "ant-design-vue";
 
@@ -127,6 +127,9 @@ const importFile = async (event: any) => {
           option: option,
           must: jsonData[i]["必答题"] === "是" ? 1 : 0,
           column: 1,
+          chooseMin: 0,
+          chooseMax: 0,
+          validateType: validateEnum.DEFAULT,
         });
         id++;
       }
