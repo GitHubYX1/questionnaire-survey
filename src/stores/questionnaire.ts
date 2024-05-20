@@ -210,7 +210,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.question[index].must = must ? 1 : 0;
     },
     //类型修改
-    typeModify(index: number, type: typeEnum) {
+    typeModify(index: number, type: typeEnum, id = -1) {
       if (this.question[index].type === FILL && type !== FILL) {
         this.question[index].option = optionInit();
       } else if (type === FILL) {
@@ -218,6 +218,10 @@ export const questionnaireStore = defineStore("questionnaire", {
         this.question[index].column = 1;
       }
       this.question[index].type = type;
+      if (id !== -1) {
+        this.controlLogic = this.controlLogic.filter((item) => item.childId !== id && !item.questionIds.includes(String(id)));
+        this.controlOption = this.controlOption.filter((item) => item.childId !== id && !item.questionIds.includes(String(id)));
+      }
     },
     //添加
     optionAdd(index: number, option: optionType[]) {

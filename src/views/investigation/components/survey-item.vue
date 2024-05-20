@@ -248,7 +248,23 @@ const typeChange = () => {
     okText: "确认",
     cancelText: "取消",
     onOk() {
-      questionnaire.typeModify(props.index, typeRadio.value);
+      const id = props.question.id;
+      const controlLogic = questionnaire.controlLogic.filter((item) => item.childId === id || item.questionIds.includes(String(id)));
+      const controlOption = questionnaire.controlOption.filter((item) => item.childId === id || item.questionIds.includes(String(id)));
+      //判断是否有逻辑关联
+      if (controlLogic.length || controlOption.length) {
+        Modal.confirm({
+          title: "提示",
+          content: `题目有关联控制逻辑，删除题目，和题目相关的逻辑控制会删除，是否继续？`,
+          okText: "确认",
+          cancelText: "取消",
+          onOk() {
+            questionnaire.typeModify(props.index, typeRadio.value, id);
+          },
+        });
+      } else {
+        questionnaire.typeModify(props.index, typeRadio.value);
+      }
     },
     onCancel() {
       typeRadio.value = props.question.type;
