@@ -15,19 +15,18 @@
                 <a-form-item v-else :label="item.title" :key="item.id" :name="item.id" :rules="rulesValidate(item)">
                   <a-radio-group v-if="item.type === RADIO" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
-                    <a-radio class="flex item-option"
-                      v-for="subItem in filterAnswer(item.id, item.optionShow, item.option)" :key="subItem.id"
-                      :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g,
+                    <a-radio class="flex item-option" v-for="subItem in filterAnswer(item.optionShow, item.option)"
+                      :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g,
                         '\n') }}</a-radio>
                   </a-radio-group>
                   <a-checkbox-group v-else-if="item.type === CHECKBOX" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
-                    <a-checkbox class="flex item-option"
-                      v-for="subItem in filterAnswer(item.id, item.optionShow, item.option)" :key="subItem.id"
-                      :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g, '\n') }}</a-checkbox>
+                    <a-checkbox class="flex item-option" v-for="subItem in filterAnswer(item.optionShow, item.option)"
+                      :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g,
+                        '\n') }}</a-checkbox>
                   </a-checkbox-group>
                   <a-select v-else-if="item.type === DROP" class="drop-down" placeholder="请选择下拉列表"
-                    v-model:value="formState[item.id]" :options="filterAnswer(item.id, item.optionShow, item.option)"
+                    v-model:value="formState[item.id]" :options="filterAnswer(item.optionShow, item.option)"
                     :fieldNames="{ label: 'content', value: 'id' }"></a-select>
                   <a-rate v-else-if="item.type === SCORE" v-model:value="formState[item.id]" style="font-size: 28px"
                     :count="item.option.length" />
@@ -182,37 +181,41 @@ const isShow = (id: number, question: questionType) => {
       )
     })
     let bool = findControl.condition === 'or' ? logicList.some((item) => item) : logicList.every((item) => item);
-    if (!bool) delete formState.value[id];
-    return bool
+    if (!bool) {
+      delete formState.value[id];
+      return false
+    }
   }
   // 选择控制逻辑处理
   if (filterOption.length) {
     const optionShow: number[] = []
     filterOption.forEach((item) => {
-      const parentId = item.parentIds[0]
-      const answer = item.parentAnswer[0]
-      const logicSome = answer.some(item => {
-        return Array.isArray(form[parentId]) ? form[parentId].includes(item) : form[parentId] == item
-      })
-      if (!logicSome && item.optionId) optionShow.push(item.optionId)
+      for (const i in item.parentIds) {
+        const parentId = item.parentIds[i];
+        const answer = item.parentAnswer[i];
+        const logicSome = answer.some(item => {
+          return Array.isArray(form[parentId]) ? form[parentId].includes(item) : form[parentId] == item
+        })
+        if (!logicSome && item.optionId) optionShow.push(item.optionId)
+      }
     })
     question.optionShow = optionShow;//通过浅复制赋值
     if (optionShow.length === question.option.length) {
       delete formState.value[id];
       return false
+    } else if (formState.value[id]) {
+      let form = formState.value[id];
+      form = Array.isArray(form) ? form.filter(item => !optionShow.includes(item)) : (optionShow.includes(form) ? form : '')
+      formState.value[id] = form;
     }
   }
   return true
 }
 
 // 选项筛选
-const filterAnswer = (id: number, optionShow: number[] | undefined, option: optionType[]) => {
+const filterAnswer = (optionShow: number[] | undefined, option: optionType[]) => {
   if (optionShow?.length) {
-    //清除选项
-    let form = formState.value[id];
-    form = Array.isArray(form) ? form.filter(item => optionShow.includes(item)) : (optionShow.includes(form) ? form : '')
-    formState.value[id] = form;
-    return option.filter(item => optionShow.includes(item.id))
+    return option.filter(item => !optionShow.includes(item.id))
   } else {
     return option;
   }
