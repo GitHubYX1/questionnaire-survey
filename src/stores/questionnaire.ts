@@ -232,13 +232,41 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.controlOption = this.controlOption.filter((item) => item.childId !== id && !item.questionIds.includes(String(id)));
     },
     //选项移除
-    optionRemove(index: number, optionIndex: number) {
+    optionRemove(index: number, optionIndex: number, optionId = -1) {
       const id = this.question[index].id;
       let arr = this.question[index].option.concat();
       arr.splice(optionIndex, 1);
       this.question[index].option = arr;
-      this.controlLogic = this.controlLogic.filter((item) => !item.questionIds.includes(String(id)));
-      this.controlOption = this.controlOption.filter((item) => item.childId !== id && !item.questionIds.includes(String(id)));
+      if (optionId !== -1) {
+        this.controlLogic = this.controlLogic.filter((item) => {
+          item = this.processItem(item, id, optionId);
+          return item.questionIds !== "";
+        });
+        this.controlOption = this.controlOption.filter((item) => {
+          if (item.childId === id && item.optionId === optionId) return false;
+          item = this.processItem(item, id, optionId);
+          return item.questionIds !== "";
+        });
+      }
+    },
+    // 关联项筛选
+    processItem(item: controlLogicType, id: number, optionId: number) {
+      const questionIdsArray = item.questionIds.split(",");
+      const idIndex = questionIdsArray.indexOf(String(id));
+      if (idIndex !== -1) {
+        let answerArray = item.parentAnswer.split("|");
+        answerArray[idIndex] = answerArray[idIndex]
+          .split(",")
+          .filter((son: string) => son !== String(optionId))
+          .join(",");
+        if (answerArray[idIndex] === "") {
+          questionIdsArray.splice(idIndex, 1);
+          answerArray.splice(idIndex, 1);
+          item.questionIds = questionIdsArray.join(",");
+        }
+        item.parentAnswer = answerArray.join("|");
+      }
+      return item;
     },
     //选项移动
     optionMove(index: number, optionIndex: number, action: string) {

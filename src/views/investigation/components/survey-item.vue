@@ -87,7 +87,8 @@
               <a-select-option :value="3">三列</a-select-option>
             </a-select>
             <template v-else-if="props.question.type === FILL">
-              <a-select v-model:value="props.question.validateType" :options="validateOption" style="width: 100px;margin-right: 10px;">
+              <a-select v-model:value="props.question.validateType" :options="validateOption"
+                style="width: 100px;margin-right: 10px;">
               </a-select>
               <a-select v-model:value="props.question.column" style="width: 100px">
                 <a-select-option :value="1">一行</a-select-option>
@@ -106,7 +107,7 @@
               <template #default="{ record, index }">
                 <a-input v-model:value="record.content" style="width: 80%" />
                 <span class="option-icon"><plus-outlined @click="optionAddClick(index)" /></span>
-                <span class="option-icon"><minus-outlined @click="optionRemoveClick(index)" /></span>
+                <span class="option-icon"><minus-outlined @click="optionRemoveClick(index, record.id)" /></span>
               </template>
             </a-table-column>
             <a-table-column key="id" title="上下移动" align="center">
@@ -259,20 +260,43 @@ const optionAddClick = (optionIndex: number) => {
   emit("optionAdd", { index: props.index, optionIndex });
 };
 //选项移除
-const optionRemoveClick = (optionIndex: number) => {
+const optionRemoveClick = (optionIndex: number, optionId: number) => {
   if (props.question.option.length > 1) {
     const id = props.question.id;
-    const controlLogic = questionnaire.controlLogic.filter((item) => item.questionIds.includes(String(id)));
-    const controlOption = questionnaire.controlOption.filter((item) => item.childId === id || item.questionIds.includes(String(id)));
+    let bool = false;
+    // 判断是否存在逻辑
+    for (const item of questionnaire.controlLogic) {
+      const questionIdsArray = item.questionIds.split(",");
+      const idIndex = questionIdsArray.indexOf(String(id));
+      if (idIndex !== -1) {
+        bool = item.parentAnswer.split("|")[idIndex].split(",").includes(String(optionId));
+        if (bool) break;
+      }
+    }
+    // 判断是存在选项关联逻辑
+    if (!bool) {
+      for (const item of questionnaire.controlOption) {
+        if (item.childId === id && item.optionId === optionId) {
+          bool = true;
+          break;
+        }
+        const questionIdsArray = item.questionIds.split(",");
+        const idIndex = questionIdsArray.indexOf(String(id));
+        if (idIndex !== -1) {
+          bool = item.parentAnswer.split("|")[idIndex].split(",").includes(String(optionId));
+          if (bool) break;
+        }
+      }
+    }
     //判断是否有逻辑关联
-    if (controlLogic.length || controlOption.length) {
+    if (bool) {
       Modal.confirm({
         title: "提示",
         content: `题目选项有关联控制逻辑，删除选项，和题目相关的逻辑控制会删除，是否继续？`,
         okText: "确认",
         cancelText: "取消",
         onOk() {
-          questionnaire.optionRemove(props.index, optionIndex);
+          questionnaire.optionRemove(props.index, optionIndex, optionId);
         },
       });
     } else {
