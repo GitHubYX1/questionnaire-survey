@@ -10,26 +10,29 @@
         <a-form layout="vertical" class="question-list" :model="formState" ref="formRef">
           <template v-for="item in questionData[pageIndex]" :key="item.id">
             <transition name="slide-x" mode="out-in">
-              <div class="question-item" :id="'item-' + item.id" v-if="isShow(item.id, item)">
+              <div class="question-item" :id="'item-' + item.id" v-if="item.isVisible">
                 <div v-if="item.type === PARAGRAPH" v-html="item.title"></div>
                 <a-form-item v-else :label="item.title" :key="item.id" :name="item.id" :rules="rulesValidate(item)">
                   <a-radio-group v-if="item.type === RADIO" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
-                    <a-radio class="flex item-option" v-for="subItem in filterAnswer(item.optionShow, item.option)"
-                      :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g,
-                        '\n') }}</a-radio>
+                    <a-radio class="flex item-option" v-for="subItem in filterAnswer(item.hideNum, item.option)"
+                      :key="subItem.id" :value="subItem.id" :name="subItem.content"
+                      @change="changeAnswer(item.id, $event.target.value)">{{
+                        subItem.content.replace(/\\n/g,
+                          '\n') }}</a-radio>
                   </a-radio-group>
                   <a-checkbox-group v-else-if="item.type === CHECKBOX" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
-                    <a-checkbox class="flex item-option" v-for="subItem in filterAnswer(item.optionShow, item.option)"
-                      :key="subItem.id" :value="subItem.id" :name="subItem.content">{{ subItem.content.replace(/\\n/g,
+                    <a-checkbox class="flex item-option" v-for="subItem in filterAnswer(item.hideNum, item.option)"
+                      :key="subItem.id" :value="subItem.id" :name="subItem.content"
+                      @change="changeAnswer(item.id, $event.target.value)">{{ subItem.content.replace(/\\n/g,
                         '\n') }}</a-checkbox>
                   </a-checkbox-group>
                   <a-select v-else-if="item.type === DROP" class="drop-down" placeholder="请选择下拉列表"
-                    v-model:value="formState[item.id]" :options="filterAnswer(item.optionShow, item.option)"
-                    :fieldNames="{ label: 'content', value: 'id' }"></a-select>
+                    v-model:value="formState[item.id]" :options="filterAnswer(item.hideNum, item.option)"
+                    :fieldNames="{ label: 'content', value: 'id' }" @change="changeAnswer(item.id, $event)"></a-select>
                   <a-rate v-else-if="item.type === SCORE" v-model:value="formState[item.id]" style="font-size: 28px"
-                    :count="item.option.length" />
+                    :count="item.option.length" @change="changeAnswer(item.id, $event)" />
                   <template v-else-if="item.type === FILL">
                     <a-input v-if="item.column === 1" v-model:value="formState[item.id]"></a-input>
                     <a-textarea v-else :rows="item.column" v-model:value="formState[item.id]" />
@@ -54,7 +57,7 @@ import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import shortId from "shortid";
 import type { FormInstance, Rule } from "ant-design-vue/es/form";
-import type { questionType, answerType, surveyAnswerType, QuestionControlType, optionType } from "@/types/index";
+import type { questionType, answerType, surveyAnswerType, QuestionControlType, optionType, questionListType } from "@/types/index";
 import { surveyStore } from "@/stores/survey";
 import { getTime, timeDiff } from "@/utils/index";
 import { answerSave, answerSelected } from "@/computed/answer";
@@ -86,7 +89,7 @@ const infoHeader = reactive({
   content: "",
   id: "",
 });
-const questionData = ref<questionType[][]>([]);
+const questionData = ref<questionListType[][]>([]);
 const formState = ref<Record<string, any>>({});
 const formRef = ref<FormInstance | null>(null);
 const startTime = ref<string>("");
@@ -110,19 +113,6 @@ onMounted(() => {
     infoHeader.title = survey.title;
     infoHeader.content = survey.content;
     infoHeader.id = survey.id;
-
-    const questionLsit: questionType[][] = [[]];
-    let page = 0;
-    survey.question.forEach(item => {
-      if (item.type !== PAGING) {
-        questionLsit[page].push(item);
-      } else {
-        page++;
-        questionLsit.push([]);
-      }
-    })
-    questionData.value = questionLsit.filter(item => item.length !== 0);
-    console.log("questionLsit", questionLsit);
     //获取逻辑
     controlData.value = survey.controlLogic.map(item => ({
       id: item.childId,
@@ -143,6 +133,24 @@ onMounted(() => {
     })) || []
     console.log("optionLogic", optionLogic.value);
     startTime.value = getTime();
+    // 获取题目列表
+    const questionLsit: questionListType[][] = [[]];
+    let page = 0;
+    survey.question.forEach(item => {
+      if (item.type !== PAGING) {
+        const show = isQuestionVisible(item.id, controlData.value);
+        const hideNum = isOptionVisible(item.id, optionLogic.value);
+        questionLsit[page].push({
+          ...item,
+          isVisible: show && (hideNum.length === 0 ? true : hideNum.length !== item.option.length),
+          hideNum,
+        });
+      } else {
+        page++;
+        questionLsit.push([]);
+      }
+    })
+    questionData.value = questionLsit.filter(item => item.length !== 0);
     //判断是否有有答案
     if (answerId) {
       answerIdRef.value = answerId;
@@ -159,18 +167,17 @@ onMounted(() => {
     message.error("没有获取到调查");
   }
 });
+
 //获取列数
 function generateColumn(column: number) {
   return { 'grid-template-columns': `repeat(${column}, minmax(0, 1fr))` };
 }
 
-//是否显示题目
-const isShow = (id: number, question: questionType) => {
-  const findControl = unref(controlData).find((item) => item.id === id);
-  const filterOption = unref(optionLogic).filter((item) => item.id === id);
-  const form = unref(formState);
-  //题目控制逻辑处理
+// 是否显示题目
+const isQuestionVisible = (id: number, control: QuestionControlType[]) => {
+  const findControl = control.find((item) => item.id === id);
   if (findControl) {
+    const form = unref(formState);
     let logicList: boolean[] = [];
     findControl.parentIds.forEach((parentId, index) => {
       const answer = findControl.parentAnswer[index];
@@ -180,15 +187,19 @@ const isShow = (id: number, question: questionType) => {
         })
       )
     })
-    let bool = findControl.condition === 'or' ? logicList.some((item) => item) : logicList.every((item) => item);
-    if (!bool) {
-      delete formState.value[id];
-      return false
-    }
+    return findControl.condition === 'or' ? logicList.some((item) => item) : logicList.every((item) => item);
   }
+
+  return true;
+}
+
+// 是否显示选项
+const isOptionVisible = (id: number, logic: QuestionControlType[]) => {
+  const filterOption = logic.filter((item) => item.id === id);
+  const optionShow: number[] = []
   // 选择控制逻辑处理
   if (filterOption.length) {
-    const optionShow: number[] = []
+    const form = unref(formState);
     filterOption.forEach((item) => {
       for (const i in item.parentIds) {
         const parentId = item.parentIds[i];
@@ -199,23 +210,40 @@ const isShow = (id: number, question: questionType) => {
         if (!logicSome && item.optionId) optionShow.push(item.optionId)
       }
     })
-    question.optionShow = optionShow;//通过浅复制赋值
-    if (optionShow.length === question.option.length) {
-      delete formState.value[id];
-      return false
-    } else if (formState.value[id]) {
-      let form = formState.value[id];
-      form = Array.isArray(form) ? form.filter(item => !optionShow.includes(item)) : (optionShow.includes(form) ? form : '')
-      formState.value[id] = form;
-    }
   }
-  return true
+  return optionShow;
+}
+
+// 更改答案
+const changeAnswer = (id: number, value: number | number[]) => {
+  const childControl = controlData.value.filter((item) => item.parentIds.includes(id));
+  const filterOption = optionLogic.value.filter((item) => item.parentIds.includes(id));
+  formState.value[id] = value;
+  if (childControl.length || filterOption.length) {
+    const form = unref(formState);
+    questionData.value.forEach((item) => {
+      item.forEach((item2) => {
+        const show = isQuestionVisible(item2.id, childControl);
+        const hideNum = isOptionVisible(item2.id, filterOption);
+        const optionShow = (hideNum.length === 0 ? true : hideNum.length !== item2.option.length)
+        if (!show || !optionShow) {
+          delete formState.value[item2.id];
+        } else if (hideNum.length && form[item2.id] !== undefined) {
+          let formId = form[item2.id]
+          formId = Array.isArray(formId) ? formId.filter(item => !hideNum.includes(item)) : (!hideNum.includes(formId) ? form : '')
+          formState.value[item2.id] = formId;
+        }
+        item2.isVisible = show && optionShow,
+          item2.hideNum = hideNum
+      })
+    })
+  }
 }
 
 // 选项筛选
-const filterAnswer = (optionShow: number[] | undefined, option: optionType[]) => {
-  if (optionShow?.length) {
-    return option.filter(item => !optionShow.includes(item.id))
+const filterAnswer = (hideNum: number[] | undefined, option: optionType[]) => {
+  if (hideNum?.length) {
+    return option.filter(item => !hideNum.includes(item.id))
   } else {
     return option;
   }
@@ -276,8 +304,8 @@ const nextPage = (type: 'next' | 'prev' = 'next') => {
 }
 
 //判断当前是否为空
-const isPageEmpty = (question: questionType[]) => {
-  return question.filter(item => isShow(item.id, item)).length === 0;
+const isPageEmpty = (question: questionListType[]) => {
+  return question.filter(item => item.isVisible).length === 0;
 }
 
 // 验证规则

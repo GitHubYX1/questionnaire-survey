@@ -61,7 +61,16 @@ export declare type questionType = {
   chooseMin: number;
   chooseMax: number;
   validateType: validateEnum;
-  optionShow?: number[];
+};
+
+/**
+ * 继承问题列表数据
+ * @param isVisible 是否显示
+ * @param hideNum 隐藏编号
+ */
+export declare type questionListType = questionType & {
+  isVisible: boolean;
+  hideNum: number[];
 };
 
 /**
