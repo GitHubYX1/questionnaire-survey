@@ -225,16 +225,16 @@ const changeAnswer = (id: number, value: number | number[]) => {
       item.forEach((item2) => {
         const show = isQuestionVisible(item2.id, childControl);
         const hideNum = isOptionVisible(item2.id, filterOption);
-        const optionShow = (hideNum.length === 0 ? true : hideNum.length !== item2.option.length)
+        const optionShow = hideNum.length === 0 || hideNum.length !== item2.option.length;
         if (!show || !optionShow) {
           delete formState.value[item2.id];
         } else if (hideNum.length && form[item2.id] !== undefined) {
           let formId = form[item2.id]
-          formId = Array.isArray(formId) ? formId.filter(item => !hideNum.includes(item)) : (!hideNum.includes(formId) ? form : '')
+          formId = Array.isArray(formId) ? formId.filter(item => !hideNum.includes(item)) : (!hideNum.includes(formId) ? form : '');
           formState.value[item2.id] = formId;
         }
-        item2.isVisible = show && optionShow,
-          item2.hideNum = hideNum
+        item2.isVisible = show && optionShow;
+        item2.hideNum = hideNum;
       })
     })
   }
