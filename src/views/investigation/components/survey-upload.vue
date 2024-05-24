@@ -73,7 +73,7 @@ const importFile = async (event: any) => {
     workbook.xlsx.load(data).then(() => {
       const worksheet = workbook.getWorksheet(1);
       const jsonData: any = [];
-      worksheet.eachRow((row, rowNumber) => {
+      worksheet?.eachRow((row, rowNumber) => {
         if (rowNumber !== 1) {
           // 忽略标题行
           const rowData: any = {};
