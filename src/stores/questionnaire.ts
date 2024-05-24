@@ -1,7 +1,7 @@
 import { inject } from "vue";
 import { defineStore } from "pinia";
 import { typeEnum, validateEnum } from "@/assets/common/enums";
-import { mostValue, getTime, optionInit, scoreOptionInit } from "@/utils/index";
+import { mostValue, optionInit, scoreOptionInit } from "@/utils/index";
 import type { optionType, questionType, surveyType, controlLogicType, loadingType, controlOptionType } from "@/types/index";
 const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING } = typeEnum;
 const serialRemoveType = [typeEnum.PARAGRAPH, typeEnum.PAGING];
@@ -62,11 +62,12 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.id = "";
       this.title = DEFAULT_QUESTIONNAIRE_TITLE;
       this.content = "";
-      this.createTime = getTime();
-      this.modifyTime = getTime();
+      this.createTime = "";
+      this.modifyTime = "";
       this.state = false;
       this.question = [];
       this.controlLogic = [];
+      this.controlOption = [];
       this.questionMaxId = INITIAL_QUESTION_MAX_ID;
       this.insertNum = INSERT_NUM_DEFAULT;
       this.editId = EDIT_ID_DEFAULT;
