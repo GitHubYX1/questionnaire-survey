@@ -1,8 +1,7 @@
-import { type contrlType } from "../../types/index";
 import { typeEnum } from "./enums";
 
 // 控件列表
-export const contrlList: contrlType[] = [
+export const contrlList = [
   {
     key: "1",
     title: "选择题",
