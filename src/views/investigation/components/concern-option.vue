@@ -7,7 +7,7 @@
         <a-table-column key="id" title="选项出现条件" width="80%" align="center">
           <template #default="{ record, index }">
             <div class="option-condition align-items flex-between" v-if="controlId !== record.id">
-              <div class="option-control">{{ logicText(record.control) }}</div>
+              <div class="option-control">{{ questionnaire.logicText(record.control) }}</div>
               <a-button type="link" size="large" @click="controlSet(record.id)">{{ record.control ? "修改" : "添加关联" }}</a-button>
             </div>
             <div class="option-condition" v-else>
@@ -24,20 +24,16 @@
   </a-modal>
 </template>
 <script lang="ts" setup>
-import { ref, type PropType } from "vue";
+import { ref } from "vue";
 import type { optionType, questionType, controlOptionType, controlLogicType } from "@/types/index";
+import { questionnaireStore } from "@/stores/questionnaire";
 import concernSelect from "./concern-select.vue";
 
 interface optionControlType extends optionType {
   control?: controlLogicType;
 }
 
-const props = defineProps({
-  logicText: {
-    type: Object as PropType<(controlLogic: controlLogicType | undefined) => string>,
-    default: () => {},
-  },
-});
+const questionnaire = questionnaireStore();
 
 const emit = defineEmits(["optionChange"]);
 

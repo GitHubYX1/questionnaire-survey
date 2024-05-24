@@ -51,7 +51,7 @@
       <batch-add ref="batchModal"></batch-add>
       <concern-front ref="concernFrontRef" @getFront="questionnaire.getFront"></concern-front>
       <concern-copy ref="concernCopyRef" @getCopy="questionnaire.getCopy"></concern-copy>
-      <concern-option ref="concernOptionRef" :logicText="questionnaire.logicText" @optionChange="optionChange"></concern-option>
+      <concern-option ref="concernOptionRef" @optionChange="optionChange"></concern-option>
     </div>
   </div>
 </template>
