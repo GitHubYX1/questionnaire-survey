@@ -8,6 +8,8 @@ export enum typeEnum {
   DROP = "下拉",
   /** 评分 */
   SCORE = "评分",
+  /** 滑动条 */
+  SLIDER = "滑动条",
   /** 填空 */
   FILL = "填空",
   /** 分页 */
