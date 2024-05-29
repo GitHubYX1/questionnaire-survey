@@ -34,7 +34,8 @@
         <a-input v-if="props.question.column === 1" />
         <a-textarea v-else :rows="props.question.column" />
       </template>
-      <slider v-else-if="props.question.type === SLIDER" :disabled="true" :min="props.question.option[0]" :max="props.question.option[1]">
+      <slider v-else-if="props.question.type === SLIDER" :disabled="true" :min="props.question.option[0]"
+        :max="props.question.option[1]">
       </slider>
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="questionnaire.editId != props.question.id">
@@ -60,11 +61,11 @@
             <a-input v-model:value="props.question.title" />
           </div>
           <div class="editor-type flex align-items">
-            <a-radio-group v-model:value="typeRadio" :name="'radio' + props.question.id" @change="typeChange">
-              <a-radio class="editor-option" :value="RADIO">单选</a-radio>
-              <a-radio class="editor-option" :value="CHECKBOX">多选</a-radio>
-              <a-radio class="editor-option" :value="FILL">填空</a-radio>
-            </a-radio-group>
+            <a-select v-if="editorType.includes(props.question.type)" v-model:value="typeRadio" style="width: 90px;margin-right: 10px;" @change="typeChange">
+              <a-select-option :value="RADIO">单选</a-select-option>
+              <a-select-option :value="CHECKBOX">多选</a-select-option>
+              <a-select-option :value="FILL">填空</a-select-option>
+            </a-select>
             <a-checkbox class="editor-option" v-model:checked="mustBoolean" @change="checkboxChange">必答</a-checkbox>
             <template v-if="props.question.type === CHECKBOX">
               <a-select v-model:value="props.question.chooseMin" style="width: 120px;margin-right: 10px;">
@@ -157,6 +158,7 @@ const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER } = typeEn
 
 const questionnaire = questionnaireStore();
 const emit = defineEmits(["optionAdd", "concern"]);
+const editorType = [RADIO, CHECKBOX, FILL];
 
 const props = defineProps({
   question: {
@@ -471,7 +473,7 @@ const sliderChange = (optionIndex: number, value: number) => {
   }
 
   .editor-type {
-    padding: 10px;
+    margin: 10px 0;
 
     .editor-option {
       font-size: 16px;
