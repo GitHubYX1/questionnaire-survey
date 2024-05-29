@@ -37,6 +37,8 @@
                     <a-input v-if="item.column === 1" v-model:value="formState[item.id]"></a-input>
                     <a-textarea v-else :rows="item.column" v-model:value="formState[item.id]" />
                   </template>
+                  <slider v-else-if="item.type === SLIDER" :min="item.option[0]" :max="item.option[1]"
+                    v-model:value="formState[item.id]"></slider>
                 </a-form-item>
               </div>
             </transition>
@@ -63,8 +65,9 @@ import { getTime, timeDiff } from "@/utils/index";
 import { answerSave, answerSelected } from "@/computed/answer";
 import { isMobile, isIdCard, isEmail, isQQ, isTel, isNumber } from "@/utils/validate";
 import { typeEnum, validateEnum } from "@/assets/common/enums";
+import slider from "@/components/slider/slider.vue";
 
-const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH } = typeEnum;
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER } = typeEnum;
 
 const fillValidateMap = {
   [validateEnum.ID_CARD]: { msg: "请输入正确的身份证号", fn: isIdCard },
@@ -313,7 +316,7 @@ const rulesValidate = (item: questionType) => {
   return item.must ? [{
     required: true, validator: (_rule: Rule, value: string | number | number[]) => {
       // 对value进行初步的类型和空值检查
-      if (!value || (Array.isArray(value) && value.length === 0)) {
+      if ((!value && value !== 0) || (Array.isArray(value) && value.length === 0)) {
         return Promise.reject("请完成该评价");
       }
       // 填空题内容校验
