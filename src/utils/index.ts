@@ -26,6 +26,14 @@ export function scoreOptionInit(num: number): optionType[] {
   return arr.slice(0, num);
 }
 
+//滑动条参数初始化
+export function sliderInit(): optionType[] {
+  return [
+    { id: 0, content: "" },
+    { id: 100, content: "" },
+  ];
+}
+
 //获取最大值
 export function mostValue(arr: any[], value: string): number {
   return (

@@ -1,9 +1,9 @@
 import { inject } from "vue";
 import { defineStore } from "pinia";
 import { typeEnum, validateEnum } from "@/assets/common/enums";
-import { mostValue, optionInit, scoreOptionInit } from "@/utils/index";
+import { mostValue, optionInit, scoreOptionInit, sliderInit } from "@/utils/index";
 import type { optionType, questionType, surveyType, controlLogicType, loadingType, controlOptionType } from "@/types/index";
-const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING } = typeEnum;
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, SLIDER } = typeEnum;
 const serialRemoveType = [typeEnum.PARAGRAPH, typeEnum.PAGING];
 const DEFAULT_QUESTIONNAIRE_TITLE = "测试问卷";
 const INITIAL_QUESTION_MAX_ID = 1000;
@@ -110,6 +110,8 @@ export const questionnaireStore = defineStore("questionnaire", {
         this.totalPage++;
         questionAdd.currentPage = this.totalPage;
         questionAdd.must = 0;
+      }else if(contrl.title === SLIDER){
+        questionAdd.option = sliderInit();
       }
       if (this.insertNum === INSERT_NUM_DEFAULT) {
         this.question.push(questionAdd);

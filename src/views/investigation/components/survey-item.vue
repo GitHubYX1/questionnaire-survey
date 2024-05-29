@@ -34,6 +34,8 @@
         <a-input v-if="props.question.column === 1" />
         <a-textarea v-else :rows="props.question.column" />
       </template>
+      <slider v-else-if="SLIDER" :disabled="true" :min="props.question.option[0]" :max="props.question.option[1]">
+      </slider>
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="questionnaire.editId != props.question.id">
         <div class="survey-menu-box">
@@ -97,11 +99,10 @@
                 <a-select-option :value="4">四行</a-select-option>
               </a-select>
             </template>
-
           </div>
         </template>
         <rich-tinymce v-model="props.question.title" v-else></rich-tinymce>
-        <template v-if="props.question.option.length && props.question.type !== SCORE">
+        <template v-if="props.question.option.length && props.question.type !== SCORE && props.question.type !== SLIDER">
           <a-table :dataSource="props.question.option" :pagination="false" bordered rowKey="id">
             <a-table-column key="id" title="选项文字" align="center">
               <template #default="{ record, index }">
@@ -128,6 +129,8 @@
             <a-select-option v-for="i in 10" :key="i" :value="i">{{ i }}个</a-select-option>
           </a-select>
         </div>
+        <sliderOption v-else-if="props.question.type === SLIDER" :min="props.question.option[0]"
+          :max="props.question.option[1]" @change="sliderChange"></sliderOption>
         <div class="logic-set flex align-items">
           <span>逻辑设置：</span>
           <a @click="concernClick(1)">题目向前关联</a>
@@ -147,8 +150,10 @@ import type { questionType, controlLogicType } from "@/types/index";
 import { Modal } from "ant-design-vue";
 import { questionnaireStore } from "@/stores/questionnaire";
 import RichTinymce from "./rich-tinymce.vue";
+import slider from "@/components/slider/slider.vue";
+import sliderOption from "./item-module/slider-option.vue";
 import { typeEnum, validateOption } from "@/assets/common/enums";
-const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH } = typeEnum;
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER } = typeEnum;
 
 const questionnaire = questionnaireStore();
 const emit = defineEmits(["optionAdd", "concern"]);
@@ -361,6 +366,12 @@ const optionLogicText = (id: number, control: controlLogicType[]) => {
   }
   return "";
 };
+
+// 数字输入框
+// 数字输入框
+const sliderChange = (optionIndex: number, value: number) => {
+  questionnaire.question[props.index].option[optionIndex].id = value
+}
 </script>
 <style lang="scss" scoped>
 .survey-item {
