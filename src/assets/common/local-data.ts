@@ -30,6 +30,12 @@ export const contrlList = [
         type: typeEnum.SCORE,
         icon: "star-outlined",
       },
+      {
+        key: "1-5",
+        title: "滑动条",
+        type: typeEnum.SLIDER,
+        icon: "slider-bar",
+      },
     ],
   },
   {
