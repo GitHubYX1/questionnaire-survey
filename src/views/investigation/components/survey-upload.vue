@@ -24,7 +24,12 @@ import Excel from "exceljs";
 import type { questionType } from "@/types/index";
 import { typeEnum, validateEnum } from "@/assets/common/enums";
 import { scoreOptionInit } from "@/utils";
+import { isValidNumber } from "@/utils/isValidType"
 import { message } from "ant-design-vue";
+
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER } = typeEnum;
+const typeList = [RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER];
+const oNOption = [FILL, PAGING, PARAGRAPH];
 
 const props = defineProps({
   questionMaxId: {
@@ -50,6 +55,7 @@ const uploadOpen = () => {
   errorText.value = "";
   questionData.value = [];
   fileInput.value.value = "";//清空输入框内容
+  console.log('typeList', typeList);
 };
 
 //取消
@@ -57,12 +63,17 @@ const onCancel = (e: any) => {
   if (e.target.className != "ant-modal-wrap") fileVisible.value = false;
 };
 
+// 错误文本初始化
+const errorTextInit = (text: string) => {
+  errorText.value = text;
+  loading.value = false;
+};
+
 //文件导入
 const importFile = async (event: any) => {
   loading.value = true;
   let id = Number(props.questionMaxId);
   const file = event.target.files[0];
-  console.log('打印file', event);
   //创建workbook
   const workbook = new Excel.Workbook();
   //异步读取存储在用户计算机上的文件（或原始数据缓冲区）的内容
@@ -92,11 +103,11 @@ const importFile = async (event: any) => {
         if (jsonData[i]["类型"] == typeEnum.PAGING) {
           jsonData[i]["标题"] = typeEnum.PAGING;
         } else if (!jsonData[i]["标题"]) {
-          loading.value = false;
-          return (errorText.value = "第" + index + "题目标题未填写！");
+          return errorTextInit(`第${index}题目标题未填写！`);
         } else if (!jsonData[i]["类型"]) {
-          loading.value = false;
-          return (errorText.value = "第" + index + "题目类型未填写！");
+          return errorTextInit(`第${index}题目类型未填写！`); 
+        } else if (!typeList.includes(jsonData[i]["类型"])) {
+          return errorTextInit(`第${index}题目类型错误！`);
         }
         let idList: number[] = [];
         let option = jsonData[i]["选项"] ? jsonData[i]["选项"].split("|").map((item: string) => {
@@ -107,18 +118,27 @@ const importFile = async (event: any) => {
             content: data[1],
           };
         }) : [];
+        if (!oNOption.includes(jsonData[i]["类型"]) && option.length === 0) {
+          return errorTextInit(`第${index}题目选项未填写！`);
+        }
         //选项序号重复判断
         const idSet = new Set(idList);
         if (option.length && option.length !== idSet.size) {
-          loading.value = false;
-          return (errorText.value = "第" + index + "题目选项序号有重复！");
+          return errorTextInit(`第${index}题目选项序号有重复！`);
         }
         if (jsonData[i]["类型"] === typeEnum.SCORE) {
           if (option.length > 10) {
-            loading.value = false;
-            return (errorText.value = "第" + index + "题目评分选项不能超过10个！");
+            return errorTextInit(`第${index}题目评分选项不能超过10个！`);
           }
           option = scoreOptionInit(option.length)
+        } else if (jsonData[i]["类型"] === SLIDER) {
+          if (option.length !== 2) {
+            return errorTextInit(`第${index}题目滑动条选必须是2个！`);
+          } else if (option[0].id > option[1].id) {
+            return errorTextInit(`第${index}题目滑动条最大值不能小于最小值！`);
+          } else if (!isValidNumber(option[0].id) || !isValidNumber(option[1].id)) {
+            return errorTextInit(`第${index}题目滑动条序号范围应当是0~100！`);
+          }
         }
         questionList.push({
           id: id,
@@ -139,8 +159,7 @@ const importFile = async (event: any) => {
       console.log('questionList', questionList);
       loading.value = false;
     }).catch((res) => {
-      loading.value = false;
-      errorText.value = "上传文件有问题！";
+      errorTextInit("上传文件有问题！");
       console.error(res);
     });
   };
