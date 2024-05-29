@@ -2,9 +2,13 @@ import storage from "@/utils/storage";
 import type { surveyAnswerType, answerType, analysisType, analysisOptionType, fillType } from "@/types/index";
 import { surveyStore } from "@/stores/survey";
 import { typeEnum } from "@/assets/common/enums";
-const { RADIO, CHECKBOX, FILL, PAGING } = typeEnum;
+const { RADIO, CHECKBOX, FILL, PAGING, SLIDER } = typeEnum;
 
 const storeData = surveyStore();
+
+interface sliderObjType {
+  [prop: string]: number;
+}
 
 /**
  * 获取答题数据
@@ -21,6 +25,29 @@ function getAnswer(id: string, screenDate = ["", ""]) {
     });
   }
   return answerData;
+}
+
+/**
+ * 滑动条选项
+ * @param answerQuestion 答题选项
+ * @param assessCount 选项数量
+ */
+function sliderOption(answerQuestion: answerType[], assessCount: number): analysisOptionType[] {
+  let sliderObj: sliderObjType = {};
+  let option: analysisOptionType[] = [];
+  answerQuestion.forEach((item) => {
+    const key = String(item.content);
+    sliderObj[key] = (sliderObj[key] || 0) + 1;
+  });
+  for (const i in sliderObj) {
+    option.push({
+      id: Number(i),
+      content: i,
+      count: sliderObj[i],
+      ratio: Number(((sliderObj[i] / assessCount) * 100).toFixed(2)),
+    });
+  }
+  return option;
 }
 
 /**
@@ -56,26 +83,29 @@ export async function processAnalysisData(
     .map((item) => {
       let answerQuestion = answerList.filter((son) => son.questionId == item.id);
       let assessCount = answerQuestion.length;
-      let option: analysisOptionType[] = item.option.map((son) => {
-        let count = 0;
-        let assess = item.type !== CHECKBOX ? assessCount : 0;
-        answerQuestion.forEach((answer) => {
-          if (item.type !== CHECKBOX) {
-            if (answer.content == son.id) {
-              count += 1;
-            }
-          } else if (answer.content.constructor == Array) {
-            assess += answer.content.length;
-            for (let i in answer.content) {
-              if (answer.content[i] == son.id) {
-                count += 1;
-              }
-            }
-          }
-        });
-        let ratio = count ? Number(((count / assess) * 100).toFixed(2)) : 0;
-        return { ...son, count, ratio };
-      });
+      let option: analysisOptionType[] =
+        item.type !== SLIDER
+          ? item.option.map((son) => {
+              let count = 0;
+              let assess = item.type !== CHECKBOX ? assessCount : 0;
+              answerQuestion.forEach((answer) => {
+                if (item.type !== CHECKBOX) {
+                  if (answer.content == son.id) {
+                    count += 1;
+                  }
+                } else if (answer.content.constructor == Array) {
+                  assess += answer.content.length;
+                  for (let i in answer.content) {
+                    if (answer.content[i] == son.id) {
+                      count += 1;
+                    }
+                  }
+                }
+              });
+              let ratio = count ? Number(((count / assess) * 100).toFixed(2)) : 0;
+              return { ...son, count, ratio };
+            })
+          : sliderOption(answerQuestion, assessCount);
       let fill: fillType[] = [];
       if (item.type == FILL && answerQuestion.length) {
         fill = answerQuestion.map((son, index) => ({
