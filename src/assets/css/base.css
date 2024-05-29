@@ -27,3 +27,17 @@ body {
 .tox-statusbar__branding{
   display: none;
 }
+
+.ant-slider{
+  height: 18px !important;
+}
+
+.ant-slider-rail, .ant-slider-track {
+  height: 10px !important;
+  border-radius: 5px;
+}
+
+.ant-slider-handle{
+  width: 20px;
+  height: 20px;
+}
