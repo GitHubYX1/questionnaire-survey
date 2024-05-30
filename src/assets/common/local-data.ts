@@ -34,7 +34,7 @@ export const contrlList = [
         key: "1-5",
         title: "滑动条",
         type: typeEnum.SLIDER,
-        icon: "slider-bar",
+        icon: "slider-outlined",
       },
     ],
   },
