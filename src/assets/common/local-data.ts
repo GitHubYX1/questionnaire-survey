@@ -10,7 +10,7 @@ export const contrlList = [
         key: "1-1",
         title: "单选题",
         type: typeEnum.RADIO,
-        icon: "check-circle-outlined",
+        icon: "radio-outlined",
       },
       {
         key: "1-2",
