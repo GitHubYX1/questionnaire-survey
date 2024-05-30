@@ -27,6 +27,10 @@ import { scoreOptionInit } from "@/utils";
 import { isValidNumber } from "@/utils/isValidType"
 import { message } from "ant-design-vue";
 
+interface xlsxObjType {
+  [prop: string]: any;
+}
+
 const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER } = typeEnum;
 const typeList = [RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER];
 const oNOption = [FILL, PAGING, PARAGRAPH];
@@ -72,7 +76,6 @@ const errorTextInit = (text: string) => {
 //文件导入
 const importFile = async (event: any) => {
   loading.value = true;
-  let id = Number(props.questionMaxId);
   const file = event.target.files[0];
   //创建workbook
   const workbook = new Excel.Workbook();
@@ -81,83 +84,31 @@ const importFile = async (event: any) => {
   reader.onload = (e: any) => {
     const data = new Uint8Array(e.target.result);
     //解析文件流
-    workbook.xlsx.load(data).then(() => {
+    workbook.xlsx.load(data).then(async () => {
       const worksheet = workbook.getWorksheet(1);
-      const jsonData: any = [];
+      const jsonData: xlsxObjType[] = [];
       worksheet?.eachRow((row, rowNumber) => {
         if (rowNumber !== 1) {
           // 忽略标题行
-          const rowData: any = {};
+          const rowData: xlsxObjType = {};
           row.eachCell((cell, colNumber) => {
-            rowData[String(worksheet.getCell(1, colNumber).value)] =
-              cell.value;
+            rowData[String(worksheet.getCell(1, colNumber).value)] = cell.value;
           });
           jsonData.push(rowData);
         }
       });
       console.log("打印jsonData", jsonData);
-      //获取题目
-      let questionList: questionType[] = [];
-      for (let i = 0; i < jsonData.length; i++) {
-        let index = i + 1;
-        if (jsonData[i]["类型"] == PAGING) {
-          jsonData[i]["标题"] = PAGING;
-        } else if (!jsonData[i]["标题"]) {
-          return errorTextInit(`第${index}题目标题未填写！`);
-        } else if (!jsonData[i]["类型"]) {
-          return errorTextInit(`第${index}题目类型未填写！`); 
-        } else if (!typeList.includes(jsonData[i]["类型"])) {
-          return errorTextInit(`第${index}题目类型错误！`);
-        }
-        let idList: number[] = [];
-        let option = jsonData[i]["选项"] ? jsonData[i]["选项"].split("|").map((item: string) => {
-          let data = item.split("~");
-          idList.push(Number(data[0]))
-          return {
-            id: Number(data[0]),
-            content: data[1],
-          };
-        }) : [];
-        if (!oNOption.includes(jsonData[i]["类型"]) && option.length === 0) {
-          return errorTextInit(`第${index}题目选项未填写！`);
-        }
-        //选项序号重复判断
-        const idSet = new Set(idList);
-        if (option.length && option.length !== idSet.size) {
-          return errorTextInit(`第${index}题目选项序号有重复！`);
-        }
-        if (jsonData[i]["类型"] === SCORE) {
-          if (option.length > 10) {
-            return errorTextInit(`第${index}题目评分选项不能超过10个！`);
-          }
-          option = scoreOptionInit(option.length)
-        } else if (jsonData[i]["类型"] === SLIDER) {
-          if (option.length !== 2) {
-            return errorTextInit(`第${index}题目滑动条选必须是2个！`);
-          } else if (option[0].id > option[1].id) {
-            return errorTextInit(`第${index}题目滑动条最大值不能小于最小值！`);
-          } else if (!isValidNumber(option[0].id) || !isValidNumber(option[1].id)) {
-            return errorTextInit(`第${index}题目滑动条序号范围应当是0~100！`);
-          }
-        }
-        questionList.push({
-          id: id,
-          title: jsonData[i]["标题"],
-          type: jsonData[i]["类型"],
-          option: option,
-          must: jsonData[i]["必答题"] === "是" ? 1 : 0,
-          column: 1,
-          chooseMin: 0,
-          chooseMax: 0,
-          validateType: validateEnum.DEFAULT,
-        });
-        id++;
+      try {
+        // 获取题目列表
+        const questionList = await processQuestionData(jsonData);
+        errorText.value = "";
+        uploadText.value = file.name;
+        questionData.value = questionList
+        console.log('questionList', questionList);
+        loading.value = false;
+      } catch (error: any) {
+        errorTextInit(error);
       }
-      errorText.value = "";
-      uploadText.value = file.name;
-      questionData.value = questionList
-      console.log('questionList', questionList);
-      loading.value = false;
     }).catch((res) => {
       errorTextInit("上传文件有问题！");
       console.error(res);
@@ -166,6 +117,52 @@ const importFile = async (event: any) => {
   reader.readAsArrayBuffer(file);
 };
 
+// 新增的函数，处理数据并验证
+async function processQuestionData(data: xlsxObjType[]) {
+  const questions: questionType[] = [];
+  let id = Number(props.questionMaxId);
+  for (let i = 0; i < data.length; i++) {
+    const index = i + 1;
+    const rowData = data[i];
+    if (rowData["类型"] == PAGING) rowData["标题"] = PAGING;
+    else if (!rowData["标题"]) throw `第${index}题目标题未填写！`;
+    if (!rowData["类型"]) throw `第${index}题目类型未填写！`;
+    if (!typeList.includes(rowData["类型"])) throw `第${index}题目类型错误！`;
+    const option = rowData["选项"] ? rowData["选项"].split("|").map((item: string) => {
+      let data = item.split("~");
+      return {
+        id: Number(data[0]),
+        content: data[1],
+      };
+    }) : [];
+    if (!oNOption.includes(rowData["类型"]) && option.length === 0) throw `第${index}题目选项未填写！`;
+    // 检查选项序号重复
+    const idSet = new Set(option.map(({ id }: { id: number }) => id));
+    if (option.length !== idSet.size) throw `第${index}题目选项序号有重复！`;
+    if (rowData["类型"] === SCORE && option.length > 10) throw `第${index}题目评分选项不能超过10个！`;
+    if (rowData["类型"] === SLIDER) {
+      if (option.length !== 2) throw `第${index}题目滑动条选必须是2个！`;
+      if (option[0].id > option[1].id)  throw `第${index}题目滑动条最小值不能大于最大值！`;
+      if (!isValidNumber(option[0].id) || !isValidNumber(option[1].id)) throw `第${index}题目滑动条序号范围应当是0~100！`;
+    }
+    const json: questionType = {
+      id,
+      title: rowData["标题"],
+      type: rowData["类型"],
+      option,
+      must: rowData["必答题"] === "是" ? 1 : 0,
+      column: 1,
+      chooseMin: 0,
+      chooseMax: 0,
+      validateType: validateEnum.DEFAULT,
+    }
+    questions.push(json);
+    id++;
+  }
+  return questions;
+}
+
+// 上传questionData数据
 const handleOk = () => {
   if (questionData.value.length === 0) return message.info("请选择要上传的文件！");
   fileVisible.value = false;
