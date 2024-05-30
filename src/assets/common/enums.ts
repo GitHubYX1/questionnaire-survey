@@ -16,6 +16,12 @@ export enum typeEnum {
   PAGING = "分页",
   /** 段落说明 */
   PARAGRAPH = "段落说明",
+  /** 矩阵单选 */
+  MATRIX_RADIO = '矩阵单选',
+  /** 矩阵多选 */
+  MATRIX_CHECKBOX = '矩阵多选',
+  /** 矩阵滑动条 */
+  MATRIX_SLIDER = '矩阵滑动条',
 }
 
 /** 验证类型 */
