@@ -1,5 +1,5 @@
 <template>
-  <div class="slider-text flex-between">
+  <div class="slider-text flex-between" v-if="textShow">
     <span>{{ min.content }}</span>
     <span>{{ max.content }}</span>
   </div>
@@ -14,6 +14,10 @@ const props = defineProps({
   value: {
     type: Number,
     default: 0
+  },
+  textShow: {
+    type: Boolean,
+    default: true
   },
   min: {
     type: Object,
