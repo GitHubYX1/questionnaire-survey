@@ -1,8 +1,8 @@
 import storage from "@/utils/storage";
-import type { surveyAnswerType, answerType, analysisType, analysisOptionType, fillType } from "@/types/index";
+import type { surveyAnswerType, answerType, analysisType, analysisOptionType, fillType, questionType } from "@/types/index";
 import { surveyStore } from "@/stores/survey";
 import { typeEnum } from "@/assets/common/enums";
-const { RADIO, CHECKBOX, FILL, PAGING, SLIDER } = typeEnum;
+const { RADIO, CHECKBOX, FILL, PAGING, SLIDER, MATRIX_SLIDER } = typeEnum;
 
 const storeData = surveyStore();
 
@@ -51,6 +51,27 @@ function sliderOption(answerQuestion: answerType[], assessCount: number): analys
 }
 
 /**
+ * 数据赛选
+ * @param question 题目
+ */
+function dataCselection(question: questionType[]){
+  const questionList:questionType[] = [];
+  for(const item of question){
+    if(item.type !== PAGING){
+      if(item.children.length){
+        for(const child of item.children){
+          child.title = item.title + "-" + child.title;
+          questionList.push(child);
+        }
+      }else{
+        questionList.push(item);
+      }
+    }
+  }
+  return questionList;
+}
+
+/**
  * 获取数据分析
  * @param id 题目id
  */
@@ -77,14 +98,15 @@ export async function processAnalysisData(
     start = answerData[answerData.length - 1].startTime.split(" ")[0];
     end = answerData[0].endTime.split(" ")[0];
   }
-
+  console.log("survey.question",survey.question)
+  const questionData = dataCselection(survey.question);
   //获取分析数据
-  let data: analysisType[] = survey.question
+  let data: analysisType[] = questionData
     .map((item) => {
       let answerQuestion = answerList.filter((son) => son.questionId == item.id);
       let assessCount = answerQuestion.length;
       let option: analysisOptionType[] =
-        item.type !== SLIDER
+        item.type !== SLIDER && item.type !== MATRIX_SLIDER
           ? item.option.map((son) => {
               let count = 0;
               let assess = item.type !== CHECKBOX ? assessCount : 0;
@@ -122,7 +144,6 @@ export async function processAnalysisData(
         assessCount: assessCount,
       };
     })
-    .filter((item) => item.type !== PAGING);
   return { title: survey.title, count: answerData.length, start, end, data };
 }
 
@@ -135,9 +156,10 @@ export async function processAnswerData(id: string, screenDate = ["", ""]): Prom
   let excleTop = ["答卷编号", "开始时间", "结束时间", "耗时"];
   let excleContent: string[][] = [];
   let survey = storeData.surveySelected(id);
+  const questionData = dataCselection(survey.question);
   answer.forEach((item, index) => {
     let answerContent = [item.answerId, item.startTime, item.endTime, item.consumTime];
-    survey.question.forEach((question) => {
+    questionData.forEach((question) => {
       if (index === 0 && question.type !== PAGING) {
         excleTop.push(question.id + "." + question.title);
       }
