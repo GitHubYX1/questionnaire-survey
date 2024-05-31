@@ -12,6 +12,10 @@
             <transition name="slide-x" mode="out-in">
               <div class="question-item" :id="'item-' + item.id" v-if="item.isVisible">
                 <div v-if="item.type === PARAGRAPH" v-html="item.title"></div>
+                <div v-if="matrixOptionShow(item.type)" class="ant-form-item">
+                  <div class="matrix-title">{{ item.title }}</div>
+                  <matrix-item :question="item" :formState="formState" :rules="rulesValidate(item)"></matrix-item>
+                </div>
                 <a-form-item v-else :label="item.title" :key="item.id" :name="item.id" :rules="rulesValidate(item)">
                   <a-radio-group v-if="item.type === RADIO" class="grid" :style="generateColumn(item.column)"
                     v-model:value="formState[item.id]">
@@ -54,7 +58,7 @@
 </template>
 
 <script lang='ts' setup>
-import { ref, unref, reactive, onMounted } from "vue";
+import { ref, unref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import shortId from "shortid";
@@ -66,8 +70,9 @@ import { answerSave, answerSelected } from "@/computed/answer";
 import { isMobile, isIdCard, isEmail, isQQ, isTel, isNumber } from "@/utils/validate";
 import { typeEnum, validateEnum } from "@/assets/common/enums";
 import slider from "@/components/slider/slider.vue";
+import matrixItem from "@/components/matrix-item/matrix-item.vue";
 
-const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER } = typeEnum;
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER, MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER } = typeEnum;
 
 const fillValidateMap = {
   [validateEnum.ID_CARD]: { msg: "请输入正确的身份证号", fn: isIdCard },
@@ -101,6 +106,11 @@ const optionLogic = ref<QuestionControlType[]>([]);
 const questionItem = document.getElementsByClassName("question-item");//获取题目元素
 const pageIndex = ref(0);
 const answerIdRef = ref("");
+
+// 矩阵显示
+const matrixOptionShow = (type:typeEnum) => {
+  return [MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER].includes(type);
+};
 
 //获取题目
 onMounted(() => {
@@ -427,5 +437,10 @@ const rulesValidate = (item: questionType) => {
 
 .ant-btn {
   margin-top: 10px;
+}
+
+.matrix-title{
+  font-size: 16px;
+  margin-bottom: 10px;
 }
 </style>
