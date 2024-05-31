@@ -35,8 +35,8 @@
         <a-textarea v-else :rows="props.question.column" />
       </template>
       <slider v-else-if="props.question.type === SLIDER" :disabled="true" :min="props.question.option[0]"
-        :max="props.question.option[1]">
-      </slider>
+        :max="props.question.option[1]"> </slider>
+      <matrix-item v-else-if="matrixOptionShow" :question="question"></matrix-item>
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="questionnaire.editId != props.question.id">
         <div class="survey-menu-box">
@@ -61,21 +61,22 @@
             <a-input v-model:value="props.question.title" />
           </div>
           <div class="editor-type flex align-items">
-            <a-select v-if="editorType.includes(props.question.type)" v-model:value="typeRadio" style="width: 90px;margin-right: 10px;" @change="typeChange">
+            <a-select v-if="editorType.includes(props.question.type)" v-model:value="typeRadio"
+              style="width: 90px; margin-right: 10px" @change="typeChange">
               <a-select-option :value="RADIO">单选</a-select-option>
               <a-select-option :value="CHECKBOX">多选</a-select-option>
               <a-select-option :value="FILL">填空</a-select-option>
             </a-select>
             <a-checkbox class="editor-option" v-model:checked="mustBoolean" @change="checkboxChange">必答</a-checkbox>
             <template v-if="props.question.type === CHECKBOX">
-              <a-select v-model:value="props.question.chooseMin" style="width: 120px;margin-right: 10px;">
+              <a-select v-model:value="props.question.chooseMin" style="width: 120px; margin-right: 10px">
                 <a-select-option :value="0">最少选几项</a-select-option>
                 <a-select-option v-for="(item, index) in props.question.option" :key="index"
-                  :disabled="props.question.chooseMax && (props.question.chooseMax <= index)" :value="index + 1">
+                  :disabled="props.question.chooseMax && props.question.chooseMax <= index" :value="index + 1">
                   最少选{{ index + 1 }} 项
                 </a-select-option>
               </a-select>
-              <a-select v-model:value="props.question.chooseMax" style="width: 120px;margin-right: 10px;">
+              <a-select v-model:value="props.question.chooseMax" style="width: 120px; margin-right: 10px">
                 <a-select-option :value="0">最多选几项</a-select-option>
                 <a-select-option v-for="(item, index) in props.question.option" :key="index"
                   :disabled="props.question.chooseMin > index + 1" :value="index + 1">
@@ -91,8 +92,7 @@
             </a-select>
             <template v-else-if="props.question.type === FILL">
               <a-select v-model:value="props.question.validateType" :options="validateOption"
-                style="width: 100px;margin-right: 10px;">
-              </a-select>
+                style="width: 100px; margin-right: 10px"> </a-select>
               <a-select v-model:value="props.question.column" style="width: 100px">
                 <a-select-option :value="1">一行</a-select-option>
                 <a-select-option :value="2">两行</a-select-option>
@@ -103,7 +103,7 @@
           </div>
         </template>
         <rich-tinymce v-model="props.question.title" v-else></rich-tinymce>
-        <template v-if="props.question.option.length && props.question.type !== SCORE && props.question.type !== SLIDER">
+        <template v-if="basicsOptionShow">
           <a-table :dataSource="props.question.option" :pagination="false" bordered rowKey="id">
             <a-table-column key="id" title="选项文字" align="center">
               <template #default="{ record, index }">
@@ -130,8 +130,11 @@
             <a-select-option v-for="i in 10" :key="i" :value="i">{{ i }}个</a-select-option>
           </a-select>
         </div>
-        <sliderOption v-else-if="props.question.type === SLIDER" :min="props.question.option[0]"
-          :max="props.question.option[1]" @change="sliderChange"></sliderOption>
+        <matrix-editor v-else-if="matrixOptionShow" :question="props.question" :index="props.index" @addRows="addRows"
+          @removeRows="removeRows" @moveRows="moveRows" @addColumn="addColumn" @removeColumn="optionRemoveClick"
+          @moveColumn="optionMoveClick"></matrix-editor>
+        <sliderOption v-if="props.question.type === SLIDER || props.question.type === MATRIX_SLIDER"
+          :min="props.question.option[0]" :max="props.question.option[1]" @change="sliderChange"></sliderOption>
         <div class="logic-set flex align-items">
           <span>逻辑设置：</span>
           <a @click="concernClick(1)">题目向前关联</a>
@@ -146,15 +149,17 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, type PropType } from "vue";
+import { ref, computed, type PropType } from "vue";
 import type { questionType, controlLogicType } from "@/types/index";
-import { Modal } from "ant-design-vue";
+import { Modal, message } from "ant-design-vue";
 import { questionnaireStore } from "@/stores/questionnaire";
 import RichTinymce from "./rich-tinymce.vue";
 import slider from "@/components/slider/slider.vue";
 import sliderOption from "./item-module/slider-option.vue";
+import matrixEditor from "./item-module/matrix-editor.vue";
+import matrixItem from "@/components/matrix-item/matrix-item.vue";
 import { typeEnum, validateOption } from "@/assets/common/enums";
-const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER } = typeEnum;
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER, MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER } = typeEnum;
 
 const questionnaire = questionnaireStore();
 const emit = defineEmits(["optionAdd", "concern"]);
@@ -195,6 +200,15 @@ const scoreOption = ref(props.question.option.length);
 function generateColumn(column: number) {
   return { "grid-template-columns": `repeat(${column}, minmax(0, 1fr))` };
 }
+
+//基础选项调整显示
+const basicsOptionShow = computed(() => {
+  return [RADIO, CHECKBOX, DROP, SCORE].includes(props.question.type);
+});
+
+const matrixOptionShow = computed(() => {
+  return [MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER].includes(props.question.type);
+});
 
 //插入数据
 const insertClick = () => {
@@ -333,10 +347,8 @@ const optionRemoveClick = (optionIndex: number, optionId: number) => {
       questionnaire.optionRemove(props.index, optionIndex);
     }
   } else {
-    Modal.warning({
-      title: "提示",
-      content: "不能删除所有选项",
-    });
+    const text = props.question.children.length === 0 ? "不能删除所有选项" : "不能删除所有列";
+    message.warning(text);
   }
 };
 //选项移动
@@ -370,10 +382,40 @@ const optionLogicText = (id: number, control: controlLogicType[]) => {
 };
 
 // 数字输入框
-// 数字输入框
 const sliderChange = (optionIndex: number, value: number) => {
-  questionnaire.question[props.index].option[optionIndex].id = value
+  questionnaire.question[props.index].option[optionIndex].id = value;
+};
+
+//添加行
+const addRows = (rowsIndex: number) => {
+  questionnaire.addRows(props.index, rowsIndex, props.question.children.length + 1);
 }
+
+//移动行
+const moveRows = (rowsIndex: number, action: string) => {
+  if (rowsIndex == 0 && action == "上") return;
+  questionnaire.moveRows(props.index, rowsIndex, action);
+}
+
+//删除行
+const removeRows = (rowsIndex: number) => {
+  if (props.question.children.length > 1) {
+    questionnaire.removeRows(props.index, rowsIndex);
+  } else {
+    message.warning("不能删除所有行");
+  }
+}
+
+//添加列
+const addColumn = (columnIndex: number) => {
+  console.log(props.question.children);
+  if (props.question.option.length < 5) {
+    questionnaire.addColumn(props.index, columnIndex);
+  } else {
+    message.warning("最多只能添加5行");
+  }
+}
+
 </script>
 <style lang="scss" scoped>
 .survey-item {

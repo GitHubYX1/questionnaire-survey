@@ -3,12 +3,14 @@ import { defineStore } from "pinia";
 import { typeEnum, validateEnum } from "@/assets/common/enums";
 import { mostValue, optionInit, scoreOptionInit, sliderInit } from "@/utils/index";
 import type { optionType, questionType, surveyType, controlLogicType, loadingType, controlOptionType } from "@/types/index";
-const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, SLIDER } = typeEnum;
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, SLIDER, MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER } = typeEnum;
 const serialRemoveType = [typeEnum.PARAGRAPH, typeEnum.PAGING];
 const DEFAULT_QUESTIONNAIRE_TITLE = "测试问卷";
 const INITIAL_QUESTION_MAX_ID = 1000;
 const INSERT_NUM_DEFAULT = -2;
 const EDIT_ID_DEFAULT = -1;
+const BASE_MATRIX_TOPIC = ["外观", "功能"];
+const MATRIX_TOPIC = [MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER];
 
 /**
  * 问卷类型
@@ -99,19 +101,27 @@ export const questionnaireStore = defineStore("questionnaire", {
         chooseMin: 0,
         chooseMax: 0,
         validateType: validateEnum.DEFAULT,
+        children: [],
       };
-      if ([RADIO, CHECKBOX, DROP].includes(contrl.type)) {
+      if ([RADIO, CHECKBOX, DROP, MATRIX_RADIO, MATRIX_CHECKBOX].includes(contrl.type)) {
         questionAdd.option = optionInit();
       } else if (contrl.type === SCORE) {
         questionAdd.option = scoreOptionInit(5);
       } else if (contrl.title === "简答题") {
         questionAdd.column = 2;
-      } else if (contrl.title === PAGING) {
+      } else if (contrl.type === PAGING) {
         this.totalPage++;
         questionAdd.currentPage = this.totalPage;
         questionAdd.must = 0;
-      }else if(contrl.title === SLIDER){
+      } else if (contrl.type === SLIDER || contrl.type === MATRIX_SLIDER) {
         questionAdd.option = sliderInit();
+      }
+      if (MATRIX_TOPIC.includes(contrl.type)) {
+        for (const item of BASE_MATRIX_TOPIC) {
+          this.questionMaxId += 1;
+          const childrenItem = { ...questionAdd, id: this.questionMaxId, title: item, children: [] };
+          questionAdd.children.push(childrenItem);
+        }
       }
       if (this.insertNum === INSERT_NUM_DEFAULT) {
         this.question.push(questionAdd);
@@ -244,6 +254,11 @@ export const questionnaireStore = defineStore("questionnaire", {
       let arr = this.question[index].option.concat();
       arr.splice(optionIndex, 1);
       this.question[index].option = arr;
+      if (this.question[index].children.length) {
+        this.question[index].children.forEach((item) => {
+          item.option = arr;
+        });
+      }
       if (optionId !== -1) {
         this.controlLogic = this.controlLogic.filter((item) => {
           item = this.processItem(item, id, optionId);
@@ -284,6 +299,11 @@ export const questionnaireStore = defineStore("questionnaire", {
         arr.splice(optionIndex, 1, ...arr.splice(optionIndex + 1, 1, arr[optionIndex]));
       }
       this.question[index].option = arr;
+      if (this.question[index].children.length) {
+        this.question[index].children.forEach((item) => {
+          item.option = arr;
+        });
+      }
     },
     //获取向前关联
     getFront(front: controlLogicType) {
@@ -349,6 +369,46 @@ export const questionnaireStore = defineStore("questionnaire", {
     // 获取选项关联
     getControlOption(optionLogic: controlOptionType) {
       this.controlOption = this.controlOption.filter((item) => item.childId !== optionLogic.questionId).concat(optionLogic.control);
+    },
+    // 添加行
+    addRows(index: number, rowsIndex: number, length: number) {
+      const questionChildren = { ...this.question[index], id: this.questionMaxId, children: [], title: "选项" + length };
+      console.log("questionChildren", questionChildren);
+      this.questionMaxId += 1;
+      if (rowsIndex === -1) {
+        this.question[index].children.push(questionChildren);
+      } else {
+        this.question[index].children.splice(rowsIndex + 1, 0, questionChildren);
+      }
+    },
+    //删除行
+    removeRows(index: number, rowsIndex: number) {
+      this.question[index].children.splice(rowsIndex, 1);
+    },
+    //移动行
+    moveRows(index: number, rowsIndex: number, action: string){
+      let arr = this.question[index].children.concat();
+      if (action === "上") {
+        arr.splice(rowsIndex - 1, 1, ...arr.splice(rowsIndex, 1, arr[rowsIndex - 1]));
+      } else if (action === "下") {
+        arr.splice(rowsIndex, 1, ...arr.splice(rowsIndex + 1, 1, arr[rowsIndex]));
+      }
+      this.question[index].children = arr;
+    },
+    // 添加列
+    addColumn(index: number, columnIndex: number) {
+      const optionData: optionType[] = this.question[index].option.concat();
+      const id = mostValue(optionData, "id");
+      const options: optionType = { id, content: "选项" + id };
+      if (columnIndex == -1) {
+        optionData.push(options);
+      } else {
+        optionData.splice(columnIndex + 1, 0, options);
+      }
+      this.question[index].option = optionData;
+      this.question[index].children.forEach((item) => {
+        item.option = optionData;
+      });
     },
   },
 });

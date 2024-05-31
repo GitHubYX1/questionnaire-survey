@@ -61,6 +61,7 @@ export declare type questionType = {
   chooseMin: number;
   chooseMax: number;
   validateType: validateEnum;
+  children: questionType[];
 };
 
 /**

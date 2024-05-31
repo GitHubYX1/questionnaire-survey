@@ -40,7 +40,6 @@
             :optionLogic="optionLogic(item.id)"
             @optionAdd="optionAdd"
             @concern="concern"
-            
           ></survey-item>
           <div class="editor-empty" v-if="questionnaire.question.length == 0">
             <a-empty description="暂无题目" />
@@ -86,6 +85,7 @@ const concernFrontRef = ref<any>(null);
 const concernCopyRef = ref<any>(null);
 const concernOptionRef = ref<any>(null);
 const serialRemoveType = [typeEnum.PARAGRAPH, typeEnum.PAGING];
+const noConcernItem = [typeEnum.FILL, typeEnum.SLIDER, typeEnum.MATRIX_RADIO, typeEnum.MATRIX_CHECKBOX, typeEnum.MATRIX_SLIDER];
 
 onMounted(() => {
   const surveyId = storeData.surveyId;
@@ -147,7 +147,7 @@ const save = (state: boolean) => {
     state: questionnaire.state,
     question: questionnaire.question,
     controlLogic: questionnaire.controlLogic,
-    controlOption:questionnaire.controlOption,
+    controlOption: questionnaire.controlOption,
   };
   if (questionnaire.id == "") {
     survey.id = shortId.generate();
@@ -191,7 +191,7 @@ const concern = (e: { index: number; id: number; title: string; state: number })
         .slice(0, index)
         .filter((item) => !serialRemoveType.includes(item.type))
         .map((item, index) => ({ ...item, title: index + 1 + "." + item.title }))
-        .filter((item) => item.type !== typeEnum.FILL && item.type !== typeEnum.SLIDER);
+        .filter((item) => !noConcernItem.includes(item.type));
       concernFrontRef.value.frontOpen(data, title, id, controlLogic);
       return;
     case 2:
@@ -204,9 +204,9 @@ const concern = (e: { index: number; id: number; title: string; state: number })
         .slice(0, index)
         .filter((item) => !serialRemoveType.includes(item.type))
         .map((item, index) => ({ ...item, title: index + 1 + "." + item.title }))
-        .filter((item) => item.type !== typeEnum.FILL && item.type !== typeEnum.SLIDER);
-        const controlOption = questionnaire.controlOption?.filter((item) => item.childId === id);
-      concernOptionRef.value.optionOpen(data3, title, question[index].option, id,controlOption);
+        .filter((item) => !noConcernItem.includes(item.type));
+      const controlOption = questionnaire.controlOption?.filter((item) => item.childId === id);
+      concernOptionRef.value.optionOpen(data3, title, question[index].option, id, controlOption);
       return;
     default:
       return;
@@ -219,13 +219,13 @@ const showConcern = (id: number) => {
 };
 
 // 获取选项关联
-const optionChange = (optionLogic:controlOptionType)=>{
-  questionnaire.getControlOption(optionLogic)
-}
+const optionChange = (optionLogic: controlOptionType) => {
+  questionnaire.getControlOption(optionLogic);
+};
 //获取当前项的选项关联
-const optionLogic = (id:number)=>{
+const optionLogic = (id: number) => {
   return questionnaire.controlOption.filter((item) => item.childId === id);
-}
+};
 </script>
 
 <style lang="scss" scoped>

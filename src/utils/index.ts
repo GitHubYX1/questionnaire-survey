@@ -29,8 +29,8 @@ export function scoreOptionInit(num: number): optionType[] {
 //滑动条参数初始化
 export function sliderInit(): optionType[] {
   return [
-    { id: 0, content: "" },
-    { id: 100, content: "" },
+    { id: 0, content: "不满意" },
+    { id: 100, content: "很满意" },
   ];
 }
 
