@@ -74,4 +74,28 @@ export const contrlList = [
       },
     ],
   },
+  {
+    key: "4",
+    title: "矩阵题",
+    children: [
+      {
+        key: "4-1",
+        title: "矩阵单选",
+        type: typeEnum.MATRIX_RADIO,
+        icon: "matrix-radio-outlined",
+      },
+      {
+        key: "4-2",
+        title: "矩阵多选",
+        type: typeEnum.MATRIX_CHECKBOX,
+        icon: "matrix-checkbox-outlined",
+      },
+      {
+        key: "4-3",
+        title: "矩阵滑动条",
+        type: typeEnum.MATRIX_SLIDER,
+        icon: "matrix-checkbox-outlined",
+      },
+    ],
+  },
 ];
