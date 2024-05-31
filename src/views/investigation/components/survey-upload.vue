@@ -128,7 +128,7 @@ async function processQuestionData(data: xlsxObjType[]) {
     else if (!rowData["标题"]) throw `第${index}题目标题未填写！`;
     if (!rowData["类型"]) throw `第${index}题目类型未填写！`;
     if (!typeList.includes(rowData["类型"])) throw `第${index}题目类型错误！`;
-    const option = rowData["选项"] ? rowData["选项"].split("|").map((item: string) => {
+    let option = rowData["选项"] ? rowData["选项"].split("|").map((item: string) => {
       let data = item.split("~");
       return {
         id: Number(data[0]),
@@ -139,10 +139,12 @@ async function processQuestionData(data: xlsxObjType[]) {
     // 检查选项序号重复
     const idSet = new Set(option.map(({ id }: { id: number }) => id));
     if (option.length !== idSet.size) throw `第${index}题目选项序号有重复！`;
-    if (rowData["类型"] === SCORE && option.length > 10) throw `第${index}题目评分选项不能超过10个！`;
-    if (rowData["类型"] === SLIDER) {
+    if (rowData["类型"] === SCORE) {
+      if (option.length > 10) throw `第${index}题目评分选项不能超过10个！`;
+      option = scoreOptionInit(option.length);
+    } else if (rowData["类型"] === SLIDER) {
       if (option.length !== 2) throw `第${index}题目滑动条选必须是2个！`;
-      if (option[0].id > option[1].id)  throw `第${index}题目滑动条最小值不能大于最大值！`;
+      if (option[0].id > option[1].id) throw `第${index}题目滑动条最小值不能大于最大值！`;
       if (!isValidNumber(option[0].id) || !isValidNumber(option[1].id)) throw `第${index}题目滑动条序号范围应当是0~100！`;
     }
     const json: questionType = {
@@ -155,6 +157,7 @@ async function processQuestionData(data: xlsxObjType[]) {
       chooseMin: 0,
       chooseMax: 0,
       validateType: validateEnum.DEFAULT,
+      children: [],
     }
     questions.push(json);
     id++;
