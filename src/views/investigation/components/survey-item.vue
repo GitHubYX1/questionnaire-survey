@@ -34,9 +34,9 @@
         <a-input v-if="props.question.column === 1" />
         <a-textarea v-else :rows="props.question.column" />
       </template>
-      <slider v-else-if="props.question.type === SLIDER" :disabled="true" :min="props.question.option[0]"
+      <slider v-else-if="props.question.type === SLIDER"  v-model:value="radioData" :min="props.question.option[0]"
         :max="props.question.option[1]"> </slider>
-      <matrix-item v-else-if="matrixOptionShow" :question="question"></matrix-item>
+      <matrix-item v-else-if="matrixOptionShow" :formState="radioData" :question="question"></matrix-item>
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="questionnaire.editId != props.question.id">
         <div class="survey-menu-box">
@@ -192,7 +192,7 @@ const props = defineProps({
   },
 });
 
-let radioData = ref("");
+let radioData = ref<any>({});
 const mustBoolean = ref<boolean>(props.question.must == 1 ? true : false);
 const typeRadio = ref<typeEnum>(props.question.type);
 const scoreOption = ref(props.question.option.length);
