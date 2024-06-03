@@ -31,9 +31,10 @@ interface xlsxObjType {
   [prop: string]: any;
 }
 
-const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER } = typeEnum;
-const typeList = [RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER];
+const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER, MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER } = typeEnum;
+const typeList = [RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, PARAGRAPH, SLIDER, MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER];
 const oNOption = [FILL, PAGING, PARAGRAPH];
+const MATRIX_TOPIC = [MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER];
 
 const props = defineProps({
   questionMaxId: {
@@ -142,7 +143,7 @@ async function processQuestionData(data: xlsxObjType[]) {
     if (rowData["类型"] === SCORE) {
       if (option.length > 10) throw `第${index}题目评分选项不能超过10个！`;
       option = scoreOptionInit(option.length);
-    } else if (rowData["类型"] === SLIDER) {
+    } else if (rowData["类型"] === SLIDER || rowData["类型"] === MATRIX_SLIDER) {
       if (option.length !== 2) throw `第${index}题目滑动条选必须是2个！`;
       if (option[0].id > option[1].id) throw `第${index}题目滑动条最小值不能大于最大值！`;
       if (!isValidNumber(option[0].id) || !isValidNumber(option[1].id)) throw `第${index}题目滑动条序号范围应当是0~100！`;
@@ -158,6 +159,19 @@ async function processQuestionData(data: xlsxObjType[]) {
       chooseMax: 0,
       validateType: validateEnum.DEFAULT,
       children: [],
+    }
+    if (MATRIX_TOPIC.includes(rowData["类型"])) {
+      if (!rowData["子问题"]) throw `第${index}矩阵题子问题未填写！`;
+      if (json.option.length > 5) throw `第${index}矩阵题选项不能超过5个！`;
+      json.children = rowData["子问题"].split("|").map((item: string) => {
+        id++;
+        return {
+          ...json,
+          id,
+          title: item,
+          children: [],
+        }
+      })
     }
     questions.push(json);
     id++;
