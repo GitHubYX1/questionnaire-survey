@@ -58,7 +58,7 @@
 </template>
 
 <script lang='ts' setup>
-import { ref, unref, reactive, onMounted, computed } from "vue";
+import { ref, unref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import shortId from "shortid";
@@ -240,7 +240,13 @@ const changeAnswer = (id: number, value: number | number[]) => {
         const hideNum = isOptionVisible(item2.id, filterOption);
         const optionShow = hideNum.length === 0 || hideNum.length !== item2.option.length;
         if (!show || !optionShow) {
-          delete formState.value[item2.id];
+          if(item2.children.length === 0){
+            delete formState.value[item2.id];
+          }else{
+            for(const son of item2.children){
+              delete formState.value[son.id];
+            }
+          }
         } else if (hideNum.length && form[item2.id] !== undefined) {
           let formId = form[item2.id]
           formId = Array.isArray(formId) ? formId.filter(item => !hideNum.includes(item)) : (!hideNum.includes(formId) ? form : '');
