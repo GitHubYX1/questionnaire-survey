@@ -224,13 +224,27 @@ export const questionnaireStore = defineStore("questionnaire", {
     },
     //类型修改
     typeModify(index: number, type: typeEnum, id = -1) {
+      let option: optionType[] = [];
       if (this.question[index].type === FILL && type !== FILL) {
-        this.question[index].option = optionInit();
+        option = optionInit();
       } else if (type === FILL) {
-        this.question[index].option = [];
+        option = [];
         this.question[index].column = 1;
+      } else if (type === MATRIX_SLIDER) {
+        option = sliderInit();
+      }else if(this.question[index].type === MATRIX_SLIDER){
+        option = optionInit();
+      } else {
+        option = this.question[index].option;
       }
+      this.question[index].option = option;
       this.question[index].type = type;
+      if (this.question[index].children.length) {
+        this.question[index].children.forEach((item) => {
+          item.option = option;
+          item.type = type;
+        });
+      }
       if (id !== -1) {
         this.controlLogic = this.controlLogic.filter((item) => item.childId !== id && !item.questionIds.includes(String(id)));
         this.controlOption = this.controlOption.filter((item) => item.childId !== id && !item.questionIds.includes(String(id)));
@@ -386,7 +400,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.question[index].children.splice(rowsIndex, 1);
     },
     //移动行
-    moveRows(index: number, rowsIndex: number, action: string){
+    moveRows(index: number, rowsIndex: number, action: string) {
       let arr = this.question[index].children.concat();
       if (action === "上") {
         arr.splice(rowsIndex - 1, 1, ...arr.splice(rowsIndex, 1, arr[rowsIndex - 1]));
