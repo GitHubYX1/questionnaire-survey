@@ -12,7 +12,7 @@
             <transition name="slide-x" mode="out-in">
               <div class="question-item" :id="'item-' + item.id" v-if="item.isVisible">
                 <div v-if="item.type === PARAGRAPH" v-html="item.title"></div>
-                <div v-if="matrixOptionShow(item.type)" class="ant-form-item">
+                <div v-else-if="matrixOptionShow(item.type)" class="ant-form-item">
                   <div class="matrix-title">{{ item.title }}</div>
                   <matrix-item :question="item" :formState="formState" :rules="rulesValidate(item)"></matrix-item>
                 </div>

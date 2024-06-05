@@ -68,7 +68,7 @@ import ConcernCopy from "./components/concern-copy.vue"; //复制向前关联
 import ConcernOption from "./components/concern-option.vue"; //复制向前关联
 import { message, Modal } from "ant-design-vue";
 import shortId from "shortid";
-import { mostValue, getTime } from "@/utils/index";
+import { getTime } from "@/utils/index";
 import { surveyStore } from "@/stores/survey";
 import { questionnaireStore } from "@/stores/questionnaire";
 import type { surveyType, controlOptionType } from "@/types/index";
