@@ -418,7 +418,7 @@ const removeRows = (rowsIndex: number) => {
 const addColumn = (columnIndex: number) => {
   console.log(props.question.children);
   if (props.question.option.length < 5) {
-    questionnaire.addColumn(props.index, columnIndex);
+    questionnaire.optionAdd(props.index, columnIndex);
   } else {
     message.warning("最多只能添加5行");
   }

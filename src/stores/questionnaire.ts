@@ -251,8 +251,21 @@ export const questionnaireStore = defineStore("questionnaire", {
       }
     },
     //添加
-    optionAdd(index: number, option: optionType[]) {
-      this.question[index].option = option;
+    optionAdd(index: number, optionIndex: number) {
+      const optionData: optionType[] = this.question[index].option.concat();
+      const id = mostValue(optionData, "id");
+      const options: optionType = { id, content: "选项" + id };
+      if (optionIndex == -1) {
+        optionData.push(options);
+      } else {
+        optionData.splice(optionIndex + 1, 0, options);
+      }
+      this.question[index].option = optionData;
+      if (this.question[index].children.length) {
+        this.question[index].children.forEach((item) => {
+          item.option = optionData;
+        });
+      }
     },
     //批量添加
     optionBatchAdd(e: { index: number; optionText: string }) {
@@ -396,7 +409,6 @@ export const questionnaireStore = defineStore("questionnaire", {
     // 添加行
     addRows(index: number, rowsIndex: number, length: number) {
       const questionChildren = { ...this.question[index], id: this.questionMaxId, children: [], title: "选项" + length };
-      console.log("questionChildren", questionChildren);
       this.questionMaxId += 1;
       if (rowsIndex === -1) {
         this.question[index].children.push(questionChildren);
@@ -417,21 +429,6 @@ export const questionnaireStore = defineStore("questionnaire", {
         arr.splice(rowsIndex, 1, ...arr.splice(rowsIndex + 1, 1, arr[rowsIndex]));
       }
       this.question[index].children = arr;
-    },
-    // 添加列
-    addColumn(index: number, columnIndex: number) {
-      const optionData: optionType[] = this.question[index].option.concat();
-      const id = mostValue(optionData, "id");
-      const options: optionType = { id, content: "选项" + id };
-      if (columnIndex == -1) {
-        optionData.push(options);
-      } else {
-        optionData.splice(columnIndex + 1, 0, options);
-      }
-      this.question[index].option = optionData;
-      this.question[index].children.forEach((item) => {
-        item.option = optionData;
-      });
     },
   },
 });

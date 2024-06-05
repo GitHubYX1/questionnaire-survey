@@ -118,14 +118,7 @@ const optionAdd = (e: { index: number; optionIndex: number }) => {
     const text = optionData.map((item) => item.content).join("\n");
     batchModal.value.batchOpen(index, text);
   } else {
-    const id = mostValue(optionData, "id");
-    const options: optionType = { id, content: "选项" + id };
-    if (optionIndex == -1) {
-      optionData.push(options);
-    } else {
-      optionData.splice(optionIndex + 1, 0, options);
-    }
-    questionnaire.optionAdd(index, optionData);
+    questionnaire.optionAdd(index, optionIndex);
   }
 };
 
