@@ -219,8 +219,13 @@ export const questionnaireStore = defineStore("questionnaire", {
       this.resetting();
     },
     //选项是否必答
-    mustSelect(index: number, must: boolean) {
-      this.question[index].must = must ? 1 : 0;
+    mustSelect(index: number, must: 0 | 1) {
+      this.question[index].must = must;
+      if (this.question[index].children.length) {
+        this.question[index].children.forEach((item) => {
+          item.must = must;
+        });
+      }
     },
     //类型修改
     typeModify(index: number, type: typeEnum, id = -1) {

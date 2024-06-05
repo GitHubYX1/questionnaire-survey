@@ -266,7 +266,7 @@ const editClick = () => {
 };
 //点击必答
 const checkboxChange = () => {
-  questionnaire.mustSelect(props.index, mustBoolean.value);
+  questionnaire.mustSelect(props.index, mustBoolean.value ? 1 : 0);
 };
 //切换类型
 const typeChange = () => {
