@@ -232,7 +232,7 @@ export const questionnaireStore = defineStore("questionnaire", {
         this.question[index].column = 1;
       } else if (type === MATRIX_SLIDER) {
         option = sliderInit();
-      }else if(this.question[index].type === MATRIX_SLIDER){
+      } else if (this.question[index].type === MATRIX_SLIDER) {
         option = optionInit();
       } else {
         option = this.question[index].option;
@@ -383,6 +383,15 @@ export const questionnaireStore = defineStore("questionnaire", {
     // 获取选项关联
     getControlOption(optionLogic: controlOptionType) {
       this.controlOption = this.controlOption.filter((item) => item.childId !== optionLogic.questionId).concat(optionLogic.control);
+    },
+    // 滑动条修改
+    sliderModify(index: number, optionIndex: number, value: number) {
+      this.question[index].option[optionIndex].id = value;
+      if (this.question[index].children.length) {
+        this.question[index].children.forEach((item) => {
+          item.option[optionIndex].id = value;
+        });
+      }
     },
     // 添加行
     addRows(index: number, rowsIndex: number, length: number) {

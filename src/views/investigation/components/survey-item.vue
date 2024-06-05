@@ -139,8 +139,8 @@
         <matrix-editor v-else-if="matrixOptionShow" :question="props.question" :index="props.index" @addRows="addRows"
           @removeRows="removeRows" @moveRows="moveRows" @addColumn="addColumn" @removeColumn="optionRemoveClick"
           @moveColumn="optionMoveClick"></matrix-editor>
-        <sliderOption v-if="props.question.type === SLIDER || props.question.type === MATRIX_SLIDER"
-          :min="props.question.option[0]" :max="props.question.option[1]" @change="sliderChange"></sliderOption>
+        <slider-option v-if="props.question.type === SLIDER || props.question.type === MATRIX_SLIDER"
+          :min="props.question.option[0]" :max="props.question.option[1]" @change="sliderChange"></slider-option>
         <div class="logic-set flex align-items">
           <span>逻辑设置：</span>
           <a @click="concernClick(1)">题目向前关联</a>
@@ -391,7 +391,7 @@ const optionLogicText = (id: number, control: controlLogicType[]) => {
 
 // 数字输入框
 const sliderChange = (optionIndex: number, value: number) => {
-  questionnaire.question[props.index].option[optionIndex].id = value;
+  questionnaire.sliderModify(props.index, optionIndex, value);
 };
 
 //添加行
