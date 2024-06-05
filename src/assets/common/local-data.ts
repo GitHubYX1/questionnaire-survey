@@ -94,7 +94,7 @@ export const contrlList = [
         key: "4-3",
         title: "矩阵滑动条",
         type: typeEnum.MATRIX_SLIDER,
-        icon: "matrix-checkbox-outlined",
+        icon: "matrix-slider-outlined",
       },
     ],
   },
