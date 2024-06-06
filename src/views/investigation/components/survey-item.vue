@@ -210,7 +210,7 @@ function generateColumn(column: number) {
 
 //基础选项调整显示
 const basicsOptionShow = computed(() => {
-  return [RADIO, CHECKBOX, DROP, SCORE].includes(props.question.type);
+  return [RADIO, CHECKBOX, DROP].includes(props.question.type);
 });
 
 const matrixOptionShow = computed(() => {
