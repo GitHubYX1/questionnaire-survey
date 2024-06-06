@@ -369,7 +369,7 @@ const concernClick = (state: number) => {
   emit("concern", {
     index: props.index,
     id: props.question.id,
-    title: props.question.title,
+    title: props.question.type !== PARAGRAPH ? props.question.title : PARAGRAPH,
     state,
   });
 };

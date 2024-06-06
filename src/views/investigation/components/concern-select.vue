@@ -115,8 +115,8 @@ watch(
   { immediate: true }
 );
 
-const filterOption = (input: string, option: selectType) => {
-  return option.label.toUpperCase().indexOf(input.toUpperCase()) >= 0;
+const filterOption = (input: string, option: questionType) => {
+  return option.title.toUpperCase().indexOf(input.toUpperCase()) >= 0;
 };
 
 //反选
