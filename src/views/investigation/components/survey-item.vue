@@ -34,7 +34,7 @@
         <a-input v-if="props.question.column === 1" />
         <a-textarea v-else :rows="props.question.column" />
       </template>
-      <slider v-else-if="props.question.type === SLIDER" v-model:value="radioData" :min="props.question.option[0]"
+      <slider v-else-if="props.question.type === SLIDER" v-model:value="radioData[question.id]" :min="props.question.option[0]"
         :max="props.question.option[1]"> </slider>
       <matrix-item v-else-if="matrixOptionShow" :formState="radioData" :question="question"></matrix-item>
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>

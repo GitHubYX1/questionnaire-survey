@@ -6,6 +6,9 @@
   <a-slider :min="min.id" :max="max.id" @change="sliderChange" :value="value" :disabled="disabled" />
 </template>
 <script lang="ts" setup>
+import { type PropType } from "vue";
+import type { optionType } from "../../types";
+
 const props = defineProps({
   disabled: {
     type: Boolean,
@@ -20,20 +23,20 @@ const props = defineProps({
     default: true
   },
   min: {
-    type: Object,
+    type: Object as PropType<optionType>,
     default: () => {
       return {
         content: "",
-        value: 0
+        id: 0
       }
     }
   },
   max: {
-    type: Object,
+    type: Object as PropType<optionType>,
     default: () => {
       return {
         content: "",
-        value: 100
+        id: 100
       }
     }
   }
