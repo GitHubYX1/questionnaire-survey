@@ -33,7 +33,7 @@ import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { surveyStore } from "@/stores/survey";
 import { processAnswerData } from "@/computed/api";
-import type { surveyAnswerType } from "@/types/index";
+import type { surveyAnswerType, answerType } from "@/types/index";
 import { answerErasure } from "@/computed/answer";
 import screen from "../components/screen.vue";
 import * as Excel from "exceljs";
@@ -44,9 +44,11 @@ const storeData = surveyStore();
 const answerData = ref<surveyAnswerType[]>([]);
 const excleData = ref<string[][]>([]);
 const date = ref(["", ""]);
+const conditionValue = ref("and");
+const screenAnswer = ref<answerType[]>([]);
 
 const getData = async () => {
-  let { answer, excleList } = await processAnswerData(storeData.surveyId, date.value);
+  let { answer, excleList } = await processAnswerData(storeData.surveyId, date.value, conditionValue.value, screenAnswer.value);
   answerData.value = answer;
   excleData.value = excleList;
 };
@@ -91,14 +93,18 @@ const download = () => {
 };
 
 //筛选
-const screenData = async (query: { date: string[] }) => {
+const screenData = async (query: { date: string[], condition: string, answer: answerType[] }) => {
   date.value = query.date;
+  conditionValue.value = query.condition;
+  screenAnswer.value = query.answer;
   await getData();
 };
 
 watch(
   () => storeData.surveyId,
   async () => {
+    conditionValue.value = "and";
+    screenAnswer.value = [];
     await getData();
   },
   { immediate: true }
