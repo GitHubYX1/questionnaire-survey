@@ -5,7 +5,7 @@
       <span>问卷答案</span>
       <a-button v-if="answerData.length !== 0" type="primary" @click="download()">下载答案数据</a-button>
     </div>
-    <a-table :dataSource="answerData" bordered rowKey="answerId" :pagination="answerData.length <= 10 ? false : true">
+    <a-table :dataSource="answerData" bordered rowKey="answerId" :pagination="answerData.length <= 10 ? false : true" :loading="loading">
       <a-table-column key="answerId" title="答卷编号" dataIndex="answerId" align="center"></a-table-column>
       <a-table-column key="answerId" title="开始时间" dataIndex="startTime" align="center"></a-table-column>
       <a-table-column key="answerId" title="结束时间" dataIndex="endTime" align="center"></a-table-column>
@@ -46,11 +46,14 @@ const excleData = ref<string[][]>([]);
 const date = ref(["", ""]);
 const conditionValue = ref("and");
 const screenAnswer = ref<answerType[]>([]);
+const loading = ref(false);
 
 const getData = async () => {
+  loading.value = true;
   let { answer, excleList } = await processAnswerData(storeData.surveyId, date.value, conditionValue.value, screenAnswer.value);
   answerData.value = answer;
   excleData.value = excleList;
+  loading.value = false;
 };
 
 //查看
