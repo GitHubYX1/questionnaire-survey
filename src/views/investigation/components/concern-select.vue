@@ -5,15 +5,9 @@
         <div class="front-title flex align-items">
           <div class="front-text">关联题目<span v-if="concernData.length > 1">{{ index + 1 }}</span> :</div>
           <div class="front-search flex-between align-items">
-            <a-select
-              v-model:value="item.value"
-              show-search
-              :options="options"
-              :fieldNames="{ label: 'title', value: 'id' }"
-              @select="select(index, $event)"
-              style="width: 90%"
-              :filter-option="filterOption"
-            />
+            <a-select v-model:value="item.value" show-search :options="options"
+              :fieldNames="{ label: 'title', value: 'id' }" @select="select(index, $event)" style="width: 90%"
+              :filter-option="filterOption" />
             <template v-if="showAdd">
               <span v-if="index == 0" @click="frontAdd">+更多</span>
               <span v-else @click="frontCancel(index, item.id)">-取消</span>
@@ -27,7 +21,8 @@
           </div>
           <a-form-item>
             <a-checkbox-group v-model:value="formFront[item.id]">
-              <a-checkbox class="flex front-checkbox" v-for="subItem in item.option" :key="subItem.id" :value="Number(subItem.id)" :name="subItem.content">{{ subItem.content }}</a-checkbox>
+              <a-checkbox class="flex front-checkbox" v-for="subItem in item.option" :key="subItem.id"
+                :value="Number(subItem.id)" :name="subItem.content">{{ subItem.content }}</a-checkbox>
             </a-checkbox-group>
           </a-form-item>
         </div>
@@ -45,17 +40,14 @@
         </a-radio-group>
       </div>
     </div>
+    <a-button type="primary" danger style="margin-top: 20px;" @click="deleteAll"
+      v-if="showAdd && ((concernData[0] && concernData[0].option.length) || concernData.length > 1)">删除所有关联</a-button>
   </div>
 </template>
 <script lang="ts" setup>
 import { ref, watch, type PropType } from "vue";
 import { message } from "ant-design-vue";
 import type { optionType, questionType, controlLogicType } from "@/types/index";
-
-interface selectType {
-  value: number;
-  label: string;
-}
 
 interface concernType {
   value: string;
@@ -156,7 +148,7 @@ const select = (index: number, value: number) => {
   let data = props.options.find((item) => item.id == value);
   const id = concernData.value[index].id;
   delete formFront.value[id];
-  concernData.value[index].value = data?.title||"";
+  concernData.value[index].value = data?.title || "";
   concernData.value[index].id = value;
   concernData.value[index].option = data?.option || [];
 };
@@ -166,8 +158,8 @@ const getConcern = () => {
   let ids: string[] = [];
   let parentAnswer = [];
   let from = formFront.value;
-  console.log("from",from);
-  
+  console.log("from", from);
+
   for (let i in from) {
     if (from[i].length) {
       ids.push(i);
@@ -183,6 +175,12 @@ const getConcern = () => {
   if (props.optionId !== undefined) controlLogic.optionId = props.optionId;
   return controlLogic;
 };
+
+// 删除关联
+const deleteAll = () => {
+  formFront.value = {};
+  concernData.value = [{ value: "", id: 0, option: [] }];
+}
 
 defineExpose({ getConcern });
 </script>
@@ -203,7 +201,7 @@ defineExpose({ getConcern });
 .front-search {
   width: calc(100% - 100px);
 
-  > span {
+  >span {
     color: #999999;
     margin-left: 20px;
     cursor: pointer;
@@ -220,6 +218,7 @@ defineExpose({ getConcern });
 
 .front-option {
   margin-left: 100px;
+
   .front-checkbox {
     width: 100%;
     margin: 0;
