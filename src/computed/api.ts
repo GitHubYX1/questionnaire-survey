@@ -4,6 +4,11 @@ import { surveyStore } from "@/stores/survey";
 import { typeEnum } from "@/assets/common/enums";
 const { RADIO, CHECKBOX, DROP, SCORE, FILL, PAGING, SLIDER, MATRIX_RADIO, MATRIX_CHECKBOX, MATRIX_SLIDER } = typeEnum;
 const optionKeyValue = [RADIO, DROP, SCORE, MATRIX_RADIO];
+const infoTipes = [FILL, SLIDER, MATRIX_SLIDER];
+
+export const onFill = (type: typeEnum) => {
+  return !infoTipes.includes(type);
+};
 
 const storeData = surveyStore();
 
@@ -27,7 +32,7 @@ function answerFilter(answer: answerType[], condition: string, screenAnswer: ans
           const itemContent = item.content;
           if (Array.isArray(content)) {
             if (Array.isArray(itemContent)) {
-              itemMatched = content.some((son) => itemContent.includes(son));
+              itemMatched = content.some(son => itemContent.includes(son));
             } else {
               itemMatched = content.includes(Number(itemContent));
             }
@@ -55,35 +60,12 @@ function answerFilter(answer: answerType[], condition: string, screenAnswer: ans
 function getAnswer(id: string, screenDate = [" ", " "], condition: string, screenAnswer: answerType[]) {
   let answerData: surveyAnswerType[] = storage.getSession("ANSWERDATA", id) || [];
   const dateTime = [new Date(screenDate[0]).getTime(), new Date(screenDate[1]).getTime()];
-  answerData = answerData.filter((item) => {
+  answerData = answerData.filter(item => {
     const endTime = new Date(item.endTime).getTime();
     let dateSow = !screenDate[0] ? true : dateTime[0] <= endTime && dateTime[1] >= endTime;
     return dateSow && answerFilter(item.answer, condition, screenAnswer);
   });
   return answerData;
-}
-
-/**
- * 滑动条选项
- * @param answerQuestion 答题选项
- * @param assessCount 选项数量
- */
-function sliderOption(answerQuestion: answerType[], assessCount: number): analysisOptionType[] {
-  let sliderObj: sliderObjType = {};
-  let option: analysisOptionType[] = [];
-  answerQuestion.forEach((item) => {
-    const key = String(item.content);
-    sliderObj[key] = (sliderObj[key] || 0) + 1;
-  });
-  for (const i in sliderObj) {
-    option.push({
-      id: Number(i),
-      content: i,
-      count: sliderObj[i],
-      ratio: Number(((sliderObj[i] / assessCount) * 100).toFixed(2)),
-    });
-  }
-  return option;
 }
 
 /**
@@ -126,7 +108,7 @@ export async function processAnalysisData(
   let answerData: surveyAnswerType[] = getAnswer(id, screenDate, condition, screenAnswer);
   let survey = storeData.surveySelected(id);
   let answerList: answerType[] = [];
-  answerData.forEach((item) => {
+  answerData.forEach(item => {
     answerList = answerList.concat(item.answer);
   });
   //获取开始到结束时间
@@ -138,34 +120,31 @@ export async function processAnalysisData(
   }
   const questionData = dataCselection(survey.question);
   //获取分析数据
-  let data: analysisType[] = questionData.map((item) => {
-    let answerQuestion = answerList.filter((son) => son.questionId == item.id);
+  let data: analysisType[] = questionData.map(item => {
+    let answerQuestion = answerList.filter(son => son.questionId == item.id);
     let assessCount = answerQuestion.length;
-    let option: analysisOptionType[] =
-      item.type !== SLIDER && item.type !== MATRIX_SLIDER
-        ? item.option.map((son) => {
-            let count = 0;
-            let assess = item.type !== CHECKBOX && item.type !== MATRIX_CHECKBOX ? assessCount : 0;
-            answerQuestion.forEach((answer) => {
-              if (item.type !== CHECKBOX && item.type !== MATRIX_CHECKBOX) {
-                if (answer.content == son.id) {
-                  count += 1;
-                }
-              } else if (answer.content.constructor == Array) {
-                assess += answer.content.length;
-                for (let i in answer.content) {
-                  if (answer.content[i] == son.id) {
-                    count += 1;
-                  }
-                }
-              }
-            });
-            let ratio = count ? Number(((count / assess) * 100).toFixed(2)) : 0;
-            return { ...son, count, ratio };
-          })
-        : sliderOption(answerQuestion, assessCount);
+    let option: analysisOptionType[] = item.option.map(son => {
+      let count = 0;
+      let assess = item.type !== CHECKBOX && item.type !== MATRIX_CHECKBOX ? assessCount : 0;
+      answerQuestion.forEach(answer => {
+        if (item.type !== CHECKBOX && item.type !== MATRIX_CHECKBOX) {
+          if (answer.content == son.id) {
+            count += 1;
+          }
+        } else if (answer.content.constructor == Array) {
+          assess += answer.content.length;
+          for (let i in answer.content) {
+            if (answer.content[i] == son.id) {
+              count += 1;
+            }
+          }
+        }
+      });
+      let ratio = count ? Number(((count / assess) * 100).toFixed(2)) : 0;
+      return { ...son, count, ratio };
+    });
     let fill: fillType[] = [];
-    if (item.type == FILL && answerQuestion.length) {
+    if (infoTipes.includes(item.type)) {
       fill = answerQuestion.map((son, index) => ({
         xh: index + 1,
         count: String(son.content),
@@ -187,12 +166,7 @@ export async function processAnalysisData(
  * 答题数据
  * @param id 题目id
  */
-export async function processAnswerData(
-  id: string,
-  screenDate = ["", ""],
-  condition: string,
-  screenAnswer: answerType[]
-): Promise<{ answer: surveyAnswerType[]; excleList: string[][] }> {
+export async function processAnswerData(id: string, screenDate = ["", ""], condition: string, screenAnswer: answerType[]): Promise<{ answer: surveyAnswerType[]; excleList: string[][] }> {
   let answer: surveyAnswerType[] = getAnswer(id, screenDate, condition, screenAnswer);
   let excleTop = ["答卷编号", "开始时间", "结束时间", "耗时"];
   let excleContent: string[][] = [];
@@ -200,23 +174,23 @@ export async function processAnswerData(
   const questionData = dataCselection(survey.question);
   answer.forEach((item, index) => {
     let answerContent = [item.answerId, item.startTime, item.endTime, item.consumTime];
-    questionData.forEach((question) => {
+    questionData.forEach(question => {
       if (index === 0 && question.type !== PAGING) {
         excleTop.push(question.id + "." + question.title);
       }
       //获取答题数据
-      let content = item.answer.find((son) => son.questionId == question.id)?.content;
+      let content = item.answer.find(son => son.questionId == question.id)?.content;
       if (content && content.constructor == Array) {
         let textData = [];
         for (let i in content) {
           let id = content[i];
-          let text = question.option.filter((option) => option.id == id)[0].content;
+          let text = question.option.filter(option => option.id == id)[0].content;
           textData.push(id + "." + text);
         }
         answerContent.push(textData.join());
       } else if (content) {
         if (optionKeyValue.includes(question.type)) {
-          let text = question.option.filter((option) => option.id == content)[0].content;
+          let text = question.option.filter(option => option.id == content)[0].content;
           answerContent.push(content + "." + text);
         } else {
           answerContent.push(String(content));

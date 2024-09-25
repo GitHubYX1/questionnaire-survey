@@ -20,7 +20,7 @@
           <div class="analysis-item-title">
             {{ item.title }} <span>[{{ item.type }}]</span>
           </div>
-          <analysisTable v-if="item.type !== typeEnum.FILL" :tableData="item"></analysisTable>
+          <analysisTable v-if="onFill(item.type)" :tableData="item"></analysisTable>
           <a-button v-else type="primary" @click="lookInfo(item)">详细作答情况</a-button>
         </template>
         <div v-else class="analysis-item-html" v-html="item.title"></div>
@@ -33,7 +33,7 @@
 <script lang="ts" setup>
 import { ref, watch } from "vue";
 import { surveyStore } from "@/stores/survey";
-import { processAnalysisData } from "@/computed/api";
+import { processAnalysisData, onFill } from "@/computed/api";
 import type { analysisType, answerType } from "@/types/index";
 import analysisTable from "../components/analysis-table.vue";
 import checkText from "../components/check-text.vue";
