@@ -113,7 +113,7 @@ watch(
     const questionList: questionType[] = [];
     for (const item of survey.question) {
       if (!noConcernItem.includes(item.type)) {
-        if (item.children.length) {
+        if (item.children && item.children.length) {
           for (const child of item.children) {
             child.title = item.title + "-" + child.title;
             questionList.push(child);

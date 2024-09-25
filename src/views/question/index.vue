@@ -242,7 +242,7 @@ const changeAnswer = (id: number, value: number | number[]) => {
         const hideNum = isOptionVisible(item2.id, filterOption);
         const optionShow = hideNum.length === 0 || hideNum.length !== item2.option.length;
         if (!show || !optionShow) {
-          if(item2.children.length === 0){
+          if(!item2.children || item2.children.length === 0){
             delete formState.value[item2.id];
           }else{
             for(const son of item2.children){

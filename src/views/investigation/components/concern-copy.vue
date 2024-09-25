@@ -28,7 +28,10 @@ const controlLogicData = ref<controlLogicType | null>(null);
 const copyOpen = (data: questionType[], title: string, id: number, controlLogic: controlLogicType) => {
   if (data.length === 0) return message.info("此题后面没有选项，无法复制！");
   copyVisible.value = true;
-  tableData.value = data;
+  tableData.value = data.concat().map(item=>{
+    delete item.children
+    return item
+  });
   childIds.value = [];
   titleText.value = title;
   ids.value = id;

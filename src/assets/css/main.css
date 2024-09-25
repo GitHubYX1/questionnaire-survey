@@ -123,3 +123,5 @@
   color: #6A6A82;
   padding-top: 10px;
 }
+
+.ant-modal div[aria-hidden="true"] {display: none !important;}

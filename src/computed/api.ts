@@ -76,7 +76,7 @@ function dataCselection(question: questionType[]) {
   const questionList: questionType[] = [];
   for (const item of question) {
     if (item.type !== PAGING) {
-      if (item.children.length) {
+      if (item.children && item.children.length) {
         for (const child of item.children) {
           child.title = item.title + "-" + child.title;
           questionList.push(child);

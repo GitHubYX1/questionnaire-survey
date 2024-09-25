@@ -355,7 +355,7 @@ const optionRemoveClick = (optionIndex: number, optionId: number) => {
       questionnaire.optionRemove(props.index, optionIndex);
     }
   } else {
-    const text = props.question.children.length === 0 ? "不能删除所有选项" : "不能删除所有列";
+    const text = props.question.children && props.question.children.length === 0 ? "不能删除所有选项" : "不能删除所有列";
     message.warning(text);
   }
 };
@@ -396,6 +396,7 @@ const sliderChange = (optionIndex: number, value: number) => {
 
 //添加行
 const addRows = (rowsIndex: number) => {
+  if(props.question.children)
   questionnaire.addRows(props.index, rowsIndex, props.question.children.length + 1);
 }
 
@@ -407,7 +408,7 @@ const moveRows = (rowsIndex: number, action: string) => {
 
 //删除行
 const removeRows = (rowsIndex: number) => {
-  if (props.question.children.length > 1) {
+  if (props.question.children && props.question.children.length > 1) {
     questionnaire.removeRows(props.index, rowsIndex);
   } else {
     message.warning("不能删除所有行");
@@ -416,7 +417,6 @@ const removeRows = (rowsIndex: number) => {
 
 //添加列
 const addColumn = (columnIndex: number) => {
-  console.log(props.question.children);
   if (props.question.option.length < 5) {
     questionnaire.optionAdd(props.index, columnIndex);
   } else {
