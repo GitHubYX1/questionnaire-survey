@@ -23,7 +23,12 @@ export function isTel(tel: string) {
   return /^(0\d{2,3}-\d{7,8})|(1[3584]\d{9})$/.test(tel);
 }
 
-/** 校验是否为纯数字 */
+/** 校验是否为数字 */
 export function isNumber(number: string) {
+  return !isNaN(Number(number));
+}
+
+/** 校验是否为整数 */
+export function isInteger(number: string) {
   return /^\d+$/.test(number);
 }

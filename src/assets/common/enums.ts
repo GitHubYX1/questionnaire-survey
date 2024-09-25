@@ -36,6 +36,8 @@ export enum validateEnum {
   TEL = "phone",
   /** 纯数字 */
   NUMBER = "number",
+  /** 整数 */
+  INTEGER="integer",
   /** QQ */
   QQ = "qq",
   /** 邮箱 */
@@ -48,6 +50,7 @@ export const validateOption = [
   { value: validateEnum.MOBILE, label: "手机号" },
   { value: validateEnum.TEL, label: "固定电话" },
   { value: validateEnum.NUMBER, label: "数字" },
+  { value: validateEnum.INTEGER, label: "整数" },
   { value: validateEnum.QQ, label: "QQ" },
   { value: validateEnum.EMAIL, label: "邮箱" },
 ];

@@ -67,7 +67,7 @@ import type { questionType, answerType, surveyAnswerType, QuestionControlType, o
 import { surveyStore } from "@/stores/survey";
 import { getTime, timeDiff } from "@/utils/index";
 import { answerSave, answerSelected } from "@/computed/answer";
-import { isMobile, isIdCard, isEmail, isQQ, isTel, isNumber } from "@/utils/validate";
+import { isMobile, isIdCard, isEmail, isQQ, isTel, isNumber, isInteger } from "@/utils/validate";
 import { typeEnum, validateEnum } from "@/assets/common/enums";
 import slider from "@/components/slider/slider.vue";
 import matrixItem from "@/components/matrix-item/matrix-item.vue";
@@ -78,7 +78,8 @@ const fillValidateMap = {
   [validateEnum.ID_CARD]: { msg: "请输入正确的身份证号", fn: isIdCard },
   [validateEnum.MOBILE]: { msg: "请输入正确的手机号", fn: isMobile },
   [validateEnum.TEL]: { msg: "请输入正确的固话号码", fn: isTel },
-  [validateEnum.NUMBER]: { msg: "请输入正确的数字", fn: isNumber },
+  [validateEnum.NUMBER]: { msg: "请输入数字", fn: isNumber },
+  [validateEnum.INTEGER]: { msg: "请输入正整数", fn: isInteger },
   [validateEnum.QQ]: { msg: "请输入正确的QQ号", fn: isQQ },
   [validateEnum.EMAIL]: { msg: "请输入正确的邮箱", fn: isEmail },
 }
@@ -163,6 +164,7 @@ onMounted(() => {
         questionLsit.push([]);
       }
     })
+    console.log("questionLsit", questionLsit);
     questionData.value = questionLsit.filter(item => item.length !== 0);
     //判断是否有有答案
     if (answerId) {
