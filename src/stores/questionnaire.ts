@@ -101,7 +101,7 @@ export const questionnaireStore = defineStore("questionnaire", {
         chooseMin: 0,
         chooseMax: 0,
         validateType: validateEnum.DEFAULT,
-        children:[]
+        children: [],
       };
       if ([RADIO, CHECKBOX, DROP, MATRIX_RADIO, MATRIX_CHECKBOX].includes(contrl.type)) {
         questionAdd.option = optionInit();
@@ -184,19 +184,27 @@ export const questionnaireStore = defineStore("questionnaire", {
       let position = 0;
       let mark = true;
       if (action === "上") {
-        this.question.splice(index - 1, 1, ...arr.splice(index, 1, arr[index - 1]));
-        position = index - 1;
+        if (index > 0) {
+          this.question.splice(index - 1, 1, ...arr.splice(index, 1, arr[index - 1]));
+          position = index - 1;
+        }
       } else if (action === "下") {
-        this.question.splice(index, 1, ...arr.splice(index + 1, 1, arr[index]));
-        position = index + 1;
+        if (index < this.question.length - 1) {
+          this.question.splice(index, 1, ...arr.splice(index + 1, 1, arr[index]));
+          position = index + 1;
+        }
       } else if (action === "前") {
-        this.question.unshift(arr.splice(index, 1)[0]);
-        position = 0;
-        mark = false;
+        if (index > 0) {
+          this.question.unshift(arr.splice(index, 1)[0]);
+          position = 0;
+          mark = false;
+        }
       } else if (action === "后") {
-        this.question.push(arr.splice(index, 1)[0]);
-        position = this.question.length - 1;
-        mark = false;
+        if (index < this.question.length - 1) {
+          this.question.push(arr.splice(index, 1)[0]);
+          position = this.question.length - 1;
+          mark = false;
+        }
       }
       //判断是否调整了分页的位置
       if (this.question[position].currentPage) {
@@ -311,10 +319,10 @@ export const questionnaireStore = defineStore("questionnaire", {
     },
     // 关联项筛选
     processItem(item: controlLogicType, id: number, optionId: number) {
-      const questionIdsArray = item.questionIds.split(",");
+      const questionIdsArray = [...item.questionIds.split(",")];
       const idIndex = questionIdsArray.indexOf(String(id));
       if (idIndex !== -1) {
-        let answerArray = item.parentAnswer.split("|");
+        let answerArray = [...item.parentAnswer.split("|")];
         answerArray[idIndex] = answerArray[idIndex]
           .split(",")
           .filter((son: string) => son !== String(optionId))
@@ -332,9 +340,9 @@ export const questionnaireStore = defineStore("questionnaire", {
     optionMove(index: number, optionIndex: number, action: string) {
       let arr = this.question[index].option.concat();
       if (action === "上") {
-        arr.splice(optionIndex - 1, 1, ...arr.splice(optionIndex, 1, arr[optionIndex - 1]));
+        if (optionIndex > 0) arr.splice(optionIndex - 1, 1, ...arr.splice(optionIndex, 1, arr[optionIndex - 1]));
       } else if (action === "下") {
-        arr.splice(optionIndex, 1, ...arr.splice(optionIndex + 1, 1, arr[optionIndex]));
+        if (optionIndex < arr.length - 1) arr.splice(optionIndex, 1, ...arr.splice(optionIndex + 1, 1, arr[optionIndex]));
       }
       this.question[index].option = arr;
       const children = this.question[index].children;
@@ -350,7 +358,7 @@ export const questionnaireStore = defineStore("questionnaire", {
       if (!front.parentAnswer) {
         return (this.controlLogic = this.controlLogic.filter(item => item.childId !== front.childId));
       }
-      let index = this.controlLogic.map(item => item.childId).indexOf(front.childId);
+      let index = this.controlLogic.findIndex(item => item.childId === front.childId);
       if (index === -1) {
         this.controlLogic.push(front);
       } else {
@@ -360,7 +368,7 @@ export const questionnaireStore = defineStore("questionnaire", {
     //复制关联
     getCopy(e: { id: number; childId: number[]; data: controlLogicType[] }) {
       if (e.childId.length != 0) {
-        this.controlLogic = this.controlLogic.filter(item => e.childId.indexOf(item.childId) === -1);
+        this.controlLogic = this.controlLogic.filter(item => !e.childId.includes(item.childId));
         this.controlLogic = this.controlLogic.concat(e.data);
       }
     },
@@ -445,13 +453,12 @@ export const questionnaireStore = defineStore("questionnaire", {
     },
     //移动行
     moveRows(index: number, rowsIndex: number, action: string) {
-      let arr = this.question[index].children;
+      let arr = this.question[index].children?.concat();
       if (arr) {
-        arr = arr.concat();
         if (action === "上") {
-          arr.splice(rowsIndex - 1, 1, ...arr.splice(rowsIndex, 1, arr[rowsIndex - 1]));
+          if (rowsIndex > 0) arr.splice(rowsIndex - 1, 1, ...arr.splice(rowsIndex, 1, arr[rowsIndex - 1]));
         } else if (action === "下") {
-          arr.splice(rowsIndex, 1, ...arr.splice(rowsIndex + 1, 1, arr[rowsIndex]));
+          if (rowsIndex < arr.length - 1) arr.splice(rowsIndex, 1, ...arr.splice(rowsIndex + 1, 1, arr[rowsIndex]));
         }
         this.question[index].children = arr;
       }
