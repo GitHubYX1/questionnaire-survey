@@ -3,9 +3,10 @@
     <screen @screenData="screenData"></screen>
     <div class="answer-operate flex-between">
       <span>问卷答案</span>
-      <a-button v-if="answerData.length !== 0" type="primary" @click="download()">下载答案数据</a-button>
+      <a-button v-if="answerData.length !== 0" type="primary" :loading="exportLoading" @click="download()">下载答案数据</a-button>
     </div>
-    <a-table :dataSource="answerData" bordered rowKey="answerId" :pagination="answerData.length <= 10 ? false : true" :loading="loading">
+    <a-table :dataSource="answerData" bordered rowKey="answerId" :pagination="answerData.length <= 10 ? false : true"
+      :loading="loading">
       <a-table-column key="answerId" title="答卷编号" dataIndex="answerId" align="center"></a-table-column>
       <a-table-column key="answerId" title="开始时间" dataIndex="startTime" align="center"></a-table-column>
       <a-table-column key="answerId" title="结束时间" dataIndex="endTime" align="center"></a-table-column>
@@ -17,7 +18,8 @@
               <eye-outlined @click="editClick(record.surveyId, record.answerId)" class="eye" />
             </a-tooltip>
             <a-tooltip placement="bottom" title="删除答卷">
-              <a-popconfirm title="是否删除答卷？" ok-text="是" cancel-text="否" @confirm="courseDelete(record.surveyId, record.answerId)">
+              <a-popconfirm title="是否删除答卷？" ok-text="是" cancel-text="否"
+                @confirm="courseDelete(record.surveyId, record.answerId)">
                 <delete-outlined class="delete" />
               </a-popconfirm>
             </a-tooltip>
@@ -43,16 +45,19 @@ const router = useRouter();
 const storeData = surveyStore();
 const answerData = ref<surveyAnswerType[]>([]);
 const excleData = ref<string[][]>([]);
+const exeleQuestion = ref<string[][]>([]);
 const date = ref(["", ""]);
 const conditionValue = ref("and");
 const screenAnswer = ref<answerType[]>([]);
 const loading = ref(false);
+const exportLoading = ref(false);
 
 const getData = async () => {
   loading.value = true;
-  let { answer, excleList } = await processAnswerData(storeData.surveyId, date.value, conditionValue.value, screenAnswer.value);
+  let { answer, excleList, questionList } = await processAnswerData(storeData.surveyId, date.value, conditionValue.value, screenAnswer.value);
   answerData.value = answer;
   excleData.value = excleList;
+  exeleQuestion.value = questionList;
   loading.value = false;
 };
 
@@ -69,14 +74,14 @@ const courseDelete = async (surveyId: string, answerId: string) => {
 };
 //下载答案
 const download = () => {
+  exportLoading.value = true;
   const workbook = new Excel.Workbook();
+  //数据详情
   const sheet = workbook.addWorksheet("数据详情");
   sheet.addRows(excleData.value);
-  sheet.eachRow((row, rowNumber) => {
+  sheet.eachRow((row) => {
     //修改行
     row.eachCell((cell, colNumber) => {
-      //修改单元
-      // 边框
       cell.border = {
         top: { style: "thin" },
         left: { style: "thin" },
@@ -87,11 +92,38 @@ const download = () => {
       cell.alignment = { horizontal: "center" }; // 居中
     });
   });
+  //题目列表
+  const sheet2 = workbook.addWorksheet("题目列表");
+  sheet2.addRows(exeleQuestion.value);
+  sheet2.eachRow((row) => {
+    //修改行
+    row.eachCell((cell, colNumber) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+      if(colNumber === 1){
+        sheet2.getColumn(colNumber).width = 10;
+      } else if(colNumber === 2){
+        sheet2.getColumn(colNumber).width = 40;
+      }else if(colNumber === 3){
+        sheet2.getColumn(colNumber).width = 15;
+      } else{
+        sheet2.getColumn(colNumber).width = 30;
+      }
+      
+      cell.alignment = { horizontal: "center" }; // 居中
+    });
+  });
+  // 导出文档
   workbook.xlsx.writeBuffer().then((buffer) => {
     const data = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
     });
     saveAs(data, answerData.value[0].surveyTitle + ".xlsx");
+    exportLoading.value = false;
   });
 };
 

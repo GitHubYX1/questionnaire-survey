@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import storage from "@/utils/storage";
 import type { surveyAnswerType, answerType, analysisType, analysisOptionType, fillType, questionType } from "@/types/index";
 import { surveyStore } from "@/stores/survey";
@@ -166,12 +167,13 @@ export async function processAnalysisData(
  * 答题数据
  * @param id 题目id
  */
-export async function processAnswerData(id: string, screenDate = ["", ""], condition: string, screenAnswer: answerType[]): Promise<{ answer: surveyAnswerType[]; excleList: string[][] }> {
+export async function processAnswerData(id: string, screenDate = ["", ""], condition: string, screenAnswer: answerType[]): Promise<{ answer: surveyAnswerType[]; excleList: string[][],questionList:string[][] }> {
   let answer: surveyAnswerType[] = getAnswer(id, screenDate, condition, screenAnswer);
   let excleTop = ["答卷编号", "开始时间", "结束时间", "耗时"];
   let excleContent: string[][] = [];
   let survey = storeData.surveySelected(id);
-  const questionData = dataCselection(survey.question);
+  const questionData = dataCselection(cloneDeep(survey.question));
+  
   answer.forEach((item, index) => {
     let answerContent = [item.answerId, item.startTime, item.endTime, item.consumTime];
     questionData.forEach(question => {
@@ -201,6 +203,20 @@ export async function processAnswerData(id: string, screenDate = ["", ""], condi
     });
     excleContent.push(answerContent);
   });
+  //获取题目列表
+  let questionList:string[][] = [["题目ID","标题","类型","选项","子题目"]];
+  survey.question.forEach(item=>{
+    let option = [],children=[];
+    for(let son of item.option){
+      option.push(`${son.id}~${son.content}`)
+    }
+    if(item.children && item.children.length){
+      for(let son of item.children){
+        children.push(`${son.id}~${son.title}`)
+      }
+    }
+    questionList.push([String(item.id),item.title,item.type,option.join("|"),children.join("|")])
+  })
   let excleList = [excleTop, ...excleContent];
-  return { answer, excleList };
+  return { answer, excleList,questionList };
 }
