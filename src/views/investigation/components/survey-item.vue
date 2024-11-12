@@ -1,5 +1,5 @@
 <template>
-  <div class="survey-item">
+  <div :class="['survey-item',props.question.isHide === 1?'hide':'']">
     <div v-if="props.question.type === PARAGRAPH" v-html="props.question.title"></div>
     <div class="survey-paging" v-else-if="props.question.type === PAGING">{{
       `第${props.question.currentPage}页（共${questionnaire.totalPage}页）` }}</div>
@@ -34,8 +34,8 @@
         <a-input v-if="props.question.column === 1" />
         <a-textarea v-else :rows="props.question.column" />
       </template>
-      <slider v-else-if="props.question.type === SLIDER" v-model:value="radioData[question.id]" :min="props.question.option[0]"
-        :max="props.question.option[1]"> </slider>
+      <slider v-else-if="props.question.type === SLIDER" v-model:value="radioData[question.id]"
+        :min="props.question.option[0]" :max="props.question.option[1]"> </slider>
       <matrix-item v-else-if="matrixOptionShow" :formState="radioData" :question="question"></matrix-item>
       <div v-if="showConcern" class="show-concern" v-text="showConcern"></div>
       <div class="survey-menu" v-if="questionnaire.editId != props.question.id">
@@ -57,7 +57,23 @@
       <div class="item-editor" v-else>
         <template v-if="props.question.type !== PARAGRAPH">
           <div class="editor-title">
-            <p class="title">题目标题：</p>
+            <p class="title flex-between">
+              <span>题目标题：</span>
+              <span class="survey-hide" @click="hideClick(props.question.isHide)">
+                <a-tooltip placement="top" v-if="props.question.isHide === 1">
+                  <template #title>
+                    <span>显示题目</span>
+                  </template>
+                  <EyeOutlined />
+                </a-tooltip>
+                <a-tooltip placement="top" v-else>
+                  <template #title>
+                    <span>隐藏题目</span>
+                  </template>
+                  <EyeInvisibleOutlined />
+                </a-tooltip>
+              </span>
+            </p>
             <a-input v-model:value="props.question.title" />
           </div>
           <div class="editor-type flex align-items">
@@ -396,8 +412,8 @@ const sliderChange = (optionIndex: number, value: number) => {
 
 //添加行
 const addRows = (rowsIndex: number) => {
-  if(props.question.children)
-  questionnaire.addRows(props.index, rowsIndex, props.question.children.length + 1);
+  if (props.question.children)
+    questionnaire.addRows(props.index, rowsIndex, props.question.children.length + 1);
 }
 
 //移动行
@@ -422,6 +438,11 @@ const addColumn = (columnIndex: number) => {
   } else {
     message.warning("最多只能添加5行");
   }
+}
+
+//题目隐藏
+const hideClick = (isHide:0|1)=>{
+  questionnaire.whetherHide(props.index,isHide);
 }
 
 </script>
@@ -511,6 +532,9 @@ const addColumn = (columnIndex: number) => {
     .title {
       padding-bottom: 10px;
     }
+    .survey-hide{
+      color: #A6A6A6;
+    }
   }
 
   :deep(.ant-table-cell) {
@@ -555,5 +579,9 @@ const addColumn = (columnIndex: number) => {
       background: transparent;
     }
   }
+}
+
+.hide{
+  color: #A6A6A6;
 }
 </style>

@@ -151,7 +151,8 @@ onMounted(() => {
     const questionLsit: questionListType[][] = [[]];
     let page = 0;
     survey.question.forEach(item => {
-      if (item.type !== PAGING) {
+      if(item.isHide !== 1){
+        if (item.type !== PAGING) {
         const show = isQuestionVisible(item.id, controlData.value);
         const hideNum = isOptionVisible(item.id, optionLogic.value);
         questionLsit[page].push({
@@ -162,6 +163,7 @@ onMounted(() => {
       } else {
         page++;
         questionLsit.push([]);
+      }
       }
     })
     console.log("questionLsit", questionLsit);

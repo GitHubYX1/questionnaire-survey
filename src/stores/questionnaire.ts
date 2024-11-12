@@ -102,6 +102,7 @@ export const questionnaireStore = defineStore("questionnaire", {
         chooseMax: 0,
         validateType: validateEnum.DEFAULT,
         children: [],
+        isHide:0,
       };
       if ([RADIO, CHECKBOX, DROP, MATRIX_RADIO, MATRIX_CHECKBOX].includes(contrl.type)) {
         questionAdd.option = optionInit();
@@ -463,5 +464,14 @@ export const questionnaireStore = defineStore("questionnaire", {
         this.question[index].children = arr;
       }
     },
+    //隐藏题目
+    whetherHide(index:number,isHide:0|1){
+      if(isHide === 1){
+        isHide = 0;
+      }else{
+        isHide = 1;
+      }
+      this.question[index].isHide = isHide;
+    }
   },
 });

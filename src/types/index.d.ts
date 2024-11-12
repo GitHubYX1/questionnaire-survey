@@ -48,7 +48,7 @@ export declare type optionType = {
  * @param chooseMin 选择最小
  * @param chooseMax 选择最大值
  * @param validateType 验证类型
- * @param optionShow 选项显示
+ * @param isHide 是否隐藏
  */
 export declare type questionType = {
   id: number;
@@ -62,6 +62,7 @@ export declare type questionType = {
   chooseMax: number;
   validateType: validateEnum;
   children?: questionType[];
+  isHide:0 |1;
 };
 
 /**
