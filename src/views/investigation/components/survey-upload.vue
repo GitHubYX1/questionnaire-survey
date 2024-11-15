@@ -159,6 +159,7 @@ async function processQuestionData(data: xlsxObjType[]) {
       chooseMax: 0,
       validateType: validateEnum.DEFAULT,
       children: [],
+      isHide: 0,
     }
     if (MATRIX_TOPIC.includes(rowData["类型"])) {
       if (!rowData["子问题"]) throw `第${index}矩阵题子问题未填写！`;
