@@ -153,17 +153,17 @@ onMounted(() => {
     survey.question.forEach(item => {
       if(item.isHide !== 1){
         if (item.type !== PAGING) {
-        const show = isQuestionVisible(item.id, controlData.value);
-        const hideNum = isOptionVisible(item.id, optionLogic.value);
-        questionLsit[page].push({
-          ...item,
-          isVisible: show && (hideNum.length === 0 ? true : hideNum.length !== item.option.length),
-          hideNum,
-        });
-      } else {
-        page++;
-        questionLsit.push([]);
-      }
+          const show = isQuestionVisible(item.id, controlData.value);
+          const hideNum = isOptionVisible(item.id, optionLogic.value);
+          questionLsit[page].push({
+            ...item,
+            isVisible: show && (hideNum.length === 0 ? true : hideNum.length !== item.option.length),
+            hideNum,
+          });
+        } else {
+          page++;
+          questionLsit.push([]);
+        }
       }
     })
     console.log("questionLsit", questionLsit);
